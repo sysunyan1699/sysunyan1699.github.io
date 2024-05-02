@@ -23,24 +23,24 @@
     <meta name="description" content="0.什么场景下会用到bloom filter 缓存穿透 爬虫重复 URL 检测， 避免爬虫过程形成环 假设有 10 亿条手机号，然后判断某条手机号是否在列表内 唯一昵称判断   这些场景可以用什么方式解决  hashmap, hashset MySQL：正常情况下，如果数据量不大，我们可以考虑使用 mysql 存储。将所有数据存储到数据库，然后每次去库里查询判断是否存在。但是如果数据量太大，超过千">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入解析bloom filter的原理与实现">
-<meta property="og:url" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:url" content="http://example.com/b4fa673f/index.html">
 <meta property="og:site_name" content="Sun Yan">
 <meta property="og:description" content="0.什么场景下会用到bloom filter 缓存穿透 爬虫重复 URL 检测， 避免爬虫过程形成环 假设有 10 亿条手机号，然后判断某条手机号是否在列表内 唯一昵称判断   这些场景可以用什么方式解决  hashmap, hashset MySQL：正常情况下，如果数据量不大，我们可以考虑使用 mysql 存储。将所有数据存储到数据库，然后每次去库里查询判断是否存在。但是如果数据量太大，超过千">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/bitnums.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/hashnums.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/errorrate.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/spacecompare.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/PartialKey.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/cuckooinsert.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/Lookup.png">
-<meta property="og:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/delete.png">
+<meta property="og:image" content="http://example.com/b4fa673f/bitnums.png">
+<meta property="og:image" content="http://example.com/b4fa673f/hashnums.png">
+<meta property="og:image" content="http://example.com/b4fa673f/errorrate.png">
+<meta property="og:image" content="http://example.com/b4fa673f/spacecompare.png">
+<meta property="og:image" content="http://example.com/b4fa673f/PartialKey.png">
+<meta property="og:image" content="http://example.com/b4fa673f/cuckooinsert.png">
+<meta property="og:image" content="http://example.com/b4fa673f/Lookup.png">
+<meta property="og:image" content="http://example.com/b4fa673f/delete.png">
 <meta property="article:published_time" content="2024-03-31T08:16:17.000Z">
-<meta property="article:modified_time" content="2024-04-30T00:47:55.768Z">
+<meta property="article:modified_time" content="2024-05-02T01:35:18.938Z">
 <meta property="article:author" content="Sun Yan">
 <meta property="article:tag" content="Programming">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/bitnums.png">
+<meta name="twitter:image" content="http://example.com/b4fa673f/bitnums.png">
   
   
   
@@ -75,7 +75,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/04/29/%E4%BD%BF%E7%94%A8githubpage-hexo%E5%88%9B%E5%BB%BA%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/"><span class="title">深入解析bloom filter的原理与实现</span></a><a class="item title" href="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/"><span class="title">基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/99d433fa/"><span class="title">基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a><a class="item title" href="/b4fa673f/"><span class="title">深入解析bloom filter的原理与实现</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -88,7 +88,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-03-31T08:16:17.000Z">2024-03-31</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-04-30T00:47:55.768Z">2024-04-30</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-03-31T08:16:17.000Z">2024-03-31</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-02T01:35:18.938Z">2024-05-02</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -174,7 +174,7 @@
 
 <p><code>optimalNumOfBits</code>通过计算,可以得到一个在满足特定假阳性率（<code>falsePositiveProbability</code>）要求下，对于给定数量的元素预期插入量（<code>expectedInsertions</code>），所需的最少位数。这使得布隆过滤器能够在保证误判率的前提下，使用最少的空间。这种计算对于设计高效且空间节约的布隆过滤器至关重要</p>
 <h3 id="313-计算逻辑"><a href="#3-1-3-计算逻辑" class="headerlink" title="3.1.3 计算逻辑"></a>3.1.3 计算逻辑</h3><p><code>optimalNumOfBits</code>函数的计算基于以下公式，这个公式可以从布隆过滤器的理论误判率公式推导而来：</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/bitnums.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/bitnums.png" class>
 
 <ul>
 <li>m 是位数组的长度（即函数的返回值）。</li>
@@ -189,7 +189,7 @@
 <p><strong>计算逻辑</strong></p>
 <p>布隆过滤器的效率和误判率与使用的哈希函数数量有很大关系。太少的哈希函数会增加碰撞的概率，导致误判率升高；而太多的哈希函数又会导致位数组快速填满，同样增加误判率，同时还会增加计算的开销。</p>
 <p>最优哈希函数数量的计算公式是：</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/hashnums.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/hashnums.png" class>
 <p>这个公式基于以下原理：给定一个固定大小的位数组，存在一个最优的哈希函数数量，可以最小化给定元素数量条件下的误判率。这个最优数量直接关联于位数组的大小和要处理的元素数量。</p>
 <p>其中：</p>
 <ul>
@@ -229,7 +229,7 @@
 <p>如果实际插入的元素数量超过了最初的预估，过滤器的实际误判率会高于预期的误判率。这是因为当位数组变得过于饱和时，不同元素的哈希值更有可能映射到已经被设置为1的位上，从而增加了误判的几率。</p>
 <p>Guava的文档明确指出了这一点，强调在创建布隆过滤器时应该准确预估元素数量，并考虑到这一点在其API设计中。<code>BloomFilter.create()</code>方法允许开发者在创建过滤器时指定预期插入的元素数量和可接受的误判率。</p>
 <p><a target="_blank" rel="noopener" href="https://guava.dev/releases/20.0/api/docs/com/google/common/hash/BloomFilter.html">https://guava.dev/releases/20.0/api/docs/com/google/common/hash/BloomFilter.html</a></p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/errorrate.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/errorrate.png" class>
 <p>为了保证布隆过滤器的效果，应该根据实际使用场景仔细估算元素数量。如果预计数据量存在不确定性，建议预估一个上限，或者在实际元素数量超过预估时重新创建一个新的布隆过滤器。这当然会带来额外的成本，因此在设计初期做出准确估计非常关键。</p>
 <p>总结来说，正确估计将要处理的数据量对于使用Guava布隆过滤器来说是非常重要的。如果实际数据量超过了预估，将会导致高于预期的误判率，可能影响到应用的准确性和可靠性。</p>
 <h1 id="4-分布式-redis-bloom-filter"><a href="#4-分布式-Redis-bloom-filter" class="headerlink" title="4. 分布式 Redis bloom filter"></a>4. 分布式 Redis bloom filter</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BF.RESERVE &#123;key&#125; &#123;error_rate&#125; &#123;capacity&#125; [EXPANSION expansion] [NONSCALING]</span><br></pre></td></tr></table></figure>
@@ -347,7 +347,7 @@
 <li>在需要极致空间效率且能够接受实现复杂度的高性能应用场景中，d-left 计数哈希过滤器可能是最佳选择。</li>
 </ul>
 <p>关于空间的使用，有如下比对效果</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/spacecompare.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/spacecompare.png" class>
 
 <p>redis 实现了cuckoo 变体bloom filter， 下面来讲一下 cuckoo  filter 的原理</p>
 <h1 id="6-cuckoo-filter"><a href="#6-Cuckoo-Filter" class="headerlink" title="6. Cuckoo Filter"></a>6. Cuckoo Filter</h1><p><a target="_blank" rel="noopener" href="https://www.cs.cmu.edu/~binfan/papers/conext14_cuckoofilter.pdf">Cuckoo Filter 论文</a></p>
@@ -366,9 +366,9 @@
 <h2 id="62-partial-key-cuckoo-hashing"><a href="#6-2-Partial-Key-Cuckoo-Hashing" class="headerlink" title="6.2 Partial-Key Cuckoo Hashing"></a>6.2 Partial-Key Cuckoo Hashing</h2><p>A cuckoo filter is a compact variant of a cuckoo hash table that stores only fingerprints-a bit string derived from the item using a hash function。</p>
 <p>在cuckoo filter 中，哈希表中存储的数据发生了变化，由原始数据变成了fingerprint。<br><code>注意这里的（basic/standard） cuckoo hash tables指的是存储原始数据的做法。</code></p>
 <p>partial-key cuckoo hashing 是一种仅使用指纹，而不需要原始数据就可以在置换操作中来确定元素存储位置的哈希技术。由于仅存储fingerprint 比存储原始数据所占内存空间小，所以 Partial-Key Cuckoo Hashing为优化Cuckoo Filter的空间效率和操作性能而设计。</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/PartialKey.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/PartialKey.png" class>
 <p>如上代码所示，Partial-Key Cuckoo Hashing使用两个哈希函数 <code>h1</code> 和 <code>h2</code> 来计算两个候选桶位置。第一个哈希函数 <code>h1</code> 直接作用于元素的指纹，而第二个哈希函数 <code>h2</code> 则是 <code>h1</code> 与指纹的哈希值的异或（XOR）结果。<br>这种XOR的处理结果 可以根据其中任意一个已知的候选桶位置（i）计算出另外一个候选桶位置（j）<br>j &#x3D; i XOR fingerprint</p>
-<h2 id="63-insert"><a href="#6-3-Insert" class="headerlink" title="6.3 Insert"></a>6.3 Insert</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/cuckooinsert.png" class>
+<h2 id="63-insert"><a href="#6-3-Insert" class="headerlink" title="6.3 Insert"></a>6.3 Insert</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/cuckooinsert.png" class>
 <p><strong>cuckoo 哈希的插入过程：</strong></p>
 <ol>
 <li>计算元素的指纹。</li>
@@ -378,9 +378,9 @@
 <li>Partial-Key Cuckoo Hashing ，更新候选桶位置 <code>i</code> 为 <code>i</code> XOR 指纹的哈希值。</li>
 <li>如果找到空闲条目，则插入指纹；否则继续置换过程，直到找到空闲条目或达到最大置换次数。</li>
 </ol>
-<h2 id="64-lookup"><a href="#6-4-Lookup" class="headerlink" title="6.4 Lookup"></a>6.4 Lookup</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/Lookup.png" class>
+<h2 id="64-lookup"><a href="#6-4-Lookup" class="headerlink" title="6.4 Lookup"></a>6.4 Lookup</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/Lookup.png" class>
 
-<h2 id="65-delete"><a href="#6-5-Delete" class="headerlink" title="6.5 Delete"></a>6.5 Delete</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/delete.png" class>
+<h2 id="65-delete"><a href="#6-5-Delete" class="headerlink" title="6.5 Delete"></a>6.5 Delete</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b4fa673f/delete.png" class>
 
 <p>为什么cuckoo filter 可以删除元素但是又不影响其他元素的判断， 其实就是每个entry 只存储了一个元素的信息，删除后自然不会影响其他元素的判断。</p>
 <h2 id="66-空间优化"><a href="#6-6-空间优化" class="headerlink" title="6.6 空间优化"></a>6.6 空间优化</h2><p>Cuckoo Filter进行空间优化（SPACE OPTIMIZATIONS）的方法主要涉及对哈希表参数的选择和配置，以及对桶（buckets）的编码策略。以下是论文中提到的一些关键的空间优化策略：</p>
@@ -445,7 +445,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/">基于2PC+MySQL+泛化调用实现的可靠消息中心</a></div><div class="item" id="next"></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/99d433fa/">基于2PC+MySQL+泛化调用实现的可靠消息中心</a></div><div class="item" id="next"></div></section></div>
 
 
 

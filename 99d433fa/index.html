@@ -23,20 +23,20 @@
     <meta name="description" content="0. 项目结构介绍   Module Description    trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件， 回查">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于2PC+MySQL+泛化调用实现的可靠消息中心">
-<meta property="og:url" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:url" content="http://example.com/99d433fa/index.html">
 <meta property="og:site_name" content="Sun Yan">
 <meta property="og:description" content="0. 项目结构介绍   Module Description    trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件， 回查">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/1.png">
-<meta property="og:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/2.png">
-<meta property="og:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/3.png">
-<meta property="og:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/4.png">
-<meta property="og:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/5.png">
+<meta property="og:image" content="http://example.com/99d433fa/1.png">
+<meta property="og:image" content="http://example.com/99d433fa/2.png">
+<meta property="og:image" content="http://example.com/99d433fa/3.png">
+<meta property="og:image" content="http://example.com/99d433fa/4.png">
+<meta property="og:image" content="http://example.com/99d433fa/5.png">
 <meta property="article:published_time" content="2024-04-09T08:41:51.000Z">
-<meta property="article:modified_time" content="2024-04-30T00:47:55.763Z">
+<meta property="article:modified_time" content="2024-05-02T01:35:18.943Z">
 <meta property="article:author" content="Sun Yan">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/1.png">
+<meta name="twitter:image" content="http://example.com/99d433fa/1.png">
   
   
   
@@ -71,7 +71,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/04/29/%E4%BD%BF%E7%94%A8githubpage-hexo%E5%88%9B%E5%BB%BA%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/"><span class="title">深入解析bloom filter的原理与实现</span></a><a class="item title" href="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/"><span class="title">基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/99d433fa/"><span class="title">基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a><a class="item title" href="/b4fa673f/"><span class="title">深入解析bloom filter的原理与实现</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -84,7 +84,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-04-09T08:41:51.000Z">2024-04-09</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-04-30T00:47:55.763Z">2024-04-30</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-04-09T08:41:51.000Z">2024-04-09</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-02T01:35:18.943Z">2024-05-02</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -134,7 +134,7 @@
 <p>本地事务+ 本地消息表 这种方案是把 需要发送的消息作为数据库操作的一部分，保存到数据库中的一个表里，然后通过另外的逻辑，将消息的真正发送 稍后异步进行，比如用一个定时任务将消息异步发送到Kafka。</p>
 <p>这种方法确保了数据库操作和消息发送在<code>逻辑语义上的原子性</code>，因为它们都在同一个数据库事务中处理。</p>
 <p>这里需要注意，这种方案的实时性是比较差的，所以你需要判断的业务场景场景是否能够容忍这样的异步操作。</p>
-<h2 id="11-业务流程"><a href="#1-1-业务流程" class="headerlink" title="1.1 业务流程"></a>1.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/1.png" class>
+<h2 id="11-业务流程"><a href="#1-1-业务流程" class="headerlink" title="1.1 业务流程"></a>1.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/1.png" class>
 <p>以上流程中，在本地事务提交后，有一个定时任务轮询消息表将需要发送的消息消息发送出去。有4个点需要注意一下</p>
 <ol>
 <li>事务提交后了，消息发送失败， 定时任务的重试机制，会找出这条消息进行异步补发 </li>
@@ -158,13 +158,13 @@
 <p>针对对分布式事务，常见的解决方案就是 2PC、3PC、TCC、SAGA。</p>
 <p>接下来将讲解以 2PC+MySQL消息表 实现的可靠消息中心</p>
 <h2 id="21-业务流程"><a href="#2-1-业务流程" class="headerlink" title="2.1 业务流程"></a>2.1 业务流程</h2><p>以MySQL消息表+ 2PC 来实现可靠消息中心， 其整体实现流程如下</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/2.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/2.png" class>
 
 <h2 id="22-消息可见性"><a href="#2-2-消息可见性" class="headerlink" title="2.2 消息可见性"></a>2.2 消息可见性</h2><p>消息可见性， 在涉及分布式事务的场景中，消息增加了一个<code>可见性</code>概念， 这是因为在引入2PC 后，写入消息表的消息不再像本地事务+本地消息表一样<code>写入即可见</code>，必须是commit后才对消费者可见， 所以在数据表的设计中需要增加一个状态字段来维护消息可见性。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message_status INT COMMENT &#x27;消息状态 1-prepare 2-commit 3-rollback 4-unknown&#x27;,</span><br></pre></td></tr></table></figure>
 
 <p>其状态流转如图所示</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/3.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/3.png" class>
 <h2 id="23-如果业务执行消息commit-or-rollback-失败怎么办-消息回查"><a href="#2-3-如果业务执行消息commit-or-rollback-失败怎么办-消息回查" class="headerlink" title="2.3 如果业务执行消息commit or rollback 失败怎么办-消息回查"></a>2.3 如果业务执行消息commit or rollback 失败怎么办-消息回查</h2><p>如流程图中所示，在2PC 阶段，拿到业务执行结果修改消息状态失败有可能是失败。</p>
 <p>一个操作执行失败后，一种常见的解决方案方案就是重试，尽最大努力交付。</p>
 <p>但是对于业务处理来讲，一般有超时时间的限制，因为这种同步重试可能并不适用，即使可以，一般重试次数都会限定在3次。</p>
@@ -207,7 +207,7 @@
 <li>消息转发</li>
 </ol>
 <p>以上3个功能和上一种方案没有本质上的区别， 只是基于一个中间件的定位，支持这3种功能需要更多的封装与数据信息。</p>
-<h2 id="31-业务流程"><a href="#3-1-业务流程" class="headerlink" title="3.1 业务流程"></a>3.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/4.png" class>
+<h2 id="31-业务流程"><a href="#3-1-业务流程" class="headerlink" title="3.1 业务流程"></a>3.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/4.png" class>
 
 <h2 id="32-两阶段提交功能"><a href="#3-2-两阶段提交功能" class="headerlink" title="3.2 两阶段提交功能"></a>3.2 两阶段提交功能</h2><p>提供3个RPC 接口， prepare， commit, rollback, 接口底层封装对数据表的操作</p>
 <h2 id="33-消息唯一性"><a href="#3-3-消息唯一性" class="headerlink" title="3.3 消息唯一性"></a>3.3 消息唯一性</h2><p>当作为一个公共中间件，接受多个业务数据的时候，消息的唯一性应该有业务标识 + 消息标识共同确定，即bizId + messageKey</p>
@@ -240,7 +240,7 @@
 
 
 <h1 id="4-基于kafka-提交消息实现的可靠事件中心"><a href="#4-基于kafka-提交消息实现的可靠事件中心" class="headerlink" title="4. 基于kafka 提交消息实现的可靠事件中心"></a>4. 基于kafka 提交消息实现的可靠事件中心</h1><p>在实现消息回查的可靠消息中心方案中，另外一种常见的方案是 业务代码直接把消息提交给kafka, 然后中间件消费消息并持久化道数据库中，等待消息提交commit 或者rollback , 没有的话就进行回查。如下图，图片源自极客时间专栏</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/04/09/%E5%9F%BA%E4%BA%8E2PC-MySQL-%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E4%B8%AD%E5%BF%83/5.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/5.png" class>
 
 
 <p>我认为两种技术方案没有本质的区别， 其差异只是消息的prepare 、commit、rollback 的提交是由RPC 接口完成还是由消息生产消费完成， 其他回查的逻辑、发送逻辑、以及需要的信息基本无差异。</p>
@@ -323,7 +323,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/04/29/%E4%BD%BF%E7%94%A8githubpage-hexo%E5%88%9B%E5%BB%BA%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99/">使用github page+hexo 创建个人网站</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/03/31/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90bloomfilter%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/">深入解析bloom filter的原理与实现</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/5fe6baa/">使用github page+hexo 创建个人网站</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/b4fa673f/">深入解析bloom filter的原理与实现</a></div></section></div>
 
 
 
