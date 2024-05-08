@@ -1,0 +1,726 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>Intro to 事务 - Sun Yan</title>
+
+  
+    <meta name="description" content="1. 什么是事务事务（Transaction）的概念起源于数据库领域，最早由美国计算机科学家 E. F. Codd 在其关于关系数据库（Relational Database）的论文中提出。 他提出了 ACID（原子性、一致性、隔离性和持久性）属性，这些属性成为事务的核心特征。 在今天的软件开发中，事务的概念已不仅仅应用于数据库领域，还拓展到了业务开发的各个领域，包括但不限于数据库、缓存、消息队列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Intro to 事务">
+<meta property="og:url" content="http://example.com/5b064db6/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="1. 什么是事务事务（Transaction）的概念起源于数据库领域，最早由美国计算机科学家 E. F. Codd 在其关于关系数据库（Relational Database）的论文中提出。 他提出了 ACID（原子性、一致性、隔离性和持久性）属性，这些属性成为事务的核心特征。 在今天的软件开发中，事务的概念已不仅仅应用于数据库领域，还拓展到了业务开发的各个领域，包括但不限于数据库、缓存、消息队列">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/5b064db6/1.png">
+<meta property="og:image" content="http://example.com/5b064db6/2.png">
+<meta property="article:published_time" content="2024-05-01T13:57:16.000Z">
+<meta property="article:modified_time" content="2024-05-08T14:05:03.875Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="事务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/5b064db6/1.png">
+  
+  
+  
+  <meta name="keywords" content="事务">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/99d433fa/"><span class="title">TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a><a class="item title" href="/5b064db6/"><span class="title">Intro to 事务</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/b4fa673f/"><span class="title">深入解析bloom filter的原理与实现</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-01T13:57:16.000Z">2024-05-01</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-08T14:05:03.875Z">2024-05-08</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>Intro to 事务</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><h1 id="1-什么是事务"><a href="#1-什么是事务" class="headerlink" title="1. 什么是事务"></a>1. 什么是事务</h1><p>事务（Transaction）的概念起源于数据库领域，最早由美国计算机科学家 E. F. Codd 在其关于关系数据库（Relational Database）的论文中提出。</p>
+<p>他提出了 ACID（原子性、一致性、隔离性和持久性）属性，这些属性成为事务的核心特征。</p>
+<p>在今天的软件开发中，事务的概念已不仅仅应用于数据库领域，还拓展到了业务开发的各个领域，包括但不限于数据库、缓存、消息队列等。</p>
+<h2 id="11-acid-特性"><a href="#1-1-ACID-特性" class="headerlink" title="1.1 ACID 特性"></a>1.1 ACID 特性</h2><ul>
+<li>原子性(Atomicity):  保证事务中的所有操作要么全部完成，要么全部不发生，有助于处理系统错误或故障时的数据恢复，确保事务执行的完整性。</li>
+<li>一致性(Consistency)：系统从一个正确态转移到另一个正确态，由应用通过 AID 来保证，可以说是事务的核心特性</li>
+<li>隔离性(Isolation): 处理并发事务带来的各种问题，确保每个事务看到的是一致的数据视图，防止交叉事务的干扰。</li>
+<li>持久性(Durability): 确保事务一旦提交，其结果就就会被持久化，这保证了数据的稳定性和可靠性。</li>
+</ul>
+<p>定义本身不再赘述，这里重点强调一点：一致性是事务的核心特征，或者说最终目的。<code>原子性、隔离性和持久性都是实现一致性的手段</code>，因此这 4 个特性并不是并列关系。</p>
+<h1 id="2-事务的分类"><a href="#2-事务的分类" class="headerlink" title="2. 事务的分类"></a>2. 事务的分类</h1><p>下面将把事务按照服务和数据源数量进行分类，这种分类有助于理解事务管理的复杂性以及在不同场景下的设计和实现。</p>
+<h2 id="21-本地事务-单服务单数据源事务"><a href="#2-1-本地事务-单服务单数据源事务" class="headerlink" title="2.1  本地事务-单服务单数据源事务"></a>2.1  本地事务-单服务单数据源事务</h2><p>在实际业务开发中，单个服务操作单个数据源的事务被归类为本地事务。这种事务类型是最简单的，因为它直接依赖于数据库本身的事务能力来完成，应用无需进行额外操作</p>
+<p><strong>示例：</strong><br>库存服务：当用户下单时，库存服务负责检查和更新商品库存。这个服务可能只与一个库存数据库交互，进行减库存的操作。如果库存足够，事务提交，否则回滚。这个操作只涉及库存数据库，因此是一个典型的本地事务。</p>
+<h2 id="2-2-分布式事务"><a href="#2-2-分布式事务" class="headerlink" title="2. 2 分布式事务"></a>2. 2 分布式事务</h2><p>分布式事务可以从跨多个数据源的事务和跨多个服务的事务两个角度理解。它既可以是多个数据库实例之间的分布式事务，也可以是跨不同中间件的业务层面分布式事务。</p>
+<h3 id="221-单服务多数据源"><a href="#2-2-1-单服务多数据源" class="headerlink" title="2.2.1 单服务多数据源"></a>2.2.1 单服务多数据源</h3><p>这种情况通常发生在单个应用或服务需要同时操作多个数据库或存储系统。</p>
+<p>例如，一个电子商务应用可能需要在处理订单的同时，在一个数据库中更新库存信息，在另一个数据库中更新用户账户信息。这要求事务管理机制能够跨越这些数据库，确保所有数据库操作要么全部成功，要么全部失败，以保证数据的一致性</p>
+<p>在这种场景下，可以使用如XA协议这样的分布式事务协议，通过2PC等机制来协调和管理跨多个数据源的事务。</p>
+<h3 id="222-多服务多数据源"><a href="#2-2-2-多服务多数据源" class="headerlink" title="2.2.2 多服务多数据源"></a>2.2.2 多服务多数据源</h3><p>随着微服务架构的发展，单个业务操作往往需要多个微服务协作完成，而这些服务可能各自使用独立的数据库。例如，在电商下单过程中，订单服务、库存服务、账务服务、物流服务和优惠服务需要协同处理同一业务请求，并进行交互和数据更新。</p>
+<p>在这种场景下，分布式事务的管理比单个服务场景更为复杂，因为它不仅涉及数据一致性，还涉及网络调用的可靠性和服务间的协调。这类分布式事务通常可以通过可靠消息队列、TCC 和 SAGA 等模式来实现。</p>
+<h2 id="23-共享事务-多服务单数据源"><a href="#2-3-共享事务-多服务单数据源" class="headerlink" title="2.3 共享事务-多服务单数据源"></a>2.3 共享事务-多服务单数据源</h2><p>在微服务架构下，通常不允许多服务共享同一数据源。理想的微服务架构是每个微服务都有其专属数据库（即服务与数据源一一对应），这种设计被称为数据库隔离。</p>
+<p>因此，本文及本系列不会涉及该类型事务。</p>
+<h1 id="3-两种分布式事务的区别"><a href="#3-两种分布式事务的区别" class="headerlink" title="3. 两种分布式事务的区别"></a>3. 两种分布式事务的区别</h1><p>在事务分类中，<code>单服务多数据源</code> 和 <code>多服务多数据源</code> 都被归类为分布式事务，那么这两种分布式事务有什么区别呢？</p>
+<p>首先，单服务多数据源事务是多个数据库实例之间的分布式事务， 也被称为全局事务。当它被称为分布式事务时，这里的“分布式”是相对于数据源而言的，并不涉及服务。</p>
+<p>而多服务多数据源事务是跨不同中间件的业务层面分布式事务。</p>
+<p>这两种分布式事务的一个重要区别在于一致性的实现方式不同：</p>
+<ul>
+<li>单服务多数据源事务通常可以追求 <strong>强一致性</strong>。</li>
+<li>多服务多数据源事务由于其复杂性和分布式特性，通常只能追求 <strong>最终一致性</strong>。</li>
+</ul>
+<p>下面将详细解释这两种情况及其原因。</p>
+<h2 id="31-单服务多数据源-与-强一致性"><a href="#3-1-单服务多数据源-与-强一致性" class="headerlink" title="3.1 单服务多数据源 与 强一致性"></a>3.1 单服务多数据源 与 强一致性</h2><p>在单服务多数据源的场景中，尽管涉及多个数据源，但所有操作都由一个单一服务控制。这种配置允许使用两阶段提交（2PC）等传统的分布式事务协议来确保强一致性，即在任何时刻，所有数据源都能反映出相同的事务状态。</p>
+<p><strong>为什么可以实现强一致性：</strong></p>
+<ul>
+<li><strong>集中式协调</strong>：单个服务可以作为事务的中央协调者，管理所有数据源的事务提交或回滚。</li>
+<li><strong>锁定资源</strong>：事务处理过程中可以在各个数据源上锁定必要的资源，直到事务完成，确保事务的原子性和一致性。</li>
+<li><strong>同步更新</strong>：所有数据源的更新操作可以同步进行，确保在事务提交时，所有的变更都能一次性反映出来。</li>
+</ul>
+<h2 id="32-多服务多数据源-与-最终一致性"><a href="#3-2-多服务多数据源-与-最终一致性" class="headerlink" title="3.2 多服务多数据源 与 最终一致性"></a>3.2 多服务多数据源 与 最终一致性</h2><p>多服务多数据源事务涉及多个独立的服务，每个服务可能管理自己的数据源。在这种架构下，实现强一致性变得非常复杂和成本高昂，因此通常采用最终一致性模型。</p>
+<p><strong>为什么通常只能实现最终一致性：</strong></p>
+<ul>
+<li><strong>服务自治</strong>：每个服务都是自治的，独立管理自己的数据源，它们之间的通信可能是异步的，不能立即反映其他服务的状态变更。</li>
+<li><strong>复杂的协调机制</strong>：需要跨服务协调复杂的事务可能涉及网络延迟和服务间通信失败，使得同步更新所有数据源变得不切实际。</li>
+<li><strong>使用补偿事务</strong>：多服务事务常采用如SAGA等模式，通过一系列的本地事务和补偿事务来处理业务流程，每个事务独立提交，仅通过补偿机制来撤销错误操作，逐步达到数据的一致性。</li>
+</ul>
+<h1 id="4-强一致性-vs-最终一致性"><a href="#4-强一致性-vs-最终一致性" class="headerlink" title="4.  强一致性 vs 最终一致性"></a>4.  强一致性 vs 最终一致性</h1><h2 id="41-一致性的分类"><a href="#4-1-一致性的分类" class="headerlink" title="4.1 一致性的分类"></a>4.1 一致性的分类</h2><h3 id="411-强一致性strong-consistency"><a href="#4-1-1-强一致性（Strong-Consistency）" class="headerlink" title="4.1.1 强一致性（Strong Consistency）"></a>4.1.1 强一致性（Strong Consistency）</h3><p><strong>强一致性</strong>意味着系统在更新数据后，任何随后的访问都将立即看到这一更新。在强一致性模型中，所有节点上的数据在任何时间点都是一致的。这通常要求在数据更新过程中进行严格的协调，确保所有副本在继续操作前都同步更新。</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>数据一致性和用户体验最为理想。</li>
+<li>易于理解和使用，因为它模拟了单个系统的行为。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>可能严重影响系统的可用性和性能，尤其在网络延迟较高的情况下。</li>
+<li>在 CAP 定理中，通常需要在遇到网络分区时牺牲可用性。</li>
+</ul>
+<h3 id="412-线性一致性linearizability"><a href="#4-1-2-线性一致性（Linearizability）" class="headerlink" title="4.1.2 线性一致性（Linearizability）"></a>4.1.2 线性一致性（Linearizability）</h3><p>线性一致性是强一致性的一个特例，它不仅保证所有节点看到相同的数据，还要求系统表现得就像所有操作都是顺序发生的。这意味着如果操作A在操作B之前完成，那么系统中的所有节点都应该首先看到A的结果，然后是B的结果。<br><strong>优点</strong>：</p>
+<ul>
+<li>提供了强一致性的最高标准，适用于需要严格数据顺序的应用。</li>
+<li>简化了系统的编程模型。<br><strong>缺点</strong>：</li>
+<li>对系统性能和可用性的影响比一般的强一致性还要大。</li>
+</ul>
+<h3 id="413-弱一致性weak-consistency"><a href="#4-1-3-弱一致性（Weak-Consistency）" class="headerlink" title="4.1.3 弱一致性（Weak Consistency）"></a>4.1.3 弱一致性（Weak Consistency）</h3><p>弱一致性不保证在数据更新后立即反映这一变化。在更新操作和其影响被所有用户观察到之间，存在一个不确定的时间窗口。这种模型通常用于对实时一致性要求不高的系统。<br><strong>优点</strong>：</p>
+<ul>
+<li>提高了系统的可用性和性能。</li>
+<li>在处理高并发操作时更加有效。<br><strong>缺点</strong>：</li>
+<li>用户可能会读到旧数据。</li>
+<li>应用逻辑可能需要处理数据不一致的问题。</li>
+</ul>
+<h3 id="414-最终一致性eventual-consistency"><a href="#4-1-4-最终一致性（Eventual-Consistency）" class="headerlink" title="4.1.4  最终一致性（Eventual Consistency）"></a>4.1.4  最终一致性（Eventual Consistency）</h3><p>最终一致性保证，在没有新的更新的情况下，所有的数据副本最终将会是一致的。系统不保证达到一致状态的具体时间。<br><strong>优点</strong>：</p>
+<ul>
+<li>高度可用和可扩展。</li>
+<li>适用于分布广泛的系统，可以容忍数据在短时间内的不一致。<br><strong>缺点</strong>：</li>
+<li>应用需要能够处理数据一段时间内的不一致。</li>
+<li>开发者需要设计有效的数据同步和冲突解决策略。</li>
+</ul>
+<h2 id="42-cap-与-acid的微妙平衡-分布式系统只能追求最终一致性"><a href="#4-2-CAP-与-ACID的微妙平衡-分布式系统只能追求最终一致性" class="headerlink" title="4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性"></a>4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性</h2><p>根据 CAP 定理，一个分布式系统不可能同时满足一致性（Consistency）、可用性（Availability）和分区容忍性（Partition Tolerance）三个属性，最多只能满足其中两个，必须牺牲一个。</p>
+<ul>
+<li><strong>一致性（Consistency）</strong>：在任何时刻，任何分布式节点中看到的数据都保持一致。</li>
+<li><strong>可用性（Availability）</strong>：系统能够不间断地提供服务的能力。</li>
+<li><strong>分区容忍性（Partition Tolerance）</strong>：在分布式环境中，当部分节点因网络原因失联（即形成“网络分区”）时，系统仍能正确提供服务的能力。</li>
+</ul>
+<h2 id="421-为什么说-分布式系统-必须接受-分区容忍性"><a href="#4-2-1-为什么说-分布式系统-必须接受-分区容忍性" class="headerlink" title="4.2.1 为什么说 分布式系统 必须接受 分区容忍性"></a>4.2.1 为什么说 分布式系统 必须接受 分区容忍性</h2><p>理解为什么分区容忍性在分布式环境下必然存在，需要从分布式系统的基本构成和网络通信的不可靠性两个角度探讨。</p>
+<ol>
+<li><p><strong>分布式系统的基本构成</strong> 分布式系统由多个相互协作的独立组件组成，这些组件可能位于物理上分散的不同位置。该架构的主要优势是提高系统的可扩展性、容错性和资源利用率。然而，这也意味着系统的各个部分必须通过网络通信。</p>
+</li>
+<li><p><strong>网络通信的不可靠性</strong> 网络本身存在不可靠性，可能因多种原因导致通信失败：</p>
+<ol>
+<li><strong>网络故障</strong>：网络设备或连接可能出现故障，如路由器故障、连接断开等。</li>
+<li><strong>网络延迟</strong>：消息在传输过程中可能遭遇不可预测的延迟。</li>
+<li><strong>带宽限制</strong>：网络的带宽限制可能导致数据包延迟到达或丢失。</li>
+<li><strong>网络安全</strong>：网络攻击（如分布式拒绝服务攻击，DDoS）可能导致网络部分或完全不可用。</li>
+</ol>
+</li>
+</ol>
+<p>如果一个系统设计选择不接受网络分区，那么一旦网络分区发生，系统将无法正常工作，这在大多数业务场景中是不可接受的。</p>
+<p>因此，在分布式系统中，分区容忍性（Partition Tolerance）是必然存在的特性。</p>
+<p>基于分区容忍性必须满足的现状以及 CAP 理论，系统只能在一致性和可用性之间做出选择。通常，系统会选择高可用性，强一致性因此被牺牲，系统只能追求最终一致性。</p>
+<h1 id="5-理解分布式事务中的各种协议"><a href="#5-理解分布式事务中的各种协议" class="headerlink" title="5. 理解分布式事务中的各种协议"></a>5. 理解分布式事务中的各种协议</h1><h2 id="51-dtp-模型和-xa-规范"><a href="#5-1-DTP-模型和-XA-规范" class="headerlink" title="5.1 DTP 模型和 XA 规范"></a>5.1 DTP 模型和 XA 规范</h2><h3 id="511-dtp-模型"><a href="#5-1-1-DTP-模型" class="headerlink" title="5.1.1  DTP 模型"></a>5.1.1  DTP 模型</h3><p>DTP（Distributed Transaction Processing，分布式事务处理）模型是由 X&#x2F;Open（后来的 Open Group）提出的一种分布式事务处理架构模型。它定义了一套标准，使得不同厂商的分布式事务处理系统能够互操作。</p>
+<p>在标准的 DTP 模型中，定义了以下四个主要组件：</p>
+<ol>
+<li><p><strong>Application Program（AP，应用程序）：</strong></p>
+<ul>
+<li>发起分布式事务的主体，由最终用户或开发者编写。</li>
+<li>通过调用事务管理器的接口（例如 TX 接口）开始、提交或回滚事务。</li>
+<li>应用程序与事务管理器和资源管理器交互。</li>
+</ul>
+</li>
+<li><p><strong>Transaction Manager（TM，事务管理器）：</strong></p>
+<ul>
+<li>负责管理分布式事务的开始、提交和回滚等操作。</li>
+<li>维护事务的状态，并使用两阶段提交协议（2PC）协调所有参与的资源管理器。</li>
+<li>提供对外的 TX 接口供应用程序使用，并通过 XA 接口与资源管理器交互。</li>
+</ul>
+</li>
+<li><p><strong>Resource Manager（RM，资源管理器）：</strong></p>
+<ul>
+<li>负责管理和控制对特定资源的访问，例如数据库管理系统（DBMS）、文件系统、消息队列等。</li>
+<li>接收事务管理器的请求以进行资源操作，并确保数据一致性。</li>
+<li>实现 XA 接口与事务管理器通信。</li>
+</ul>
+</li>
+<li><p><strong>Communication Resource Manager（CRM，通信资源管理器）：</strong></p>
+<ul>
+<li>可选组件，负责管理与外部系统的通信资源。</li>
+<li>在分布式事务中协调和同步事务状态，确保跨系统的事务一致性。</li>
+<li>管理跨网络的事务传播，确保分布式环境中的事务处理一致性。</li>
+</ul>
+</li>
+</ol>
+<p><strong>主要接口：</strong></p>
+<ol>
+<li><strong>TX 接口：</strong><ul>
+<li>应用程序 AP 与事务管理器 TM 之间的桥梁，负责事务的开始、提交和回滚等操作。</li>
+<li>例如，在 Java EE 中，TX 接口通常对应 <code>javax.transaction.UserTransaction</code>。</li>
+</ul>
+</li>
+<li><strong>XA 接口：</strong><ul>
+<li>事务管理器 TM 与资源管理器 RM 之间的接口，协调资源管理器在两阶段提交协议中的操作。</li>
+<li>常见的 XA 接口方法包括 <code>xa_open</code>、<code>xa_start</code>、<code>xa_end</code>、<code>xa_prepare</code>、<code>xa_commit</code>、<code>xa_rollback</code> 等。</li>
+</ul>
+</li>
+<li><strong>CRM 接口：</strong><ul>
+<li>事务管理器与通信资源管理器之间的接口，确保分布式事务在网络通信中保持一致性。</li>
+<li>没有明确的标准接口，由各系统厂商自行实现。</li>
+</ul>
+</li>
+</ol>
+<h3 id="512-xa规范"><a href="#5-1-2-XA规范" class="headerlink" title="5.1.2 XA规范"></a>5.1.2 XA规范</h3><p>XA 规范是 X&#x2F;Open 组织在 DTP（Distributed Transaction Processing）模型中定义的，用于描述事务管理器（TM）和资源管理器（RM）之间交互的接口标准。</p>
+<ol>
+<li><p><strong>接口标准：</strong><br>XA 规范定义了一套标准接口，包括 <code>xa_start</code>、<code>xa_end</code>、<code>xa_prepare</code>、<code>xa_commit</code>、<code>xa_rollback</code> 等。</p>
+</li>
+<li><p><strong>2PC 协议：</strong><br>XA 接口实现了两阶段提交协议（2PC），以确保分布式事务的一致性和完整性。</p>
+</li>
+</ol>
+<h3 id="513-xa-事务"><a href="#5-1-3-XA-事务" class="headerlink" title="5.1.3 XA 事务"></a>5.1.3 XA 事务</h3><p><strong>XA事务</strong>是一种分布式事务。通过两阶段提交协议和XA接口标准，事务管理器和资源管理器能够可靠地协同工作，实现跨系统的事务处理，确保多个独立资源的一致性。</p>
+<p><strong>实际应用</strong></p>
+<ol>
+<li>数据库系统：<ul>
+<li>大多数主流数据库系统都支持XA事务，如Oracle、MySQL、DB2、SQL Server等。</li>
+<li>通过实现XA接口，数据库可以参与分布式事务并与事务管理器协同工作。</li>
+</ul>
+</li>
+<li>消息中间件：<ul>
+<li>一些消息队列和消息中间件也支持XA事务，如IBM MQ、ActiveMQ等。</li>
+<li>能够确保消息发送与其他资源操作的一致性。</li>
+</ul>
+</li>
+<li>Java EE环境：<ul>
+<li>在Java EE应用程序中，<code>javax.transaction.UserTransaction</code>和<code>javax.transaction.TransactionManager</code>接口提供了对XA事务的支持。</li>
+</ul>
+</li>
+</ol>
+<h2 id="52-两阶段提交2pc"><a href="#5-2-两阶段提交（2PC）" class="headerlink" title="5.2 两阶段提交（2PC）"></a>5.2 两阶段提交（2PC）</h2><p>两阶段提交是一种具体的事务协议，用于在分布式系统中协调多个事务参与者的行为，以确保事务的原子性。它包含以下两个阶段：</p>
+<ul>
+<li><strong>准备阶段</strong>：协调者询问所有参与者，是否准备好提交事务。</li>
+<li><strong>提交&#x2F;回滚阶段</strong>：基于各参与者的答复和超时情况，协调者决定是否全局提交或回滚，<ul>
+<li>只有全部参与者回答了prepared 才会commit;</li>
+<li>若有一个参与者回答和non-prepared 或者超时未回答，则rollback</li>
+</ul>
+</li>
+</ul>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/5b064db6/1.png" class>
+
+
+<h3 id="521-协调者宕机单点问题参与者阻塞"><a href="#5-2-1-协调者宕机：单点问题，参与者阻塞" class="headerlink" title="5.2.1 协调者宕机：单点问题，参与者阻塞"></a>5.2.1 协调者宕机：单点问题，参与者阻塞</h3><p>在2PC中，一个重要特点是参与者缺乏超时机制。因此，在第一阶段结束后，他们必须原地等待协调者的第二阶段指令。一旦协调者宕机，所有参与者都会受到影响。如果协调者长时间未恢复或未发送正常的提交或回滚指令，所有参与者都将被阻塞。</p>
+<p>为何参与者缺乏超时处理机制呢？因为这可能引发数据一致性问题。当参与者迟迟未收到提交或回滚指令时，无论其默认为提交还是回滚，都可能导致全局数据不一致。</p>
+<p>这也给了我们业务开发一些启示：在任何不确定情况下，都不应随意指定默认操作，最佳做法是启动警报，让人工介入处理。</p>
+<h3 id="522-回滚性能差"><a href="#5-2-2-回滚性能差" class="headerlink" title="5.2.2  回滚性能差"></a>5.2.2  回滚性能差</h3><p>所有的操作都已经完成，回滚需要全部推翻。</p>
+<h3 id="523-一致性问题"><a href="#5-2-3-一致性问题" class="headerlink" title="5.2.3 一致性问题"></a>5.2.3 一致性问题</h3><h4 id="5241-协调者宕机"><a href="#5-2-4-1-协调者宕机" class="headerlink" title="5.2.4.1 协调者宕机"></a>5.2.4.1 协调者宕机</h4><p>如上面单点问题中描述，协调者宕机后，由于参与者没有超时处理机制，会一直阻塞等待，直到协调者宕机恢复后， 根据持久化的数据判断该事务状态，进而发送commit 或者 rollback ， 所以在协调者宕机恢复前 协调者和参与者的数据是不一致的</p>
+<h4 id="5232-参与者宕机"><a href="#5-2-3-2-参与者宕机" class="headerlink" title="5.2.3.2 参与者宕机"></a>5.2.3.2 参与者宕机</h4><p>如果参与者收到commit后，宕机了。此时数据也是不一致的<br>参与者宕机恢复后，可以检查自己的持久化信息，来判断事务的状态。</p>
+<h4 id="5233-网络问题"><a href="#5-2-3-3-网络问题" class="headerlink" title="5.2.3.3 网络问题"></a>5.2.3.3 网络问题</h4><p>有的参与者收到了commit,有的参与者收不到；<br>参与者的ack 消息，协调者有的收到了，有的没收到。<br>其中参与者收不到第二阶段的消息，自然不会有ack, 表现上也是协调者收不到ack。<br>这里的解决方案就是 协调者超时处理机制-重试，在重试成功之前，数据是不一致的。</p>
+<h3 id="524-梳理下-dtp-xa-2pc-之间的关系"><a href="#5-2-4-梳理下-DTP、XA、2PC-之间的关系" class="headerlink" title="5.2.4 梳理下 DTP、XA、2PC 之间的关系"></a>5.2.4 梳理下 DTP、XA、2PC 之间的关系</h3><p>DTP（Distributed Transaction Processing，分布式事务处理）模型是由X&#x2F;Open（后来的Open Group）提出的一种分布式事务处理的体系结构模型。它定义了一套标准，使得不同厂商的分布式事务处理系统能够互操作。</p>
+<p>XA规范是X&#x2F;Open组织 在DTP（Distributed Transaction Processing）模型中定义的，用于描述事务管理器（TM）和资源管理器（RM）之间的交互的接口标准。</p>
+<p>XA 规范基于2PC 实现。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/5b064db6/2.png" class>
+
+
+<p>但是 2PC协议是一种通用的事务提交协议，可以在任何实现中使用。除了XA规范，2PC协议还可以用于其他事务管理协议和框架，如：</p>
+<ol>
+<li><strong>Seata</strong>：阿里巴巴开源的分布式事务框架，提供全局事务管理服务，支持2PC但不直接使用XA接口。</li>
+<li><strong>Atomikos</strong>：支持两阶段提交协议的独立事务管理器。</li>
+<li><strong>Bitronix</strong>：另一个独立事务管理器，也支持2PC协议。</li>
+<li>在某些场景下，可以直接在应用程序代码中实现简化版的2PC协议，而无需遵循XA规范。</li>
+</ol>
+<h2 id="53-三阶段提交3pc"><a href="#5-3-三阶段提交（3PC）" class="headerlink" title="5.3  三阶段提交（3PC）"></a>5.3  三阶段提交（3PC）</h2><p>3PC 的3个阶段，</p>
+<ol>
+<li>CanCommit</li>
+<li>PreCommit</li>
+<li>DoCommit</li>
+</ol>
+<p>3PC 相比2PC 的变化</p>
+<ol>
+<li>3PC提交把2PC的prepare 阶段细分为两个阶段，分别称为 CanCommit、PreCommit</li>
+<li>参与者增加了超时处理机制，超时默认会提交事务</li>
+</ol>
+<p>3PC 的提出是为了改进2PC 存在的问题</p>
+<h3 id="531-cancommit-优化回滚操作性能"><a href="#5-3-1-CanCommit-优化回滚操作性能" class="headerlink" title="5.3.1 CanCommit 优化回滚操作性能"></a>5.3.1 CanCommit 优化回滚操作性能</h3><p>新增的 CanCommit 是一个询问阶段，协调者让每个参与的数据库根据自身状态，评估该事务是否有可能顺利完成。这可以解决提高precommit 阶段的成功率，万一失败了，回滚操作也比较轻，因为还没开始做实质性的操作</p>
+<p>但是这里要注意一个性能问题，在事务需要回滚的场景中，三段式的性能通常要比两段式好很多，但在事务能够正常提交的场景中，两段式和三段式提交的性能都很差，三段式因为多了一次询问，性能还要更差一些。</p>
+<h3 id="532-解决协调者单点问题"><a href="#5-3-2-解决协调者单点问题" class="headerlink" title="5.3.2 解决协调者单点问题"></a>5.3.2 解决协调者单点问题</h3><p>通过增加参与者超时处理机制，默认会提交事务，相当于解决了协调者宕机参与者阻塞等待的单点问题</p>
+<h3 id="533-加重数据一致性问题"><a href="#5-3-3-加重数据一致性问题" class="headerlink" title="5.3.3 加重数据一致性问题"></a>5.3.3 加重数据一致性问题</h3><p>在2PC中已经讨论过,为什么2PC参与者没有超时处理机制？<br>因为超时处理机制可能引发数据一致性问题，当 参与者迟迟收不到commit or rollback 指令时， 参与者不论是 默认提交 还是默认回滚，都有可能导致全局数据不一致。</p>
+<p>3PC 增加了超时机制， 会默认提交事务，这会加重数据一致性的问题</p>
+<h2 id="54-tcctry-confirmx2fcancel"><a href="#5-4-TCC（Try-Confirm-Cancel）" class="headerlink" title="5.4 TCC（Try-Confirm&#x2F;Cancel）"></a>5.4 TCC（Try-Confirm&#x2F;Cancel）</h2><p>TCC是一种应用层事务协议，它分为三个阶段：Try（尝试）、Confirm（确认）、Cancel（取消）。在Try阶段，每个参与者尝试执行事务并锁定必要资源；在Confirm阶段，如果所有参与者的Try操作都成功，那么执行Confirm操作提交事务；如果任何Try失败，则执行Cancel操作回滚事务。TCC适用于业务逻辑复杂，需要长时间运行的事务。</p>
+<p>个人认为，TCC可以被理解为是2PC的一种变体，具有两阶段的结构，但它在实施和操作上更适合处理复杂的业务逻辑和提高系统的灵活性与效率。</p>
+<h2 id="55-可靠消息队列"><a href="#5-5-可靠消息队列" class="headerlink" title="5.5  可靠消息队列"></a>5.5  可靠消息队列</h2><p>使用可靠消息队列来解决分布式事务问题是一种被称为“最终一致性”的策略，它通过异步消息传递的方式，确保在分布式系统中多个服务之间的数据一致性。</p>
+<p>使用可靠消息队列解决分布式事务的核心思想在于：</p>
+<ol>
+<li><strong>异步与最终一致性</strong>：通过异步的方式处理分布式事务，并确保最终一致性。</li>
+<li><strong>可靠消息传递</strong>：确保消息传递的可靠性，包括重试机制、幂等处理等。</li>
+</ol>
+<h2 id="56-saga"><a href="#5-6-SAGA" class="headerlink" title="5.6 SAGA"></a>5.6 SAGA</h2><p>SAGA是一种将长期事务分解为一系列较小的、独立的子事务的方法。每个子事务都可以单独提交或回滚。如果某个子事务失败，SAGA通过执行补偿事务（即逆操作）来恢复之前的状态。SAGA降低了资源锁定的时间，适用于微服务架构中的事务管理。</p>
+<p>参考文章<br>《周志明的软件架构课》<br><a target="_blank" rel="noopener" href="https://www.51cto.com/article/648668.html">https://www.51cto.com/article/648668.html</a></p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/5fe6baa/">使用github page+hexo 创建个人网站</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1"><span class="toc-text">1. 什么是事务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-acid-%E7%89%B9%E6%80%A7"><span class="toc-text">1.1 ACID 特性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-text">2. 事务的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1-%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%8D%95%E6%95%B0%E6%8D%AE%E6%BA%90%E4%BA%8B%E5%8A%A1"><span class="toc-text">2.1  本地事务-单服务单数据源事务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="toc-text">2. 2 分布式事务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#221-%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-text">2.2.1 单服务多数据源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#222-%E5%A4%9A%E6%9C%8D%E5%8A%A1%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-text">2.2.2 多服务多数据源</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E5%85%B1%E4%BA%AB%E4%BA%8B%E5%8A%A1-%E5%A4%9A%E6%9C%8D%E5%8A%A1%E5%8D%95%E6%95%B0%E6%8D%AE%E6%BA%90"><span class="toc-text">2.3 共享事务-多服务单数据源</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E4%B8%A4%E7%A7%8D%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">3. 两种分布式事务的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90-%E4%B8%8E-%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">3.1 单服务多数据源 与 强一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-%E5%A4%9A%E6%9C%8D%E5%8A%A1%E5%A4%9A%E6%95%B0%E6%8D%AE%E6%BA%90-%E4%B8%8E-%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">3.2 多服务多数据源 与 最终一致性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7-vs-%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">4.  强一致性 vs 最终一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-%E4%B8%80%E8%87%B4%E6%80%A7%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-text">4.1 一致性的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#411-%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7strong-consistency"><span class="toc-text">4.1.1 强一致性（Strong Consistency）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#412-%E7%BA%BF%E6%80%A7%E4%B8%80%E8%87%B4%E6%80%A7linearizability"><span class="toc-text">4.1.2 线性一致性（Linearizability）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#413-%E5%BC%B1%E4%B8%80%E8%87%B4%E6%80%A7weak-consistency"><span class="toc-text">4.1.3 弱一致性（Weak Consistency）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#414-%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7eventual-consistency"><span class="toc-text">4.1.4  最终一致性（Eventual Consistency）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-cap-%E4%B8%8E-acid%E7%9A%84%E5%BE%AE%E5%A6%99%E5%B9%B3%E8%A1%A1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%8F%AA%E8%83%BD%E8%BF%BD%E6%B1%82%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#421-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F-%E5%BF%85%E9%A1%BB%E6%8E%A5%E5%8F%97-%E5%88%86%E5%8C%BA%E5%AE%B9%E5%BF%8D%E6%80%A7"><span class="toc-text">4.2.1 为什么说 分布式系统 必须接受 分区容忍性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E7%90%86%E8%A7%A3%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%90%84%E7%A7%8D%E5%8D%8F%E8%AE%AE"><span class="toc-text">5. 理解分布式事务中的各种协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#51-dtp-%E6%A8%A1%E5%9E%8B%E5%92%8C-xa-%E8%A7%84%E8%8C%83"><span class="toc-text">5.1 DTP 模型和 XA 规范</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#511-dtp-%E6%A8%A1%E5%9E%8B"><span class="toc-text">5.1.1  DTP 模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#512-xa%E8%A7%84%E8%8C%83"><span class="toc-text">5.1.2 XA规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#513-xa-%E4%BA%8B%E5%8A%A1"><span class="toc-text">5.1.3 XA 事务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#52-%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A42pc"><span class="toc-text">5.2 两阶段提交（2PC）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#521-%E5%8D%8F%E8%B0%83%E8%80%85%E5%AE%95%E6%9C%BA%E5%8D%95%E7%82%B9%E9%97%AE%E9%A2%98%E5%8F%82%E4%B8%8E%E8%80%85%E9%98%BB%E5%A1%9E"><span class="toc-text">5.2.1 协调者宕机：单点问题，参与者阻塞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#522-%E5%9B%9E%E6%BB%9A%E6%80%A7%E8%83%BD%E5%B7%AE"><span class="toc-text">5.2.2  回滚性能差</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#523-%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">5.2.3 一致性问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5241-%E5%8D%8F%E8%B0%83%E8%80%85%E5%AE%95%E6%9C%BA"><span class="toc-text">5.2.4.1 协调者宕机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5232-%E5%8F%82%E4%B8%8E%E8%80%85%E5%AE%95%E6%9C%BA"><span class="toc-text">5.2.3.2 参与者宕机</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5233-%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98"><span class="toc-text">5.2.3.3 网络问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#524-%E6%A2%B3%E7%90%86%E4%B8%8B-dtp-xa-2pc-%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">5.2.4 梳理下 DTP、XA、2PC 之间的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#53-%E4%B8%89%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A43pc"><span class="toc-text">5.3  三阶段提交（3PC）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#531-cancommit-%E4%BC%98%E5%8C%96%E5%9B%9E%E6%BB%9A%E6%93%8D%E4%BD%9C%E6%80%A7%E8%83%BD"><span class="toc-text">5.3.1 CanCommit 优化回滚操作性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#532-%E8%A7%A3%E5%86%B3%E5%8D%8F%E8%B0%83%E8%80%85%E5%8D%95%E7%82%B9%E9%97%AE%E9%A2%98"><span class="toc-text">5.3.2 解决协调者单点问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#533-%E5%8A%A0%E9%87%8D%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-text">5.3.3 加重数据一致性问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#54-tcctry-confirmx2fcancel"><span class="toc-text">5.4 TCC（Try-Confirm&#x2F;Cancel）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#55-%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="toc-text">5.5  可靠消息队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#56-saga"><span class="toc-text">5.6 SAGA</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
