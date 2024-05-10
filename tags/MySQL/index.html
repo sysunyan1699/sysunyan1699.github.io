@@ -17,12 +17,12 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   
-  <title>标签 - Sun Yan</title>
+  <title>标签：MySQL - Sun Yan</title>
 
   
     <meta property="og:type" content="website">
-<meta property="og:title" content="标签">
-<meta property="og:url" content="http://example.com/tags/index.html">
+<meta property="og:title" content="Sun Yan">
+<meta property="og:url" content="http://example.com/tags/MySQL/index.html">
 <meta property="og:site_name" content="Sun Yan">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="Sun Yan">
@@ -47,7 +47,7 @@
 </head>
 <body>
 
-<div class="l_body s:aa index tech" id="start" layout="tags" ><aside class="l_left"><div class="leftbar-container">
+<div class="l_body s:aa index tech" id="start" layout="undefined" ><aside class="l_left"><div class="leftbar-container">
 
 
 <header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
@@ -66,29 +66,41 @@
 
 <header class="header mobile-only"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
 
+ 
 
-  
-  
-  
 
-<div class="navbar top"><nav class="post"><a href="/">近期发布</a><a class="active" href="/tags">标签</a><a href="/archives">归档</a></nav></div>
-  <div class='post-list'>
-    <article class='' id='tags'>
-      
-        <a class='tag' href="/tags/%E4%BA%8B%E5%8A%A1/">
-          <span class='name'>事务</span>
-        </a>
-      
-        <a class='tag' href="/tags/MySQL/">
-          <span class='name'>MySQL</span>
-        </a>
-      
-        <a class='tag' href="/tags/Programming/">
-          <span class='name'>Programming</span>
-        </a>
-      
-    </article>
-  </div>
+
+
+<div class="navbar top"><nav class="post"><a href="/">近期发布</a><a class="active" href="/tags">标签：MySQL</a><a href="/archives">归档</a></nav></div>
+<div class="post-list post"><a class="post-card post" href="/6cb5dc64/">
+<article class="md-text"><h2 class="post-title">InnoDB事务-持久性的实现,binglog & redo log</h2><div class="excerpt"><p>在MySQL InnoDB 这个语境下， crash safe、数据不丢失 都指的是事务的持久性特性，即事务一旦提交，应当保证所有被成功提交的数据修改都能够正确地被持久化，不丢失数据, 即使宕机也能够恢复数据
+在InnoDB 中，持久性 基于binlog 和redo log 实现， 且binlog 与redo log 的写入通过2PC 协调.
+0 XA 事务：binlog 和redo log...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:47:18.000Z">2024-05-02</time></span></div></article>
+</a><a class="post-card post" href="/9faedfe0/">
+<article class="md-text"><h2 class="post-title">InnoDB事务-隔离性的实现, MVCC & 锁</h2><div class="excerpt"><p>隔离性，还有一个说法就是 数据可见性。
+隔离性、数据可见性是一个在并发事务下才需要考虑的问题，并发事务可以分3种情况考虑
+
+读-读， 读操作不会对数据产生影响，所以不需要关注
+读-写 or 写-读， 可能会出现脏读、不可重复读、幻读
+写-写，可能会脏写的情况
+
+并发事务下的数据的一致性写问题
+
+脏写：一个事务修改了另一个未提交事务修改过的数据。
+
+并发事务下的数据的一致性读问题
+
+脏读：事务...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:42:57.000Z">2024-05-02</time></span></div></article>
+</a><a class="post-card post" href="/b36b0ce9/">
+<article class="md-text"><h2 class="post-title">InnoDB事务-原子性的实现,undo log</h2><div class="excerpt"><p>原子性指的是事务要么完全成功执行，要么完全失败回滚，不允许部分执行。
+这本质上是在要求具有rollback 回滚能力。
+InnoDB中的事务可能会由用户主动触发Rollback；也可能因为遇到死锁异常Rollback；或者发生Crash，重启后对未提交的事务回滚。
+InnoDB 的 rollback回滚能力 是基于 undo log 实现的。undo log 记录了修改操作前的旧版本数据，以...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:22:30.000Z">2024-05-02</time></span></div></article>
+</a><a class="post-card post" href="/9cd551f5/">
+<article class="md-text"><h2 class="post-title">Intro to InnoDB事务</h2><div class="excerpt"><p>在Intro to 事务中介绍过， 一致性是事务的核心特征，或者说最终目的，原子性、隔离性和持久性都是实现一致性的手段。
+所以在介绍InnoDB 事务时，主要介绍AID 特性的实现InnoDB事务-原子性的实现， undo logInnoDB事务-隔离性的实现, MVCC &amp; 锁InnoDB事务-持久性的实现， binglog &amp; redo log&amp;undo log
+...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:15:42.000Z">2024-05-02</time></span></div></article>
+</a></div>
 
 
 <footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>

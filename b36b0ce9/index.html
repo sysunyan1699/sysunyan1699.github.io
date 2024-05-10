@@ -1,0 +1,719 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>InnoDB事务-原子性的实现,undo log - Sun Yan</title>
+
+  
+    <meta name="description" content="原子性指的是事务要么完全成功执行，要么完全失败回滚，不允许部分执行。 这本质上是在要求具有rollback 回滚能力。 InnoDB中的事务可能会由用户主动触发Rollback；也可能因为遇到死锁异常Rollback；或者发生Crash，重启后对未提交的事务回滚。 InnoDB 的 rollback回滚能力 是基于 undo log 实现的。undo log 记录了修改操作前的旧版本数据，以便在回">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB事务-原子性的实现,undo log">
+<meta property="og:url" content="http://example.com/b36b0ce9/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="原子性指的是事务要么完全成功执行，要么完全失败回滚，不允许部分执行。 这本质上是在要求具有rollback 回滚能力。 InnoDB中的事务可能会由用户主动触发Rollback；也可能因为遇到死锁异常Rollback；或者发生Crash，重启后对未提交的事务回滚。 InnoDB 的 rollback回滚能力 是基于 undo log 实现的。undo log 记录了修改操作前的旧版本数据，以便在回">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/b36b0ce9/1.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/2.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/3.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/4.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/5.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/6.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/7.png">
+<meta property="og:image" content="http://example.com/b36b0ce9/8.png">
+<meta property="article:published_time" content="2024-05-02T14:22:30.000Z">
+<meta property="article:modified_time" content="2024-05-10T15:20:24.421Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="事务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/b36b0ce9/1.png">
+  
+  
+  
+  <meta name="keywords" content="MySQL,事务">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/6cb5dc64/"><span class="title">InnoDB事务-持久性的实现,binglog & redo log</span></a><a class="item title" href="/9faedfe0/"><span class="title">InnoDB事务-隔离性的实现, MVCC & 锁</span></a><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/9cd551f5/"><span class="title">Intro to InnoDB事务</span></a><a class="item title" href="/99d433fa/"><span class="title">TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a><a class="item title" href="/5b064db6/"><span class="title">Intro to 事务</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/b4fa673f/"><span class="title">深入解析bloom filter的原理与实现</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-02T14:22:30.000Z">2024-05-02</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-10T15:20:24.421Z">2024-05-10</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>InnoDB事务-原子性的实现,undo log</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p>原子性指的是事务要么完全成功执行，要么完全失败回滚，不允许部分执行。</p>
+<p>这本质上是在要求具有<code>rollback 回滚能力</code>。</p>
+<p>InnoDB中的事务可能会由用户主动触发Rollback；也可能因为遇到死锁异常Rollback；或者发生Crash，重启后对未提交的事务回滚。</p>
+<p>InnoDB 的 rollback回滚能力 是基于 undo log 实现的。undo log 记录了修改操作前的旧版本数据，以便在回滚时恢复数据。</p>
+<h1 id="1-一条-undo-log-的结构"><a href="#1-一条-undo-log-的结构" class="headerlink" title="1  一条 undo log  的结构"></a>1  一条 undo log  的结构</h1><h2 id="11-undo-log-的分类"><a href="#1-1-undo-log-的分类" class="headerlink" title="1.1  undo log 的分类"></a>1.1  undo log 的分类</h2><p>只有在事务中对数据进行修改（如 INSERT、DELETE、UPDATE）的时候， 才需要记录undo log，快照读 select  不需要记录。</p>
+<p>不同的修改操作产生的 <code>undo log</code> 记录的内容和结构会有所不同，因为每种操作对数据的影响不同, 所以undo log 也会有不同的类型。</p>
+<p>InnoDB 的 undo log 主要分为两大类：</p>
+<ol>
+<li><strong>TRX_UNDO_INSERT</strong>：此类主要包括 <code>TRX_UNDO_INSERT_REC</code> 类型的日志，专门用于记录插入操作的撤销信息。</li>
+<li><strong>TRX_UNDO_UPDATE</strong>：此类包括 <code>TRX_UNDO_UPD_EXIST_REC</code> 和 <code>TRX_UNDO_DEL_MARK_REC</code>，用于记录更新存在的记录和标记删除操作的撤销信息。</li>
+</ol>
+<ul>
+<li><strong>共同点</strong>：所有类型的操作都需要且只需要记录<code>足够的信息</code>来逆转所执行的操作。这些记录都存储在 InnoDB 的 undo 表空间或者系统表空间中</li>
+<li><strong>差异</strong>：不同操作类型的 undo 日志记录的具体内容根据操作的性质而异。INSERT 主要关注标记新增行的删除，DELETE 需要记录完整的行数据以便恢复，而 UPDATE 记录修改前的字段值。</li>
+</ul>
+<p>⚠️：对于 undo log 的记录并不是基于每条修改 SQL 语句，而是基于 修改SQL 语句影响的每一条记录。这意味着每条被修改的记录都会有对应的 undo log 。如果一个 SQL 语句影响修改了多行数据，那么将会有多条 undo log 生成。</p>
+<h2 id="12-insert-操作的-undo-log"><a href="#1-2-INSERT-操作的-Undo-log" class="headerlink" title="1.2  INSERT 操作的 Undo log"></a>1.2  INSERT 操作的 Undo log</h2><p>对于 INSERT 操作，undo 日志通常记录较少的信息，主要是把这条记录的主键信息记上。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/1.png" class>
+
+<h3 id="121-end-of-record-和-start-of-record"><a href="#1-2-1-end-of-record-和-start-of-record" class="headerlink" title="1.2.1 end of record  和 start of record"></a>1.2.1 end of record  和 start of record</h3><p>在InnoDB的undo日志结构中，<code>end of record</code>和<code>start of record</code> 两个字段共同起到链接undo日志记录的作用，使这些记录形成一个双向链表，并提供顺序遍历和反向遍历的功能</p>
+<p><strong>end of record</strong></p>
+<ul>
+<li><strong>定义：</strong><ul>
+<li><code>end of record</code>字段指示当前undo日志记录的结束位置，并提供下一条undo日志记录的起始地址。</li>
+<li>当最后一条undo日志记录没有后继时，则下一条undo日志记录的起始地址为NULL</li>
+</ul>
+</li>
+<li><strong>目的：</strong><ul>
+<li>指向链表中的下一条记录，方便<code>顺序遍历</code>日志记录，可以用于回放或者重做日志，特别是在恢复阶段</li>
+</ul>
+</li>
+</ul>
+<p><strong>start of record</strong></p>
+<ul>
+<li><strong>定义：</strong><ul>
+<li><code>start of record</code>字段指示当前undo日志记录的起始位置，并提供上一条undo日志记录的结束地址。</li>
+<li>如果当前undo日志记录是链表中的第一条，则上一条undo日志记录的结束地址为<code>NULL</code>。</li>
+</ul>
+</li>
+<li><strong>目的：</strong><ul>
+<li>指向链表中的上一条记录，方便<code>反向遍历</code>日志记录，用于事务回滚</li>
+</ul>
+</li>
+</ul>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/2.png" class>
+
+
+
+<h3 id="122-undo-type"><a href="#1-2-2-undo-type" class="headerlink" title="1.2.2 undo type"></a>1.2.2 undo type</h3><p>该字段指定undo日志记录的类型, 用于区分不同类型的undo操作，如<code>TRX_UNDO_INSERT_REC</code> 、 <code>TRX_UNDO_UPD_EXIST_REC</code> 和 <code>TRX_UNDO_DEL_MARK_REC</code></p>
+<h3 id="123-undo-no"><a href="#1-2-3-undo-no" class="headerlink" title="1.2.3 undo no"></a>1.2.3 undo no</h3><p>日志编号， 在一个事务内从0开始递增，每生成一条日志，undo no 就加1</p>
+<h3 id="124-table-id"><a href="#1-2-4-table-id" class="headerlink" title="1.2.4 table id"></a>1.2.4 table id</h3><p>原始记录所在表的标识符，使undo日志能够与原始记录所在的表关联。</p>
+<h3 id="125-ltlen-valuegt"><a href="#1-2-5" class="headerlink" title="1.2.5 &lt;len, value&gt;"></a>1.2.5 &lt;len, value&gt;</h3><p>此部分以<code>&lt;长度，值&gt;</code>的形式保存每个主键列的信息，以便在回滚插入操作时恢复主键值：</p>
+<ol>
+<li>len：表示对应列的存储空间大小。</li>
+<li>value：存储主键的实际值。</li>
+</ol>
+<h2 id="13-delete-操作的-undo-log-标记删除"><a href="#1-3-DELETE-操作的-Undo-log-标记删除" class="headerlink" title="1.3  DELETE 操作的 Undo log-标记删除"></a>1.3  DELETE 操作的 Undo log-标记删除</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/3.png" class>
+<ol>
+<li>trx_id<br>记录上一个旧版本数据的trx_id,  该值从行记录的隐藏列trx_id 中获取<ul>
+<li><strong>目的：</strong> 在回滚过程中，这个字段可以帮助恢复被删除的记录的原始事务信息，确保在恢复期间不会出现不一致的问题。</li>
+</ul>
+</li>
+<li>roll_pointer<br>记录上一个旧版本数据的roll_pointer,  该值从行记录的隐藏列roll_pointer 中获取<ul>
+<li><strong>描述：</strong> 指向被删除记录的原始回滚指针 (<code>roll_pointer</code>)。</li>
+</ul>
+</li>
+</ol>
+<p>在InnoDB中，每条行记录都有一个位（bit）标记来指示该记录的状态，包括是否已被删除。这是通过记录头（Record Header）中的<code>info bits</code>字段实现的。</p>
+<h3 id="131-标记删除"><a href="#1-3-1-标记删除" class="headerlink" title="1.3.1 标记删除"></a>1.3.1 标记删除</h3><p>TRX_UNDO_DEL_MARK_REC 日志 指的是对记录的逻辑删除，逻辑删除指的是只被标记为删除状态，并不会立即将其物理删除，因为还要支持事务回滚，以及MVCC。</p>
+<p>被标记删除的数据如果真的需要删除，会在适当的时候由后台线程实际清理</p>
+<h3 id="132-行记录的删除标记"><a href="#1-3-2-行记录的删除标记" class="headerlink" title="1.3.2  行记录的删除标记"></a>1.3.2  行记录的删除标记</h3><p>每条行记录的头部都有一个<code>info bits</code>字段，用来存储记录的状态信息，包括是否已被删除。</p>
+<p>在<code>info bits</code>字段的第5个bit位上，标记记录是否已被删除， 当此bit位为<code>1</code>时，表示该记录已被标记删除；为<code>0</code>时，表示该记录是正常的。</p>
+<h2 id="14-update-操作的-undo-log"><a href="#1-4-UPDATE-操作的-Undo-log" class="headerlink" title="1.4 UPDATE 操作的 Undo log"></a>1.4 UPDATE 操作的 Undo log</h2><p>update 的操作 分为两种</p>
+<ol>
+<li><p>不更新主键的update,  这种操作 一条记录 只会TRX_UNDO_UPD_EXIST_REC 一条undo log</p>
+</li>
+<li><p>更新主键的update ，这种update在实际执行时， 会先删除旧记录，再insert 一条新纪录， 所以会记录两条undo log, 一条TRX_UNDO_DEL_MARK_REC， 一条TRX_UNDO_INSERT_REC</p>
+</li>
+</ol>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/4.png" class>
+
+<p>具体字段信息和前面两种类似，不再详述。</p>
+<h1 id="2一个事务中的多条undo-log如何组织在一起"><a href="#2一个事务中的多条undo-log如何组织在一起" class="headerlink" title="2一个事务中的多条undo  log如何组织在一起"></a>2一个事务中的多条undo  log如何组织在一起</h1><h2 id="21-undo-page-分类型存储undo-log"><a href="#2-1-undo-page-分类型存储undo-log" class="headerlink" title="2.1 undo page -分类型存储undo log"></a>2.1 undo page -分类型存储undo log</h2><p>InnoDB 对数据的管理是以 <code>page</code> 为单位进行的，undo log 也遵循这一原则，即存储在专门的 undo pages 中。</p>
+<p>每个 undo page 中的日志记录是专用的，不同类型的undo log  不能混着存储， 即一个 page 中不能同时记录 <code>TRX_UNDO_INSERT</code> 类型和 <code>TRX_UNDO_UPDATE</code> 类型的日志。</p>
+<p>这样设计的理由是为了避免在回滚时需要在同一页面上搜索不同类型的日志记录，从而提高了回滚操作的效率。</p>
+<p>可是 一个事务内可以同时存在insert undo log和update undo log, 如果事务需要回滚则所有操作都需要回滚，那为什么还要分开存储呢？</p>
+<ol>
+<li><p><strong>优化事务回滚的逻辑</strong></p>
+<ul>
+<li><strong>操作依赖性减少</strong>：插入操作的回滚仅涉及到删除之前插入的行，而更新或删除操作的回滚需要恢复原始数据。将这些操作的日志分开，可以在回滚时减少对不同类型日志处理逻辑的依赖，使得回滚过程更加模块化和有序。</li>
+<li><strong>执行效率</strong>：分开存储使得处理各自的回滚逻辑时可以更加高效，因为每种类型的回滚处理只需关注其对应类型的日志页。这减少了在单一日志页中搜索和处理不同类型日志的复杂性和时间。</li>
+</ul>
+</li>
+<li><p><strong>并行处理</strong><br>尽管一个事务中可能存在多种类型的 undo 日志，但在并发环境中，不同的回滚任务可能由不同的系统进程或线程处理。例如，某些情况下系统可能并行地处理 <code>insert undo log</code> 和 <code>update undo log</code>。分开存储可以减少锁的竞争和管理的复杂性，提高并发处理的效率。</p>
+</li>
+<li><p><strong>空间和性能管理</strong></p>
+<ul>
+<li><strong>简化空间回收</strong>：在事务提交后，<code>insert undo log</code> 可以立即被丢弃和回收，因为插入操作生成的记录一旦提交即视为有效。而 <code>update undo log</code> 可能需要被保留以支持其他事务的一致性读（由于 MVCC）。分开存储使得空间管理更为高效，因为可以针对性地处理和回收日志空间。</li>
+<li><strong>优化读取性能</strong>：在事务处理过程中，尤其是在一些只涉及到特定类型操作的查询或回滚操作中，分开存储可以优化日志的读取性能，因为系统可以直接定位到相关类型的日志页。</li>
+</ul>
+</li>
+<li><p><strong>日志维护的简化</strong></p>
+<ul>
+<li>分开存储有助于简化日志维护和日志生命周期管理。系统可以更容易地追踪和管理不同类型日志的生成、使用和清理周期。</li>
+</ul>
+</li>
+</ol>
+<h2 id="22-undo-page-链表"><a href="#2-2-undo-page-链表" class="headerlink" title="2.2 undo page 链表"></a>2.2 undo page 链表</h2><p>在一个事务中，可能会产生多条 undo log。</p>
+<p>如果一个 undo page 填满了，事务会向系统申请新的undo page,并将其通过链表（通常是使用类似于前驱（previous）和后继（next）指针的机制）连接起来。</p>
+<p>前面提到过，一个 undo page 不能混合存储不能类型的链接， 所以对于一个事务它可以有insert undo page 和update undo page 两个链表。</p>
+<p>每个事务都会分配单独的页面链表。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/5.png" class>
+
+<p>下面简单介绍下链表中第一个 undo page</p>
+<ol>
+<li><p>file header 如前面介绍，会有一个字段来标识该page 是undo page, 用来存储undo log。</p>
+</li>
+<li><p>undo page header 会记录该页面存储的undo log 类型， insert or update</p>
+</li>
+<li><p>undo log segment header , 会记录该链表所属的segment</p>
+</li>
+<li><p>undo log header ,理论上，每个事务都会分配自己的页面链表， 但如果一个事务产生的undo log很少，那么这个页面链表就有可能被重用。所以实际上一个页面链表中实际可能存储多个事务的undo log,  undo log header  中记录了不同事务间日志的分隔信息。</p>
+</li>
+</ol>
+<h2 id="23-回滚段"><a href="#2-3-回滚段" class="headerlink" title="2.3 回滚段"></a>2.3 回滚段</h2><p>InnoDB默认创建128个回滚段（Rollback Segments），用于管理undo日志。</p>
+<ul>
+<li><strong>元数据存储：</strong> 每个回滚段的元数据存储在系统表空间第5号页面中。</li>
+<li><strong>Slot结构</strong>：每个回滚段包含1024个<code>slot</code>，每个<code>slot</code>可以映射到一个Undo页。</li>
+<li><strong>事务与回滚段的关联：</strong> 事务会在需要的时候分配一个回滚段。</li>
+<li><strong>轮询策略：</strong> InnoDB使用轮询方式将回滚段分配给新事务，以实现负载均衡。</li>
+</ul>
+<h2 id="24-undo页链表的形成与维护"><a href="#2-4-Undo页链表的形成与维护" class="headerlink" title="2.4  Undo页链表的形成与维护"></a>2.4  Undo页链表的形成与维护</h2><ol>
+<li><strong>事务开始：</strong><ul>
+<li>新的事务开始时，会分配一个插入段和一个更新段。</li>
+<li>在分配的回滚段头页中，初始化undo页链表的头指针和尾指针。</li>
+</ul>
+</li>
+<li><strong>查找可用的Slot：</strong><ul>
+<li>事务在开始写入undo日志时，会首先查找一个可用的<code>slot</code>，并初始化一个新的undo页链表。</li>
+</ul>
+</li>
+<li><strong>分配新的Undo页：</strong><ul>
+<li>分配新的undo页，将其添加到undo页链表的末尾。</li>
+<li>如果这是链表的第一个undo页，回滚段头页的<code>first</code>指针和<code>last</code>指针会同时指向该页。</li>
+</ul>
+</li>
+<li><strong>维护Undo页链表：</strong><ul>
+<li>当undo页链表中的最后一个undo页已满时，分配一个新的undo页并链接到链表的末尾。</li>
+<li>回滚段头页的<code>last</code>指针会指向新分配的undo页。</li>
+<li>新undo页的<code>prev</code>指针指向链表的前一个undo页，形成链表结构。</li>
+</ul>
+</li>
+</ol>
+<h1 id="3-行记录如何与undo-log-关联-roll_pointer"><a href="#3-行记录如何与undo-log-关联-roll-pointer" class="headerlink" title="3 行记录如何与undo log 关联 -roll_pointer"></a>3 行记录如何与undo log 关联 -roll_pointer</h1><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/6.png" class>
+
+
+<p><code>roll_pointer</code> 是存储在每个行记录中的一个指针，指向该行记录相关的最近一次undo log 记录。</p>
+<p>注意这个undo 记录指的是具体的 undo log，而不是整个页面链表。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/7.png" class>
+
+
+<ul>
+<li>当行记录被修改（包括更新、删除或作为多步操作的一部分的插入）时，InnoDB 首先会在 undo 日志中写入一条记录，这条记录包含了行修改前的数据，和行记录中的的roll_pointer,</li>
+<li>InnoDB 更新行记录中的 <code>roll_pointer</code>，使其指向新写入的 undo 日志记录。如果这个行再次被修改，新的 undo 日志将被写入，<code>roll_pointer</code> 会更新为指向这条新的记录。新的undo 日志中会记录之前的roll_pointer</li>
+</ul>
+<h1 id="4-一条记录的版本链如何形成"><a href="#4-一条记录的版本链如何形成" class="headerlink" title="4. 一条记录的版本链如何形成"></a>4. 一条记录的版本链如何形成</h1><p>InnoDB 通过 roll_ptr 把每一行的历史版本串联在一起</p>
+<ol>
+<li>行记录中有roll_pointer,</li>
+<li>update 操作中TRX_UNDO_UPD_EXIST_REC 和 TRX_UNDO_DEL_MARK_REC 类型的undo log 中，也有roll_pointer,<br>通过这些roll_pointer, 可以形成一条行记录的版本链。</li>
+</ol>
+<p>insert 操作中，对应的undo log没有roll_pointer 属性，因为insert 操作就是一个行记录的初始版本，没有比它更早的操作了。</p>
+<p>以下是一个通过roll_pointer 组成的版本链，每个undo log 进行了内容省略以展示链接的重点内容</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b36b0ce9/8.png" class>
+
+<h1 id="5-undo-log-的持久化"><a href="#5-undo-log-的持久化" class="headerlink" title="5. undo log 的持久化"></a>5. undo log 的持久化</h1><p>undo日志刷盘时机的参数，但通过控制Redo日志、脏页刷新和Purge线程的参数，可以间接影响undo日志的刷盘策略。</p>
+<p><strong>WAL技术</strong><br>在数据实际修改前，先将undo日志持久化到磁盘。</p>
+<p><strong>刷盘时机：</strong></p>
+<ul>
+<li><strong>事务提交：</strong> 当事务提交时，相关的undo日志会被写入磁盘。</li>
+<li><strong>脏页刷盘：</strong> 在InnoDB将脏页（dirty page）写入磁盘之前，首先会确保所有相关的undo日志已经被持久化。</li>
+<li><strong>Redo日志同步：</strong> 当一个Redo日志被同步到磁盘时，所有相关的undo日志也必须被同步。</li>
+</ul>
+<h1 id="6-基于undo-log-的回滚操作"><a href="#6-基于undo-log-的回滚操作" class="headerlink" title="6 基于undo log 的回滚操作"></a>6 基于undo log 的回滚操作</h1><p>InnoDB中的事务</p>
+<ol>
+<li>可能会由用户主动触发Rollback；</li>
+<li>也可能因为遇到死锁异常Rollback；</li>
+<li>或者发生Crash，重启后对未提交的事务回滚。</li>
+</ol>
+<h2 id="61-用户x2f应用程序主动回滚"><a href="#6-1-用户-应用程序主动回滚" class="headerlink" title="6.1. 用户&#x2F;应用程序主动回滚"></a>6.1. 用户&#x2F;应用程序主动回滚</h2><ul>
+<li>反向遍历（start of record）当前事务的undo日志链表，按逆序恢复每个更改。</li>
+<li><strong>插入操作：</strong> 在数据页中删除已插入的记录。</li>
+<li><strong>删除操作：</strong> 恢复已删除的记录。</li>
+<li><strong>更新操作：</strong> 恢复更新前的记录。</li>
+<li>每个操作恢复完成后，从undo日志链表中移除相应的undo日志记录。</li>
+</ul>
+<h2 id="62-死锁异常回滚"><a href="#6-2-死锁异常回滚" class="headerlink" title="6.2. 死锁异常回滚"></a>6.2. 死锁异常回滚</h2><p>InnoDB通过死锁检测算法发现两个或多个事务之间的锁等待，形成死锁，,选择最小代价，即持有锁资源最少的事务务进行回滚。</p>
+<p>与主动回滚类似，遍历当前事务的undo日志链表，按逆序恢复每个更改。</p>
+<h2 id="63-崩溃恢复"><a href="#6-3-崩溃恢复" class="headerlink" title="6.3  崩溃恢复"></a>6.3  崩溃恢复</h2><p>MySQL服务器或操作系统崩溃后，InnoDB通过Undo日志与Redo日志结合，确保崩溃时数据页的状态恢复到一致的状态， undo日志用来 回滚未提交的事务。</p>
+<h1 id="7-undo-log-的清理"><a href="#7-undo-log-的清理" class="headerlink" title="7 undo log 的清理"></a>7 undo log 的清理</h1><p>事务提交后，相关的Undo日志记录仍需保留一段时间以支持多版本并发控制（MVCC）</p>
+<h2 id="71-purge-线程"><a href="#7-1-Purge-线程" class="headerlink" title="7.1 Purge 线程"></a>7.1 Purge 线程</h2><p>InnoDB 通过一个后台线程称为 Purge，来清理不再需要的 undo log。</p>
+<ul>
+<li><strong>触发条件</strong>：Purge 进程会定期检查那些已提交事务的 undo log。它会确定这些 undo log 是否还被其他活跃事务作为 MVCC 的一部分所需。</li>
+<li><strong>删除操作</strong>：如果一个 undo log 记录不再被任何事务所需要，Purge 进程会将其从 undo 表空间中删除，释放相关资源。</li>
+</ul>
+<p>undo log 的清理机制是区分操作类型的。</p>
+<h2 id="72-insert-undo-log"><a href="#7-2-Insert-Undo-Log" class="headerlink" title="7.2 Insert Undo Log"></a>7.2 Insert Undo Log</h2><p>Insert undo log 主要记录插入操作的信息。因为插入操作仅仅添加新的记录，不涉及已存在数据的修改，所以这种类型的 undo log 主要用于在事务失败时撤销插入操作。</p>
+<ul>
+<li><strong>清理时机</strong>：当一个事务进行插入操作并成功提交后，相应的 insert undo log 立即变得无用，因为插入的数据已经被确认并不需要再被撤销。此时，这些 undo log 可以被安全地清理掉，因为它们不再被任何事务所需。</li>
+<li><strong>清理过程</strong>：Purge 线程会检测到这些 insert undo log 与已提交的事务关联，并将它们标记为可清理。然后，这些 log 会从 undo 表空间中删除，相关的磁盘空间得以回收。</li>
+</ul>
+<h2 id="73-update-undo-log"><a href="#7-3-Update-Undo-Log" class="headerlink" title="7.3 Update Undo Log"></a>7.3 Update Undo Log</h2><p>Update undo log 记录了对现有数据的修改（包括更新和删除操作）。这些记录对于事务回滚和多版本并发控制（MVCC）至关重要。</p>
+<ul>
+<li><strong>清理时机</strong>：与 insert undo log 不同，即使相关事务已经提交，update undo log 也不能立即被清理。这是因为在 InnoDB 中实现 MVCC 时，其他并发事务可能需要访问这些 log 中的旧数据版本来维持一致性读。</li>
+<li><strong>清理过程</strong>：Purge 线程会周期性地检查 update undo log。只有当这些 log 记录不再被任何其他活跃事务所需时（即没有更早的读视图需要这些数据），它们才会被标记为可清理。然后，Purge 操作会逐步从 undo 表空间中删除这些记录。</li>
+</ul>
+<h2 id="74-长事务对undo-log-清理的影响"><a href="#7-4-长事务对undo-log-清理的影响" class="headerlink" title="7.4 长事务对undo log 清理的影响"></a>7.4 长事务对undo log 清理的影响</h2><p>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</p>
+<h1 id="相关文章"><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1><p><a target="_blank" rel="noopener" href="https://sunyan.xyz/5b064db6/">Intro to 事务</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/9cd551f5/">Intro to InnoDB 事务</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/9faedfe0/">InnoDB事务-隔离性的实现, MVCC &amp; 锁</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/6cb5dc64/">InnoDB事务-持久性的实现， binglog &amp; redo log&amp;undo log</a></p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/9faedfe0/">InnoDB事务-隔离性的实现, MVCC & 锁</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/9cd551f5/">Intro to InnoDB事务</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%B8%80%E6%9D%A1-undo-log-%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">1  一条 undo log  的结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-undo-log-%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-text">1.1  undo log 的分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-insert-%E6%93%8D%E4%BD%9C%E7%9A%84-undo-log"><span class="toc-text">1.2  INSERT 操作的 Undo log</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#121-end-of-record-%E5%92%8C-start-of-record"><span class="toc-text">1.2.1 end of record  和 start of record</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#122-undo-type"><span class="toc-text">1.2.2 undo type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#123-undo-no"><span class="toc-text">1.2.3 undo no</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#124-table-id"><span class="toc-text">1.2.4 table id</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#125-ltlen-valuegt"><span class="toc-text">1.2.5 &lt;len, value&gt;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-delete-%E6%93%8D%E4%BD%9C%E7%9A%84-undo-log-%E6%A0%87%E8%AE%B0%E5%88%A0%E9%99%A4"><span class="toc-text">1.3  DELETE 操作的 Undo log-标记删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#131-%E6%A0%87%E8%AE%B0%E5%88%A0%E9%99%A4"><span class="toc-text">1.3.1 标记删除</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#132-%E8%A1%8C%E8%AE%B0%E5%BD%95%E7%9A%84%E5%88%A0%E9%99%A4%E6%A0%87%E8%AE%B0"><span class="toc-text">1.3.2  行记录的删除标记</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-update-%E6%93%8D%E4%BD%9C%E7%9A%84-undo-log"><span class="toc-text">1.4 UPDATE 操作的 Undo log</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E4%B8%80%E4%B8%AA%E4%BA%8B%E5%8A%A1%E4%B8%AD%E7%9A%84%E5%A4%9A%E6%9D%A1undo-log%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E5%9C%A8%E4%B8%80%E8%B5%B7"><span class="toc-text">2一个事务中的多条undo  log如何组织在一起</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-undo-page-%E5%88%86%E7%B1%BB%E5%9E%8B%E5%AD%98%E5%82%A8undo-log"><span class="toc-text">2.1 undo page -分类型存储undo log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-undo-page-%E9%93%BE%E8%A1%A8"><span class="toc-text">2.2 undo page 链表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E5%9B%9E%E6%BB%9A%E6%AE%B5"><span class="toc-text">2.3 回滚段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-undo%E9%A1%B5%E9%93%BE%E8%A1%A8%E7%9A%84%E5%BD%A2%E6%88%90%E4%B8%8E%E7%BB%B4%E6%8A%A4"><span class="toc-text">2.4  Undo页链表的形成与维护</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%A1%8C%E8%AE%B0%E5%BD%95%E5%A6%82%E4%BD%95%E4%B8%8Eundo-log-%E5%85%B3%E8%81%94-roll_pointer"><span class="toc-text">3 行记录如何与undo log 关联 -roll_pointer</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E4%B8%80%E6%9D%A1%E8%AE%B0%E5%BD%95%E7%9A%84%E7%89%88%E6%9C%AC%E9%93%BE%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90"><span class="toc-text">4. 一条记录的版本链如何形成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-undo-log-%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-text">5. undo log 的持久化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%9F%BA%E4%BA%8Eundo-log-%E7%9A%84%E5%9B%9E%E6%BB%9A%E6%93%8D%E4%BD%9C"><span class="toc-text">6 基于undo log 的回滚操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#61-%E7%94%A8%E6%88%B7x2f%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%BB%E5%8A%A8%E5%9B%9E%E6%BB%9A"><span class="toc-text">6.1. 用户&#x2F;应用程序主动回滚</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#62-%E6%AD%BB%E9%94%81%E5%BC%82%E5%B8%B8%E5%9B%9E%E6%BB%9A"><span class="toc-text">6.2. 死锁异常回滚</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#63-%E5%B4%A9%E6%BA%83%E6%81%A2%E5%A4%8D"><span class="toc-text">6.3  崩溃恢复</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-undo-log-%E7%9A%84%E6%B8%85%E7%90%86"><span class="toc-text">7 undo log 的清理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#71-purge-%E7%BA%BF%E7%A8%8B"><span class="toc-text">7.1 Purge 线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#72-insert-undo-log"><span class="toc-text">7.2 Insert Undo Log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#73-update-undo-log"><span class="toc-text">7.3 Update Undo Log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#74-%E9%95%BF%E4%BA%8B%E5%8A%A1%E5%AF%B9undo-log-%E6%B8%85%E7%90%86%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">7.4 长事务对undo log 清理的影响</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%96%87%E7%AB%A0"><span class="toc-text">相关文章</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
