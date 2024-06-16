@@ -1,0 +1,668 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>RECURRENT NEURAL NETWORK REGULARIZATION - Sun Yan</title>
+
+  
+    <meta name="description" content="RECURRENT NEURAL NETWORK REGULARIZATION ABSTRACT 摘要We present a simple regularization technique for Recurrent Neural Networks (RNNs) with Long Short-Term Memory (LSTM) units. Dropout, the most suc- ce">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RECURRENT NEURAL NETWORK REGULARIZATION">
+<meta property="og:url" content="http://example.com/7057a5e3/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="RECURRENT NEURAL NETWORK REGULARIZATION ABSTRACT 摘要We present a simple regularization technique for Recurrent Neural Networks (RNNs) with Long Short-Term Memory (LSTM) units. Dropout, the most suc- ce">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/7057a5e3/1.png">
+<meta property="og:image" content="http://example.com/7057a5e3/2.png">
+<meta property="og:image" content="http://example.com/7057a5e3/3.png">
+<meta property="og:image" content="http://example.com/7057a5e3/4.png">
+<meta property="og:image" content="http://example.com/7057a5e3/5.png">
+<meta property="og:image" content="http://example.com/7057a5e3/6.png">
+<meta property="og:image" content="http://example.com/7057a5e3/7.png">
+<meta property="article:published_time" content="2024-06-12T10:10:58.000Z">
+<meta property="article:modified_time" content="2024-06-16T14:23:22.616Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="神经网络">
+<meta property="article:tag" content="Ilya sutskever‘s 30  papers">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/7057a5e3/1.png">
+  
+  
+  
+  <meta name="keywords" content="AI,神经网络,Ilya sutskever‘s 30  papers">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/17f5a37e/"><span class="title">Ilya sutskever's approx 30 research papers about AI</span></a><a class="item title" href="/6ac941eb/"><span class="title">递归神经网络（Recurrent Neural Networks, RNNs）</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/2472be8a/"><span class="title">The Unreasonable Effectiveness of Recurrent Neural Networks</span></a><a class="item title" href="/7057a5e3/"><span class="title">RECURRENT NEURAL NETWORK REGULARIZATION</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-06-12T10:10:58.000Z">2024-06-12</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-06-16T14:23:22.616Z">2024-06-16</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>RECURRENT NEURAL NETWORK REGULARIZATION</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1409.2329">RECURRENT NEURAL NETWORK REGULARIZATION</a></p>
+<h1 id="abstract-摘要"><a href="#ABSTRACT-摘要" class="headerlink" title="ABSTRACT 摘要"></a>ABSTRACT 摘要</h1><p>We present a simple regularization technique for Recurrent Neural Networks (RNNs) with Long Short-Term Memory (LSTM) units. Dropout, the most suc- cessful technique for regularizing neural networks, does not work well with RNNs and LSTMs. In this paper, we show how to correctly apply dropout to LSTMs, and show that it substantially reduces overfitting on a variety of tasks. These tasks include language modeling, speech recognition, image caption generation, and machine translation.<br>我们提出了一种用于长短期记忆（LSTM）单元的循环神经网络（RNN）的简单正则化技术。最成功的正则化神经网络技术——Dropout，在RNN和LSTM上效果不好。在本文中，我们展示了如何正确地将Dropout应用于LSTM，并证明它在各种任务上显著减少了过拟合。这些任务包括语言建模、语音识别、图像描述生成和机器翻译。</p>
+<h1 id="1-introduction-引言"><a href="#1-INTRODUCTION-引言" class="headerlink" title="1 INTRODUCTION  引言"></a>1 INTRODUCTION  引言</h1><p>The Recurrent Neural Network (RNN) is neural sequence model that achieves state of the art per- formance on important tasks that include language modeling Mikolov (2012), speech recognition Graves et al. (2013), and machine translation Kalchbrenner &amp; Blunsom (2013). It is known that successful applications of neural networks require good regularization. Unfortunately, dropout Srivastava (2013), the most powerful regularization method for feedforward neural networks, does not work well with RNNs. As a result, practical applications of RNNs often use models that are too small because large RNNs tend to overfit. Existing regularization methods give relatively small improvements for RNNs Graves (2013). In this work, we show that dropout, when correctly used, greatly reduces overfitting in LSTMs, and evaluate it on three different problems.</p>
+<p>The code for this work can be found in <a target="_blank" rel="noopener" href="https://github.com/wojzaremba/lstm">https://github.com/wojzaremba/lstm</a>.</p>
+<p>递归神经网络（RNN）是一种神经序列模型，可在重要任务上实现最先进的性能，包括语言建模Mikolov（2012），语音识别Graves等人（2013）和机器翻译Kalchbrenner&amp;Blunsom（2013）。众所周知，神经网络的成功应用需要良好的正则化。不幸的是，dropout Srivastava （2013） 是前馈神经网络最强大的正则化方法，但不能很好地用于 RNN。因此，RNN 的实际应用通常使用太小的模型，因为大型 RNN 往往会过度拟合。现有的正则化方法对RNNs Graves（2013）进行了相对较小的改进。在这项工作中，我们表明，如果正确使用，压差可以大大减少LSTM中的过拟合，并在三个不同的问题上对其进行评估。</p>
+<p>此工作的代码可以在<a target="_blank" rel="noopener" href="https://github.com/wojzaremba/lstm%E6%89%BE%E5%88%B0%E3%80%82">https://github.com/wojzaremba/lstm</a>找到。</p>
+<h1 id="2-related-work"><a href="#2-RELATED-WORK" class="headerlink" title="2 RELATED WORK"></a>2 RELATED WORK</h1><p>Dropout Srivastava (2013) is a recently introduced regularization method that has been very suc- cessful with feed-forward neural networks. While much work has extended dropout in various ways Wang &amp; Manning (2013); Wan et al. (2013), there has been relatively little research in applying it to RNNs. The only paper on this topic is by Bayer et al. (2013), who focuses on “marginalized dropout” Wang &amp; Manning (2013), a noiseless deterministic approximation to standard dropout. Bayer et al. (2013) claim that conventional dropout does not work well with RNNs because the re- currence amplifies noise, which in turn hurts learning. In this work, we show that this problem can be fixed by applying dropout to a certain subset of the RNNs’ connections. As a result, RNNs can now also benefit from dropout.<br>Dropout Srivastava（2013）是一种最近引入的正则化方法，在前馈神经网络中非常成功。尽管很多工作以各种方式扩展了Dropout Wang &amp; Manning（2013）；Wan等（2013），但在RNN上应用它的研究相对较少。关于这个主题的唯一论文是Bayer等人（2013）的，他们专注于“边缘化Dropout” Wang &amp; Manning（2013），这是标准Dropout的一种无噪声确定性近似。Bayer等人（2013）认为传统的Dropout在RNN上效果不好，因为递归放大了噪声，进而影响了学习。在这项工作中，我们展示了通过将Dropout应用于RNN连接的某个子集可以解决这个问题。因此，RNN现在也可以受益于Dropout。</p>
+<p>Independently of our work, Pham et al. (2013) developed the very same RNN regularization method and applied it to handwriting recognition. We rediscovered this method and demonstrated strong empirical results over a wide range of problems. Other work that applied dropout to LSTMs is Pachitariu &amp; Sahani (2013).<br>独立于我们的工作，Pham等人（2013）开发了完全相同的RNN正则化方法并将其应用于手写识别。我们重新发现了这种方法，并在广泛的问题上展示了强大的实证结果。其他将Dropout应用于LSTM的工作包括Pachitariu &amp; Sahani（2013）。</p>
+<p>There have been a number of architectural variants of the RNN that perform better on problems with long term dependencies Hochreiter &amp; Schmidhuber (1997); Graves et al. (2009); Cho et al. (2014); Jaeger et al. (2007); Koutník et al. (2014); Sundermeyer et al. (2012). In this work, we show how to correctly apply dropout to LSTMs, the most commonly-used RNN variant; this way of applying dropout is likely to work well with other RNN architectures as well. In this paper, we consider the following tasks: language modeling, speech recognition, and machine translation. Language modeling is the first task where RNNs have achieved substantial success Mikolov et al. (2010; 2011); Pascanu et al. (2013). RNNs have also been successfully used for speech recognition Robinson et al. (1996); Graves et al. (2013) and have recently been applied to machine translation, where they are used for language modeling, re-ranking, or phrase modeling Devlin et al. (2014); Kalchbrenner &amp; Blunsom (2013); Cho et al. (2014); Chow et al. (1987); Mikolov et al. (2013).<br>已经有许多RNN的架构变体在处理长期依赖问题上表现更好： Hochreiter &amp; Schmidhuber (1997); Graves等（2009）；Cho等（2014）；Jaeger等（2007）；Koutník等（2014）；Sundermeyer等（2012）。在这项工作中，我们展示了如何正确地将dropout应用于LSTM，这是最常用的RNN变体；这种应用dropout的方法也可能适用于其他RNN架构。在本文中，我们考虑了以下任务：语言建模、语音识别和机器翻译。语言建模是RNN首次取得显著成功的任务 Mikolov等（2010；2011）；Pascanu等（2013）。RNN也已成功应用于语音识别 Robinson等（1996）；Graves等（2013），并且最近被应用于机器翻译，在那里它们被用于语言建模、重排序或短语建模 Devlin等（2014）；Kalchbrenner &amp; Blunsom（2013）；Cho等（2014）；Chow等（1987）；Mikolov等（2013）。</p>
+<h1 id="3-regularizing-rnns-with-lstm-cells-使用lstm单元对rnn进行正则化"><a href="#3-REGULARIZING-RNNS-WITH-LSTM-CELLS-使用LSTM单元对RNN进行正则化" class="headerlink" title="3 REGULARIZING RNNS WITH LSTM CELLS 使用LSTM单元对RNN进行正则化"></a>3 REGULARIZING RNNS WITH LSTM CELLS 使用LSTM单元对RNN进行正则化</h1><p>In this section we describe the deep LSTM (Section 3.1). Next, we show how to regularize them (Section 3.2), and explain why our regularization scheme works.<br>在本节中，我们描述了深度LSTM（3.1节）。接下来，我们展示如何对它们进行正则化（3.2节），并解释我们的正则化方案为何有效。</p>
+<p>We let subscripts denote timesteps and superscripts denote layers. All our states are n-dimensional. Let $h_t^l \in \mathbb{R}^n$ be a hidden state in layer$l$ in timestep $t$. Moreover, let $T_{n,m} : \mathbb{R}^n \to \mathbb{R}^m$be an affine transform ($Wx + b$ for some $W$ and $b$). Let $\odot$ be element-wise multiplication and let $h_t^0​$ be an input word vector at timestep $k$. We use the activations $h_t^L$​ to predict $y_t$​, since $L$ is the number of layers in our deep LSTM.<br>我们用下标表示时间步长，用上标表示层次。我们所有的状态都是n维的。令$h_t^l \in \mathbb{R}^n$ 为时间步$t$中层$l$的隐藏状态。此外，令$T_{n,m} : \mathbb{R}^n \to \mathbb{R}^m$为仿射变换（某些$W$和$b$,$Wx + b$）。令$\odot$为逐元素乘法，并令$h_t^0$​为时间步$k$的输入词向量。我们使用激活值$h_t^L$​来预测$y_t​$，因为$L$是我们深度LSTM的层数。</p>
+<h2 id="31-long-short-term-memory-units-长短期记忆单元"><a href="#3-1-LONG-SHORT-TERM-MEMORY-UNITS-长短期记忆单元" class="headerlink" title="3.1 LONG-SHORT TERM MEMORY UNITS 长短期记忆单元"></a><strong>3.1 LONG-SHORT TERM MEMORY UNITS</strong> 长短期记忆单元</h2><p>The RNN dynamics can be described using deterministic transitions from previous to current hidden states. The deterministic state transition is a function<br>RNN的动态可以用从先前隐藏状态到当前隐藏状态的确定性转换来描述。确定性状态转换是一个函数</p>
+<p>RNN : $h_t^{l-1}​$, $h_{t-1}^l \rightarrow h_t^l$</p>
+<p>For classical RNNs, this function is given by<br>$h_t^l = f(T_{n,n} h_t^{l-1} + T_{n,n} h_{t-1}^l), where f \in \{\text{sigm, tanh}\}$</p>
+<p>The LSTM has complicated dynamics that allow it to easily “memorize” information for an extended number of timesteps. The “long term” memory is stored in a vector of memory cells $c_t^l \in \mathbb{R}^n$. Although many LSTM architectures that differ in their connectivity structure and activation functions, all LSTM architectures have explicit memory cells for storing information for long periods of time. The LSTM can decide to overwrite the memory cell, retrieve it, or keep it for the next time step. The LSTM architecture used in our experiments is given by the following equations Graves et al. (2013):<br>LSTM具有复杂的动态，允许它轻松地“记住”多个时间步长的信息。“长期”记忆存储在记忆单元向量$c_t^l \in \mathbb{R}^n$中。尽管许多LSTM架构在连接结构和激活函数上有所不同，但所有LSTM架构都有明确的记忆单元用于长时间存储信息。LSTM可以决定覆盖记忆单元、检索或者在下一个时间步中保留它。我们实验中使用的LSTM架构由以下方程给出 Graves等（2013）：</p>
+<p>LSTM : $h_t^{l-1}$, $h_{t-1}^l$, $c_{t-1}^l \rightarrow h_t^l$​, $c_t^l$</p>
+<p>$\left( \begin{array}{c} i \ f \ o \ g \end{array} \right) = \left( \begin{array}{c} \text{sigm} \ \text{sigm} \ \text{sigm} \ \text{tanh} \end{array} \right) T_{2n,4n} \left( \begin{array}{c} h_{t}^{l-1} \ h_{t-1}^{l} \end{array} \right)​$</p>
+<p>$c_t^l = f \odot c_{t-1}^l + i \odot g$</p>
+<p>$h_t^l = o \odot \text{tanh}(c_t^l)$<br>In these equations, sigm and tanh are applied element-wise. Figure 1 illustrates the LSTM equations.<br>在这些方程中，sigm和tanh逐元素应用。图1展示了LSTM方程</p>
+<h2 id="32-regularization-with-dropout"><a href="#3-2-REGULARIZATION-WITH-DROPOUT" class="headerlink" title="3.2 REGULARIZATION WITH DROPOUT"></a>3.2 REGULARIZATION WITH DROPOUT</h2><p>The main contribution of this paper is a recipe for applying dropout to LSTMs in a way that success-fully reduces overfitting. The main idea is to apply the dropout operator only to the non-recurrent<br>本文的主要贡献是提供了一种将dropout应用于LSTM的方法，从而成功地减少了过拟合。主要思想是仅将dropout操作符应用于非递归连接。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/1.png" class><br>Figure 1: A graphical representation of LSTM memory cells used in this paper (there are minor differences in comparison to Graves (2013)).<br>图1：本文中使用的LSTM记忆单元的图形表示（与Graves（2013）相比有细微差别）。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/2.png" class></p>
+<p>Figure 2: Regularized multilayer RNN. The dashed arrows indicate connections where dropout is applied, and the solid lines indicate connections where dropout is not applied.<br>图2：正则化的多层RNN。虚线箭头表示应用了dropout的连接，实线表示未应用dropout的连接。<br>⚠️： x 表示输入层， y 表示输出层</p>
+<p>connections (Figure 2). The following equation describes it more precisely, where D is the dropoutoperator that sets a random subset of its argument to zero:<br>连接（图2）。以下方程更准确地描述了这一点，其中 $D$ 是将其参数的随机子集设置为零的dropout操作符：</p>
+<p>$\left( \begin{array}{c} i \ f \ o \ g \end{array} \right) = \left( \begin{array}{c} \text{sigm} \ \text{sigm} \ \text{sigm} \ \text{tanh} \end{array} \right) T_{2n,4n} \left( \begin{array}{c} {D}(h_{t}^{l-1}) \ h_{t-1}^{l} \end{array} \right)​$</p>
+<p>$c_t^l = f \odot c_{t-1}^l + i \odot g$</p>
+<p>$h_t^l = o \odot \text{tanh}(c_t^l)$</p>
+<p>Our method works as follows. The dropout operator corrupts the information carried by the units,forcing them to perform their intermediate computations more robustly. At the same time, we do not want to erase all the information from the units. It is especially important that the units remember<br>events that occurred many timesteps in the past. Figure 3 shows how information could flow from an event that occurred at timestep t − 2 to the prediction in timestep t + 2 in our implementation of dropout. We can see that the information is corrupted by the dropout operator exactly L + 1 times,<br>我们的方法如下。dropout 运算符会破坏单元携带的信息，迫使它们更稳健地执行中间计算。同时，我们不想抹去单元的所有信息。特别重要的是，单元需要记住许多时间步长之前发生的事件。图3显示了在我们实现的dropout中，信息如何从时间步 $t-2$ 传递到时间步 $t+2$ 的预测。我们可以看到，信息恰好被dropout操作符破坏了 $L+1$ 次。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/3.png" class>
+<p>Figure 3: The thick line shows a typical path of information flow in the LSTM. The information is affected by dropout L + 1 times, where L is depth of network.<br>图 3：粗线显示了 LSTM 中信息流的典型路径。信息受 L + 1 次的dropout影响，其中 L 是网络深度。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/4.png" class>
+<p>Figure 4: Some interesting samples drawn from a large regularized model conditioned on “The meaning of life is”. We have removed “unk”, “N”, “$” from the set of permissible words.<br>图4：从一个以“The meaning of life is”为条件的大型正则化模型中抽取的一些有趣样本。我们已经从允许的单词集中移除了“unk”、“N”、“$”。</p>
+<p>and this number is independent of the number of timesteps traversed by the information. Standard dropout perturbs the recurrent connections, which makes it difficult for the LSTM to learn to store information for long periods of time. By not using dropout on the recurrent connections, the LSTM can benefit from dropout regularization without sacrificing its valuable memorization ability.<br>这个数字与信息经过的时间步数无关。标准的dropout会扰乱递归连接，这使得LSTM难以学习长时间存储信息。通过不在递归连接上使用dropout，LSTM可以从dropout正则化中受益，而不牺牲其宝贵的记忆能力。</p>
+<h1 id="4-experiments-实验"><a href="#4-EXPERIMENTS-实验" class="headerlink" title="4 EXPERIMENTS   实验"></a>4 EXPERIMENTS   实验</h1><p>We present results in three domains: language modeling (Section 4.1), speech recognition (Section 4.2), machine translation (Section 4.3), and image caption generation (Section 4.4).<br>我们在三个领域中展示了结果：语言建模（第4.1节）、语音识别（第4.2节）、机器翻译（第4.3节）和图像描述生成（第4.4节）。</p>
+<h2 id="41-language-modeling-语言建模"><a href="#4-1-LANGUAGE-MODELING-语言建模" class="headerlink" title="4.1 LANGUAGE MODELING   语言建模"></a>4.1 LANGUAGE MODELING   语言建模</h2><p>We conducted word-level prediction experiments on the Penn Tree Bank (PTB) dataset Marcus et al. (1993), which consists of 929k training words, 73k validation words, and 82k test words. It has 10k words in its vocabulary. We downloaded it from Tomas Mikolov’s webpage†. We trained regularized LSTMs of two sizes; these are denoted the medium LSTM and large LSTM. Both LSTMs have two layers and are unrolled for 35 steps. We initialize the hidden states to zero. We then use the final hidden states of the current minibatch as the initial hidden state of the subsequent minibatch (successive minibatches sequentially traverse the training set). The size of each minibatch is 20.<br>我们在Penn Tree Bank (PTB)数据集上进行了词级预测实验，该数据集包括92.9万个训练词、7.3万个验证词和8.2万个测试词。其词汇表有1万个单词。我们从Tomas Mikolov的网页下载了该数据集。我们训练了两种规模的正则化LSTM；它们分别被称为中型LSTM和大型LSTM。两个LSTM都有两层，展开35步。我们将隐藏状态初始化为零。然后我们使用当前小批量的最终隐藏状态作为后续小批量的初始隐藏状态（连续的小批量依次遍历训练集）。每个小批量的大小为20。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/5.png" class></p>
+<p>The medium LSTM has 650 units per layer and its parameters are initialized uniformly in [−0.05, 0.05]. As described earlier, we apply 50% dropout on the non-recurrent connections. We train the LSTM for 39 epochs with a learning rate of 1, and after 6 epochs we decrease it by a factor of 1.2 after each epoch. We clip the norm of the gradients (normalized by minibatch size) at 5. Training this network takes about half a day on an NVIDIA K20 GPU.<br>中型LSTM每层有650个单元，其参数在[−0.05, 0.05]范围内均匀初始化。如前所述，我们在非递归连接上应用50%的dropout。我们用学习率为1训练LSTM共39个周期，在第6个周期后，每个周期将学习率按1.2的因子递减。我们将梯度的范数（按小批量大小归一化）剪裁到5。训练该网络在NVIDIA K20 GPU上大约需要半天时间。</p>
+<p>The large LSTM has 1500 units per layer and its parameters are initialized uniformly in [−0.04, 0.04]. We apply 65% dropout on the non-recurrent connections. We train the model for 55 epochs with a learning rate of 1; after 14 epochs we start to reduce the learning rate by a factor of 1.15 after each epoch. We clip the norm of the gradients (normalized by minibatch size) at 10 Mikolov et al. (2010). Training this network takes an entire day on an NVIDIA K20 GPU.<br>大型LSTM每层有1500个单元，其参数在[−0.04, 0.04]范围内均匀初始化。我们在非递归连接上应用65%的dropout。我们用学习率为1训练模型共55个周期；在第14个周期后，每个周期开始按1.15的因子递减学习率。我们将梯度的范数（按小批量大小归一化）剪裁到10 Mikolov等（2010）。训练该网络在NVIDIA K20 GPU上需要整整一天时间。</p>
+<p>For comparison, we trained a non-regularized network. We optimized its parameters to get the best validation performance. The lack of regularization effectively constrains size of the network, forcing us to use small network because larger networks overfit. Our best performing non-regularized LSTM has two hidden layers with 200 units per layer, and its weights are initialized uniformly in [−0.1, 0.1]. We train it for 4 epochs with a learning rate of 1 and then we decrease the learning rate by a factor of 2 after each epoch, for a total of 13 training epochs. The size of each minibatch is 20, and we unroll the network for 20 steps. Training this network takes 2-3 hours on an NVIDIA K20 GPU.<br>为了比较，我们训练了一个未正则化的网络。我们优化其参数以获得最佳验证性能。缺乏正则化有效地限制了网络的大小，迫使我们使用小型网络，因为较大的网络会过拟合。我们表现最好的未正则化LSTM有两层隐藏层，每层200个单元，其权重在[−0.1, 0.1]范围内均匀初始化。我们用学习率为1训练了4个周期，然后每个周期将学习率按2的因子递减，总共训练13个周期。每个小批量的大小为20，我们展开网络20步。训练该网络在NVIDIA K20 GPU上需要2-3小时。</p>
+<p>Table 1 compares previous results with our LSTMs, and Figure 4 shows samples drawn from a single large regularized LSTM.<br>表1比较了以前的结果和我们的LSTM，图4显示了从单个大型正则化LSTM中抽取的样本。</p>
+<h2 id="42-speech-recognition-语音识别"><a href="#4-2-SPEECH-RECOGNITION-语音识别" class="headerlink" title="4.2 SPEECH RECOGNITION   语音识别"></a>4.2 SPEECH RECOGNITION   语音识别</h2><p>Deep Neural Networks have been used for acoustic modeling for over half a century (see Bourlard &amp; Morgan (1993) for a good review). Acoustic modeling is a key component in mapping acoustic signals to sequences of words, as it models $p(s_t|X)$ where $s_t$​ is the phonetic state at time $t$ and $X$ is the acoustic observation. Recent work has shown that LSTMs can achieve excellent performance on acoustic modeling Sak et al. (2014), yet relatively small LSTMs (in terms of the number of their parameters) can easily overfit the training set. A useful metric for measuring the performance of acoustic models is frame accuracy, which is measured at each sts_tst​ for all timesteps ttt. Generally, this metric correlates with the actual metric of interest, the Word Error Rate (WER).<br>深度神经网络已经被用于声学建模超过半个世纪（参见Bourlard &amp; Morgan (1993)的良好综述）。声学建模是将声学信号映射到单词序列中的关键组成部分，因为它对p(st∣X)p(s_t|X)p(st​∣X)建模，其中sts_tst​是时间ttt的语音状态，XXX是声学观测。最近的工作表明，LSTM在声学建模上可以取得优异的性能 Sak等（2014），但相对较小的LSTM（就参数数量而言）很容易对训练集过拟合。衡量声学模型性能的一个有用指标是帧准确率，它在所有时间步长ttt处测量每个sts_tst​的准确率。通常，这个指标与实际感兴趣的指标，即单词错误率（WER）相关。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/6.png" class>
+<p>Since computing the WER involves using a language model and tuning the decoding parameters for every change in the acoustic model, we decided to focus on frame accuracy in these experiments. Table 2 shows that dropout improves the frame accuracy of the LSTM. Not surprisingly, the training frame accuracy drops due to the noise added during training, but as is often the case with dropout, this yields models that generalize better to unseen data. Note that the test set is easier than the training set, as its accuracy is higher. We report the performance of an LSTM on an internal Google Icelandic Speech dataset, which is relatively small (93k utterances), so overfitting is a great concern.<br>由于计算WER涉及使用语言模型并调整声学模型每次变化的解码参数，我们决定在这些实验中专注于帧准确率。表2显示了dropout提高了LSTM的帧准确率。不出所料，由于训练过程中加入的噪声，训练帧准确率下降了，但与dropout经常出现的情况一样，这使得模型在未见数据上的泛化能力更强。请注意，测试集比训练集更容易，因为它的准确率更高。我们报告了LSTM在Google内部冰岛语语音数据集上的性能，该数据集相对较小（93k句子），因此过拟合是一个很大的问题。</p>
+<h2 id="43-machine-translation-机器翻译"><a href="#4-3-MACHINE-TRANSLATION-机器翻译" class="headerlink" title="4.3 MACHINE TRANSLATION  机器翻译"></a>4.3 MACHINE TRANSLATION  机器翻译</h2><p>We formulate a machine translation problem as a language modelling task, where an LSTM is trained to assign high probability to a correct translation of a source sentence. Thus, the LSTM is trained on concatenations of source sentences and their translations Sutskever et al. (2014) (see also Cho et al. (2014)). We compute a translation by approximating the most probable sequence of words using a simple beam search with a beam of size 12. We ran an LSTM on the WMT’14 English to French dataset, on the “selected” subset from Schwenk (2014) which has 340M French words and 304M English words. Our LSTM has 4 hidden layers, and both its layers and word embeddings have 1000 units. Its English vocabulary has 160,000 words and its French vocabulary has 80,000 words. The optimal dropout probability was 0.2. Table 3 shows the performance of an LSTM trained with and without dropout. While our LSTM does not beat the phrase-based LIUM SMT system Schwenk et al. (2011), our results show that dropout improves the translation performance of the LSTM.<br>我们将机器翻译问题表述为一个语言建模任务，其中LSTM被训练为对源句子的正确翻译赋予高概率。因此，LSTM在源句子及其翻译的串联上进行训练 Sutskever等（2014）（另见Cho等（2014））。我们通过使用大小为12的简单束搜索来近似最可能的单词序列来计算翻译。我们在WMT’14英法数据集上的“selected”子集（来自Schwenk（2014），包含3.4亿个法语单词和3.04亿个英语单词）上运行了一个LSTM。我们的LSTM有4个隐藏层，其层和词嵌入都有1000个单元。它的英语词汇量有160,000个单词，法语词汇量有80,000个单词。最佳的dropout概率是0.2。表3显示了使用和不使用dropout训练的LSTM的性能。虽然我们的LSTM没有击败基于短语的LIUM SMT系统 Schwenk等（2011），但我们的结果表明dropout提高了LSTM的翻译性能。</p>
+<h2 id="44-image-caption-generation图像描述生成"><a href="#4-4-IMAGE-CAPTION-GENERATION图像描述生成" class="headerlink" title="4.4 IMAGE CAPTION GENERATION图像描述生成"></a>4.4 IMAGE CAPTION GENERATION图像描述生成</h2><p>We applied the dropout variant to the image caption generation model of Vinyals et al. (2014). The image caption generation is similar to the sequence-to-sequence model of Sutskever et al. (2014), but where the input image is mapped onto a vector with a highly-accurate pre-trained convolutional neural network (Szegedy et al., 2014), which is converted into a caption with a single-layer LSTM (see Vinyals et al. (2014) for the details on the architecture). We test our dropout scheme on LSTM as the convolutional neural network is not trained on the image caption dataset because it is not large (MSCOCO (Lin et al., 2014)).<br>我们将dropout变体应用于Vinyals等人（2014）的图像描述生成模型。图像描述生成类似于Sutskever等人（2014）的序列到序列模型，但输入图像被映射到一个具有高精度的预训练卷积神经网络（Szegedy等人，2014）的向量，该向量通过单层LSTM转换为描述（有关架构的详细信息，请参见Vinyals等人，2014）。我们在LSTM上测试了我们的dropout方案，因为卷积神经网络并未在图像描述数据集上进行训练，因为它不是很大（MSCOCO（Lin等人，2014））。</p>
+<p>Our results are summarized in the following Table 4. In brief, dropout helps relative to not using dropout, but using an ensemble eliminates the gains attained by dropout. Thus, in this setting, the main effect of dropout is to produce a single model that is as good as an ensemble, which is a reasonable improvement given the simplicity of the technique.<br>我们的结果总结在以下表4中。简而言之，dropout相对于不使用dropout有帮助，但使用集成方法消除了通过dropout获得的收益。因此，在这种情况下，dropout的主要作用是产生一个与集成一样好的单一模型，考虑到该技术的简单性，这是一个合理的改进。</p>
+<h1 id="5-conclusion"><a href="#5-CONCLUSION" class="headerlink" title="5 CONCLUSION"></a>5 CONCLUSION</h1><p>We presented a simple way of applying dropout to LSTMs that results in large performance increases on several problems in different domains. Our work makes dropout useful for RNNs, and our results suggest that our implementation of dropout could improve performance on a wide variety of applications.<br>我们提出了一种将dropout应用于LSTM的简单方法，这在不同领域的几个问题上导致了性能的大幅提升。我们的工作使dropout对RNN有用，并且我们的结果表明，我们实现的dropout可以提高各种应用的性能。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/7057a5e3/7.png" class></p>
+<h1 id="6-acknowledgments"><a href="#6-ACKNOWLEDGMENTS" class="headerlink" title="6 ACKNOWLEDGMENTS"></a>6 ACKNOWLEDGMENTS</h1><p>We wish to acknowledge Tomas Mikolov for useful comments on the first version of the paper.<br>我们希望感谢Tomas Mikolov对论文第一版提出的有益意见。</p>
+<h1 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h1><h2 id="1-元素乘法"><a href="#1-元素乘法" class="headerlink" title="1. 元素乘法"></a>1. 元素乘法</h2><p><strong>元素乘法</strong>（Element-wise multiplication），也称为Hadamard乘积（Hadamard product），是对两个同形矩阵或向量的对应元素进行逐一相乘的操作，广泛应用于各种线性代数和神经网络计算中。 用符号“⊙”表示。</p>
+<h3 id="公式表示"><a href="#公式表示" class="headerlink" title="公式表示"></a>公式表示</h3><p>给定两个相同大小的矩阵或向量 $A$ 和 $B$，其元素乘法 $C$ 计算如下：<br>$C = A \odot B$</p>
+<p>其中：</p>
+<ul>
+<li>$A = [a_1, a_2, …, a_n]$</li>
+<li>$B = [b_1, b_2, …, b_n]$</li>
+<li>$C = [c_1, c_2, …, c_n]$</li>
+<li>$c_i = a_i \cdot b_i$<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3></li>
+</ul>
+<p>假设有两个向量 $A$ 和 $B$：</p>
+<p>$A=[1,2,3]$<br>$B=[4,5,6]$</p>
+<p>它们的元素乘法 $C$ 为：<br>$C = A \odot B = [1 \cdot 4, 2 \cdot 5, 3 \cdot 6] = [4, 10, 18]$</p>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><ol>
+<li><strong>神经网络中的LSTM</strong>：<ul>
+<li>用于更新单元状态，如公式 $c_t = f \odot c_{t-1} + i \odot \tilde{c}_t$中。</li>
+</ul>
+</li>
+<li><strong>图像处理</strong>：<ul>
+<li>用于图像滤波，将滤波器应用于图像的每个像素。</li>
+</ul>
+</li>
+<li><strong>数据处理</strong>：<ul>
+<li>在数据预处理中，用于按元素缩放或调整数据。</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-公式拆解rnn"><a href="#2-公式拆解-RNN" class="headerlink" title="2. 公式拆解:RNN"></a>2. 公式拆解:RNN</h2><p>RNN : $h_t^{l-1}​$, $h_{t-1}^l \rightarrow h_t^l$</p>
+<p>表明在RNN中， 隐藏状态的计算结果依赖于当前时间步的输入 $h_t$和前一时间步的隐藏状态 $h_{t-1}$。 再细化一点，</p>
+<ol>
+<li>当前时间步的输入 $h_t$ 应该来源于上一层，所以是 $h_t^{l-1}​$</li>
+<li>前一时间步的隐藏状态 $h_{t-1}$ ，应该是同一层的前一个时间步， 所以是$h_{t-1}^l$</li>
+</ol>
+<p>该状态转移过程，如果用具体的数学公式表示，可以如下所示<br>$h_t^l = f(T_{n,n} h_t^{l-1} + T_{n,n} h_{t-1}^l), where f \in \{\text{sigm, tanh}\}$</p>
+<h2 id="3-公式拆解lstm-状态更新"><a href="#3-公式拆解-LSTM-状态更新" class="headerlink" title="3. 公式拆解:LSTM  状态更新"></a>3. 公式拆解:LSTM  状态更新</h2><p>LSTM : $h_t^{l-1}$, $h_{t-1}^l$, $c_{t-1}^l \rightarrow h_t^l$​, $c_t^l$<br>描述了LSTM如何通过当前层的输入向量 $h_t^{l-1}$、前一时间步的隐藏状态 $h_{t-1}^l$和单元状态 $c_{t-1}^l$ 来生成新的隐藏状态 $h_t^l$ 和单元状态 $c_t^l$。</p>
+<ol>
+<li>$h_t^{l-1}$：表示第 $l−1$ 层在时间步 $t$ 的隐藏状态向量。这是第 $l$ 层的当前输入。</li>
+<li>$h_{t-1}^l$：表示第 $l$ 层在时间步 $t−1$ 的隐藏状态向量。这是第 $l$ 层的前一个时间步的状态。</li>
+<li>$c_{t-1}^l$：表示第 $l$ 层在时间步 $t−1$的单元状态向量。这是第 $l$ 层的前一个时间步的单元状态。</li>
+<li>$h_t^l$：表示第 $l$ 层在时间步 $t$ 的隐藏状态向量。这是经过第 $l$ 层计算后的新状态。</li>
+<li>$c_t^l$：表示第 $l$ 层在时间步 $t$ 的新的单元状态向量。这是更新后的单元状态。</li>
+</ol>
+<p>$\left( \begin{array}{c} i \ f \ o \ g \end{array} \right) = \left( \begin{array}{c} \text{sigm} \ \text{sigm} \ \text{sigm} \ \text{tanh} \end{array} \right) T_{2n,4n} \left( \begin{array}{c} h_{t}^{l-1} \ h_{t-1}^{l} \end{array} \right)​$</p>
+<p>描述了输入门 $i$、遗忘门 $f$、输出门 $o$ 和候选记忆单元 $g$ 的计算。这里，矩阵 $T_{2n,4n}$​ 包含了相应的权重，输入包括当前输入 $h_t^{l-1}$和前一时间步的隐藏状态 $h_{t-1}^l$​</p>
+<ul>
+<li><strong>输入门 $i$</strong> 和 <strong>遗忘门 $f$</strong> 控制信息的更新和遗忘，使用$sigmoid$激活函数。</li>
+<li><strong>输出门 $o$</strong> 控制输出信息，使用$sigmoid$激活函数。</li>
+<li><strong>候选记忆单元 $g$</strong> 提供新的信息内容，使用$tanh$激活函数。</li>
+<li><strong>权重矩阵 $T_{2n,4n}$</strong>  一个大小为 $2n \times 4n$ 的矩阵，其中 $n$ 是隐藏状态向量的维度。将输入向量 $h_t^{l-1}$​ 和隐藏状态向量 $h_{t-1}^l$ 拼接起来（向量长度为 $2n$），并通过矩阵 $T_{2n,4n}$​ 进行线性变换，生成一个长度为 $4n$ 的输出向量,即 $i, f, o, g$ 四个部分<h3 id="1-遗忘门forget-gate"><a href="#1-遗忘门（Forget-Gate）" class="headerlink" title="1. 遗忘门（Forget Gate）"></a>1. 遗忘门（Forget Gate）</h3></li>
+</ul>
+<p>$f_t^l = \sigma(W_f \cdot [h_{t-1}^l, h_t^{l-1}] + b_f)$</p>
+<ul>
+<li>$[h_t^{l-1}, h_{t-1}^l]$表示将当前输入和前一时间步的隐藏状态向量拼接成一个向量。</li>
+<li>$W_f​$ 是该拼接向量的权重矩阵。</li>
+<li>$b_f$​ 是偏置向量。</li>
+<li>$\sigma$ 是$sigmoid$激活函数，输出范围在0到1之间。</li>
+</ul>
+<p>假设 $n = 4$：</p>
+<ul>
+<li>当前输入向量 $h_t^{l-1}$为 $[h_1​,h_2​,h_3​,h_4​]$。</li>
+<li>前一时间步的隐藏状态 $h_{t-1}^l$ 为 $[h_5, h_6, h_7, h_8]$</li>
+</ul>
+<p>拼接后的向量为：$[h_1, h_2, h_3, h_4, h_5, h_6, h_7, h_8]$</p>
+<p>权重矩阵 $W_f​$ 将此向量进行线性变换，生成一个长度为 $n$ 的向量。</p>
+<h4 id="线性变换"><a href="#线性变换" class="headerlink" title="线性变换"></a>线性变换</h4><p>进行线性变换的公式为：<br>$z_f = W_f \cdot [h_t^{l-1}, h_{t-1}^l] + b_f$</p>
+<p>具体步骤：</p>
+<ol>
+<li><strong>矩阵乘法</strong>：<ul>
+<li>$W_f$是一个 $n \times 2n$ 的矩阵，拼接向量是一个长度为 $2n$ 的向量。</li>
+<li>通过矩阵乘法，结果是一个长度为 $n$ 的向量。</li>
+</ul>
+</li>
+<li><strong>加偏置</strong>：<ul>
+<li>将得到的向量与偏置向量 $b_f$ 相加，仍然是一个长度为 $n$ 的向量。</li>
+</ul>
+</li>
+</ol>
+<p>例如，假设 $W_f$​ 和 $b_f$​ 为：<br>$W_f = \begin{pmatrix} w_{11} &amp; w_{12} &amp; w_{13} &amp; w_{14} &amp; w_{15} &amp; w_{16} &amp; w_{17} &amp; w_{18} \ w_{21} &amp; w_{22} &amp; w_{23} &amp; w_{24} &amp; w_{25} &amp; w_{26} &amp; w_{27} &amp; w_{28} \ w_{31} &amp; w_{32} &amp; w_{33} &amp; w_{34} &amp; w_{35} &amp; w_{36} &amp; w_{37} &amp; w_{38} \ w_{41} &amp; w_{42} &amp; w_{43} &amp; w_{44} &amp; w_{45} &amp; w_{46} &amp; w_{47} &amp; w_{48} \end{pmatrix}$</p>
+<p>拼接向量为：<br>$[h_1, h_2, h_3, h_4, h_5, h_6, h_7, h_8]$</p>
+<p>矩阵乘法：<br>$z_f = W_f \cdot [h_1, h_2, h_3, h_4, h_5, h_6, h_7, h_8]$</p>
+<p>计算每个元素：<br>$\begin{aligned} z_{f1} &amp;= w_{11}h_1 + w_{12}h_2 + w_{13}h_3 + w_{14}h_4 + w_{15}h_5 + w_{16}h_6 + w_{17}h_7 + w_{18}h_8 \ z_{f2} &amp;= w_{21}h_1 + w_{22}h_2 + w_{23}h_3 + w_{24}h_4 + w_{25}h_5 + w_{26}h_6 + w_{27}h_7 + w_{28}h_8 \ z_{f3} &amp;= w_{31}h_1 + w_{32}h_2 + w_{33}h_3 + w_{34}h_4 + w_{35}h_5 + w_{36}h_6 + w_{37}h_7 + w_{38}h_8 \ z_{f4} &amp;= w_{41}h_1 + w_{42}h_2 + w_{43}h_3 + w_{44}h_4 + w_{45}h_5 + w_{46}h_6 + w_{47}h_7 + w_{48}h_8 \end{aligned}$</p>
+<p>加偏置：<br>$z_f = \begin{pmatrix} z_{f1} + b_1 \ z_{f2} + b_2 \ z_{f3} + b_3 \ z_{f4} + b_4 \end{pmatrix}$</p>
+<h4 id="sigmoid-非线性激活"><a href="#sigmoid-非线性激活" class="headerlink" title="sigmoid 非线性激活"></a>sigmoid 非线性激活</h4><p>通过$sigmoid$激活函数得到遗忘门的激活值：<br>$f_t^l = \sigma(z_f)$<br>通过 $sigmoid$ 非线性激活函数，得到遗忘门的激活值。</p>
+<h3 id="2-输入门input-gate"><a href="#2-输入门（Input-Gate）" class="headerlink" title="2. 输入门（Input Gate）"></a>2. 输入门（Input Gate）</h3><p>计算输入门的激活值，决定新的输入信息的哪些部分将更新单元状态： $i_t^l = \sigma(W_i \cdot [h_{t-1}^l, h_t^{l-1}] + b_i)$</p>
+<p>输入调制门（Input Modulation Gate）输入调制门产生新的候选记忆内容，通过 tanh 函数进行激活。<br>它的数学表示为：$g_t = \tanh(W_g \cdot [h_{t-1}, h_t] + b_g)$</p>
+<h3 id="3-单元状态"><a href="#3-单元状态" class="headerlink" title="3. 单元状态"></a>3. 单元状态</h3><p>结合遗忘门和输入门的信息，更新单元状态：</p>
+<p>$c_t^l = f \odot c_{t-1}^l + i \odot g$</p>
+<p>描述了如何更新单元状态。这里，$\odot$ 表示元素乘法（Hadamard乘积）。</p>
+<ul>
+<li>遗忘门$f$决定了前一时间步的单元状态 $c_{t-1}^l$有多少被保留。遗忘门的输出值在0和1之间：<ul>
+<li>当 $f$​ 接近1时，表示大部分单元状态被保留。</li>
+<li>当 $f$接近0时，表示大部分单元状态被遗忘。</li>
+</ul>
+</li>
+<li>输入门 $i$ 和候选记忆单元 $g$ 决定了多少新的信息被添加到当前单元状态 $c_t^l$。</li>
+</ul>
+<h3 id="4-输出门"><a href="#4-输出门" class="headerlink" title="4. 输出门"></a>4. 输出门</h3><p>计算输出门的激活值，决定隐藏状态的更新：<br>输出门：$o_t^l = \sigma(W_o \cdot [h_{t-1}^l, h_t^{l-1}] + b_o)$<br>隐藏状态：$h_t^l = o_t^l * \tanh(c_t^l)$<br>输出门 $o$ 控制了从单元状态 $c_t^l$ 传递到隐藏状态 $h_t^l$​ 的信息，通过$tanh$函数进行非线性变换。</p>
+<p>LSTM通过输入门、遗忘门、输出门和候选记忆单元的协同作用，有效地捕捉序列数据中的长短期依赖关系，解决了传统RNN中梯度消失和梯度爆炸的问题。这个更新机制使得LSTM在处理长序列数据时表现出色，能够有效地保留重要信息并过滤无关信息。</p>
+<h3 id="5-更新隐藏状态hidden-state-update"><a href="#5-更新隐藏状态（Hidden-State-Update）" class="headerlink" title="5. 更新隐藏状态（Hidden State Update）"></a>5. 更新隐藏状态（Hidden State Update）</h3><p>结合新的单元状态和输出门的激活值，更新隐藏状态： $h_t^l = o_t^l * \tanh(c_t^l)$</p>
+<h2 id="4-应用了dropout-的lstm"><a href="#4-应用了dropout-的LSTM" class="headerlink" title="4. 应用了dropout 的LSTM"></a>4. 应用了dropout 的LSTM</h2><p>从正文中可以看出，和标准的LSTM 状态更新过程相比， 其变化只是增加了一个$D$。<br>$D$ 是将其参数的随机子集设置为零的dropout操作符。</p>
+<p>$\left( \begin{array}{c} i \ f \ o \ g \end{array} \right) = \left( \begin{array}{c} \text{sigm} \ \text{sigm} \ \text{sigm} \ \text{tanh} \end{array} \right) T_{2n,4n} \left( \begin{array}{c} {D}(h_{t}^{l-1}) \ h_{t-1}^{l} \end{array} \right)​$</p>
+<p>如何理解其主要思想是仅将dropout操作符应用于非递归连接。<br>由于：</p>
+<ol>
+<li>$h_t^{l-1}$：表示第 $l−1$ 层在时间步 $t$ 的隐藏状态向量。这是第 $l$ 层的当前输入。</li>
+<li>$h_{t-1}^l$：表示第 $l$ 层在时间步 $t−1$ 的隐藏状态向量。这是第 $l$ 层的前一个时间步的状态。<br>同一层前后时间步之间的数据流转 就是递归操作， 不同层之间的数据流转是非递归操作， 根据公式，$D$ 应用在了$h_t^{l-1}$上， 所以说$D$ 是应用在非递归连接上的操作符合</li>
+</ol>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/4579c6a3/">Understanding LSTM Networks</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2472be8a/">The Unreasonable Effectiveness of Recurrent Neural Networks</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#abstract-%E6%91%98%E8%A6%81"><span class="toc-text">ABSTRACT 摘要</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-introduction-%E5%BC%95%E8%A8%80"><span class="toc-text">1 INTRODUCTION  引言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-related-work"><span class="toc-text">2 RELATED WORK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-regularizing-rnns-with-lstm-cells-%E4%BD%BF%E7%94%A8lstm%E5%8D%95%E5%85%83%E5%AF%B9rnn%E8%BF%9B%E8%A1%8C%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">3 REGULARIZING RNNS WITH LSTM CELLS 使用LSTM单元对RNN进行正则化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-long-short-term-memory-units-%E9%95%BF%E7%9F%AD%E6%9C%9F%E8%AE%B0%E5%BF%86%E5%8D%95%E5%85%83"><span class="toc-text">3.1 LONG-SHORT TERM MEMORY UNITS 长短期记忆单元</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-regularization-with-dropout"><span class="toc-text">3.2 REGULARIZATION WITH DROPOUT</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-experiments-%E5%AE%9E%E9%AA%8C"><span class="toc-text">4 EXPERIMENTS   实验</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-language-modeling-%E8%AF%AD%E8%A8%80%E5%BB%BA%E6%A8%A1"><span class="toc-text">4.1 LANGUAGE MODELING   语言建模</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-speech-recognition-%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB"><span class="toc-text">4.2 SPEECH RECOGNITION   语音识别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-machine-translation-%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91"><span class="toc-text">4.3 MACHINE TRANSLATION  机器翻译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#44-image-caption-generation%E5%9B%BE%E5%83%8F%E6%8F%8F%E8%BF%B0%E7%94%9F%E6%88%90"><span class="toc-text">4.4 IMAGE CAPTION GENERATION图像描述生成</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-conclusion"><span class="toc-text">5 CONCLUSION</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-acknowledgments"><span class="toc-text">6 ACKNOWLEDGMENTS</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A"><span class="toc-text">注释</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%85%83%E7%B4%A0%E4%B9%98%E6%B3%95"><span class="toc-text">1. 元素乘法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E5%BC%8F%E8%A1%A8%E7%A4%BA"><span class="toc-text">公式表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-text">应用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%85%AC%E5%BC%8F%E6%8B%86%E8%A7%A3rnn"><span class="toc-text">2. 公式拆解:RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%85%AC%E5%BC%8F%E6%8B%86%E8%A7%A3lstm-%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0"><span class="toc-text">3. 公式拆解:LSTM  状态更新</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%81%97%E5%BF%98%E9%97%A8forget-gate"><span class="toc-text">1. 遗忘门（Forget Gate）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="toc-text">线性变换</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sigmoid-%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%BF%80%E6%B4%BB"><span class="toc-text">sigmoid 非线性激活</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%BE%93%E5%85%A5%E9%97%A8input-gate"><span class="toc-text">2. 输入门（Input Gate）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8D%95%E5%85%83%E7%8A%B6%E6%80%81"><span class="toc-text">3. 单元状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%BE%93%E5%87%BA%E9%97%A8"><span class="toc-text">4. 输出门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%9B%B4%E6%96%B0%E9%9A%90%E8%97%8F%E7%8A%B6%E6%80%81hidden-state-update"><span class="toc-text">5. 更新隐藏状态（Hidden State Update）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%BA%94%E7%94%A8%E4%BA%86dropout-%E7%9A%84lstm"><span class="toc-text">4. 应用了dropout 的LSTM</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>

@@ -76,7 +76,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a><a class="item title" href="/209fa7d3/"><span class="title">GPTs开发-Best English Name，你找到最合适、最满意的英文名</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/6cb5dc64/"><span class="title">InnoDB事务-持久性的实现,binglog & redo log</span></a><a class="item title" href="/9faedfe0/"><span class="title">InnoDB事务-隔离性的实现, MVCC & 锁</span></a><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/9cd551f5/"><span class="title">Intro to InnoDB事务</span></a><a class="item title" href="/99d433fa/"><span class="title">TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/17f5a37e/"><span class="title">Ilya sutskever's approx 30 research papers about AI</span></a><a class="item title" href="/6ac941eb/"><span class="title">递归神经网络（Recurrent Neural Networks, RNNs）</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/2472be8a/"><span class="title">The Unreasonable Effectiveness of Recurrent Neural Networks</span></a><a class="item title" href="/7057a5e3/"><span class="title">RECURRENT NEURAL NETWORK REGULARIZATION</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -110,7 +110,8 @@
 <p>binlog 和 redo log 各自写入的过程还有很多细节，接下来进行讲解</p>
 <h1 id="1-binlog"><a href="#1-binlog" class="headerlink" title="1 binlog"></a>1 binlog</h1><p>binlog是 MySQL 服务器层使用的日志文件，记录了所有修改数据库内容的SQL语句（如 INSERT, UPDATE, DELETE）,也被称为逻辑日志。</p>
 <p>binlog 主要用于主备复制同步、崩溃恢复等功能。</p>
-<h2 id="11-binlog-的三种日志格式"><a href="#1-1-binlog-的三种日志格式" class="headerlink" title="1.1 binlog 的三种日志格式"></a>1.1 binlog 的三种日志格式</h2><table>
+<h2 id="11-binlog-的三种日志格式"><a href="#1-1-binlog-的三种日志格式" class="headerlink" title="1.1 binlog 的三种日志格式"></a>1.1 binlog 的三种日志格式</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th><strong>格式</strong></th>
@@ -119,7 +120,8 @@
 <th><strong>缺点</strong></th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>Statement-Based Logging (SBL)</strong></td>
 <td>记录执行的 SQL 语句本身，而不是每行数据的变更。</td>
 <td>1. <strong>空间效率高</strong>：通常占用更少的空间，因为记录的是 SQL 语句。 <br>2. <strong>易于审计</strong>：直接记录 SQL 语句，易于阅读和理解。</td>
@@ -137,19 +139,19 @@
 <td>1. <strong>灵活性高</strong>：根据 SQL 语句的特性选择最合适的日志格式。<br>2. <strong>平衡性能和一致性</strong>：在确保数据一致性的同时考虑日志大小和性能。</td>
 <td>1. <strong>配置复杂</strong>：需要适当配置以确保效率和准确性。<br>2. <strong>预测性差</strong>：自动切换日志格式可能使得日志的结果难以预测。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="12-binlog写入过程"><a href="#1-2-binlog写入过程" class="headerlink" title="1.2 binlog写入过程"></a>1.2 binlog写入过程</h2><p>binlog 的写入逻辑比较简单：事务执行过程中，先把日志写到 binlog cache，事务提交的时候，再把 binlog cache 写到 binlog 文件中。</p>
 <h3 id="121-binlog-cache"><a href="#1-2-1-binlog-cache" class="headerlink" title="1.2.1 binlog  cache"></a>1.2.1 binlog  cache</h3><p>对于每个客户端会话，MySQL 服务器为其分配一个 binlog cache。这个缓存是用来临时存储一个事务中产生的所有 binlog 事件。 但是binlog cache 刷新到磁盘时 多个线程是共写同一份 binlog 文件。</p>
 <p>当一个新事务开始时，根据binlog 日志格式记录 每个修改SQL  语句到binlog cache 中</p>
 <h3 id="122-page-cache-与-磁盘刷新持久化"><a href="#1-2-2-page-cache-与-磁盘刷新持久化" class="headerlink" title="1.2.2  page cache 与 磁盘刷新持久化"></a>1.2.2  page cache 与 磁盘刷新持久化</h3><p>当事务到达提交阶段时，首先将 binlog  cache 中的内容 写入到binlog 文件中，然后提交事务到 InnoDB，即 commit redo log 。</p>
-<p>注意，这里的写入并不是直接写到到磁盘，而是先写入到文件系统的page cache, 然后通过<code>sync_binlog</code> 参数来决定 何时把数据写入到 磁盘。</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/2.png" class>
-
+<p>注意，这里的写入并不是直接写到到磁盘，而是先写入到文件系统的page cache, 然后通过<code>sync_binlog</code> 参数来决定 何时把数据写入到 磁盘。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/2.png" class></p>
 <p>磁盘刷新频率通过 <code>sync_binlog</code> 配置参数，</p>
 <ol>
-<li>sync_binlog&#x3D;0 的时候，表示每次提交事务都不主动刷新磁盘，由文件系统自己控制刷盘频率</li>
-<li>sync_binlog&#x3D;1 的时候，表示每次提交事务都会将 binlog cache 中的内容刷新到磁盘</li>
-<li>sync_binlog&#x3D;N(N&gt;1) 的时候，表示累积 N 个提交事务后才将多个binlog cache中的内容刷新到磁盘。</li>
+<li>sync_binlog=0 的时候，表示每次提交事务都不主动刷新磁盘，由文件系统自己控制刷盘频率</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会将 binlog cache 中的内容刷新到磁盘</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示累积 N 个提交事务后才将多个binlog cache中的内容刷新到磁盘。</li>
 </ol>
 <p>可以看到如果sync_binlog不设置为1 ，有有助于提高刷盘效率， 但是有丢失binlog 的风险。</p>
 <h3 id="123-binlog-cache-不够用怎么办"><a href="#1-2-3-binlog-cache-不够用怎么办" class="headerlink" title="1.2.3  binlog cache 不够用怎么办"></a>1.2.3  binlog cache 不够用怎么办</h3><p>如果binlog cache  写满了怎么办？需要把数据暂存到磁盘</p>
@@ -178,7 +180,6 @@
 <h2 id="21-为什么要记录redo-log"><a href="#2-1-为什么要记录redo-log" class="headerlink" title="2.1 为什么要记录redo log"></a>2.1 为什么要记录redo log</h2><h3 id="211-buffer-pool"><a href="#2-1-1-buffer-pool" class="headerlink" title="2.1.1 buffer pool"></a>2.1.1 buffer pool</h3><p>MySQL 为了实现高性能，是不可能每次都从磁盘读数据或者把对数据的修改持久化到磁盘上的,所以 InnoDB 申请了一块连续的内存，用于存储从磁盘上读取的pages, 这个内存就是buffer pool。</p>
 <p>buffer pool 有一块内存叫做，change buffer 用于暂存对数据的修改</p>
 <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/3.png" class>
-
 <p>那么在修改数据时，就会遇到两种情况</p>
 <ol>
 <li>数据所在的page 在buffer pool 中， 就会直接更新page</li>
@@ -198,10 +199,7 @@
 </ol>
 <h2 id="22-redo-log-记录的内容"><a href="#2-2-redo-log-记录的内容" class="headerlink" title="2.2 redo log 记录的内容"></a>2.2 redo log 记录的内容</h2><p>之所以说redo log 是物理日志， 是因为其记录了对特定数据page 数据的修改。<br>该例子来自极客专栏《MySQL 实战45讲》</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table t(ID int primary key, c int);</span><br><span class="line">mysql&gt; insert into t(id,k) values(id1,k1),(id2,k2);</span><br></pre></td></tr></table></figure>
-
 <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/4.png" class>
-
-
 <p>这条更新语句做了如下的操作（按照图中的数字顺序）：</p>
 <ol>
 <li>Page 1 在内存中，直接更新内存；</li>
@@ -214,7 +212,8 @@
 <ol>
 <li>MySQL 系统内存cache ， redo lo buffer</li>
 <li>文件系统page cache</li>
-<li>刷新持久化到磁盘<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/5.png" class></li>
+<li>刷新持久化到磁盘<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/5.png" class>
+</li>
 </ol>
 <h3 id="231-redo-log-buffer"><a href="#2-3-1-redo-log-buffer" class="headerlink" title="2.3.1 redo log buffer"></a>2.3.1 redo log buffer</h3><p>add(id1,k1) to page1, new change buffer item add(id2,k2) to page2 都是先写入redo log buffer 中</p>
 <p>相比较 每个线程都拥有自己一块独立的 binlog cache ， 而 redo log buffer 是全局共用的。</p>
@@ -230,9 +229,9 @@
 <ol>
 <li>后台线程,每隔 1 秒，就会把 redo log buffer 中的日志，调用 write 写到文件系统的 page cache，然后调用 fsync 持久化到磁盘。，</li>
 <li>redo log buffer 占用的空间即将达到 innodb_log_buffer_size 一半的时候，后台线程会主动写盘。注意，由于这个事务并没有提交，所以这个写盘动作只是 write，而没有调用 fsync，也就是只留在了文件系统的 page cache。</li>
-<li>并行的事务提交的时候，顺带将这个事务的 redo log buffer 持久化到磁盘。如果 innodb_flush_log_at_trx_commit 设置的是 1，那么按照这个参数的逻辑， 要把 redo log buffer 里的日志全部持久化到磁盘。这时候，就会带上未提交事务 在 redo log buffer 里的日志一起持久化到磁盘。</li>
+<li>并行的事务提交的时候，顺带将这个事务的 redo log buffer 持久化到磁盘。如果 innodb_flush_log_at_trx_commit 设置的是 1，那么按照这个参数的逻辑， 要把 redo log buffer 里的日志全部持久化到磁盘。这时候，就会带上未提交事务 在 redo log buffer 里的日志一起持久化到磁盘。<h3 id="233-2pc的细化过程"><a href="#2-3-3-2PC的细化过程" class="headerlink" title="2.3.3 2PC的细化过程"></a>2.3.3 2PC的细化过程</h3></li>
 </ol>
-<h3 id="233-2pc的细化过程"><a href="#2-3-3-2PC的细化过程" class="headerlink" title="2.3.3 2PC的细化过程"></a>2.3.3 2PC的细化过程</h3><h2 id="24-日志文件组"><a href="#2-4-日志文件组" class="headerlink" title="2.4  日志文件组"></a>2.4  日志文件组</h2><p>InnoDB 的 redo log 是以日志文件组的形式组织的。一个日志文件组通常包含两个或更多的日志文件，这些文件在物理上是连续的，并且循环使用。当一个日志文件写满后，InnoDB 会自动切换到下一个日志文件继续写入。当最后一个文件写满后，它会回到第一个文件并开始覆盖旧的日志记录，这就是所谓的“环形写入”。</p>
+<h2 id="24-日志文件组"><a href="#2-4-日志文件组" class="headerlink" title="2.4  日志文件组"></a>2.4  日志文件组</h2><p>InnoDB 的 redo log 是以日志文件组的形式组织的。一个日志文件组通常包含两个或更多的日志文件，这些文件在物理上是连续的，并且循环使用。当一个日志文件写满后，InnoDB 会自动切换到下一个日志文件继续写入。当最后一个文件写满后，它会回到第一个文件并开始覆盖旧的日志记录，这就是所谓的“环形写入”。</p>
 <h2 id="25-lsn"><a href="#2-5-LSN" class="headerlink" title="2.5 LSN"></a>2.5 LSN</h2><p>LSN（Log Sequence Number）,日志序列号,是一个不断增长的全局变量， 用来记录当前redo log 文件中 已经写入的日志量， 单位是字节。</p>
 <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/6.png" class>
 <p>图片中的write pos LSN 指当前已经产生的的日志量，随着更多的事务数据被写入，write pos LSN 会不断增加</p>
@@ -240,10 +239,8 @@
 <p>write pos LSN 和 checkpoint LSN之间空着的部分，可以用来记录新的操作。</p>
 <p>如果 write pos LSN  赶上了最一个checkpoint  LSN 位置，这意味着 redo log 的空间不足，可能会导致数据库操作停顿，因为系统需要等待足够的日志空间来记录新的事务数据。</p>
 <h2 id="26-组提交"><a href="#2-6-组提交" class="headerlink" title="2.6  组提交"></a>2.6  组提交</h2><p>前面提过，redo log 提升性能，一个是把对磁盘的随机写转换成了顺序写，一个是组提交机制。</p>
-<p>组提交机制（Group Commit）是一种通过合并多个事务的日志提交操作来提高I&#x2F;O效率的策略。这一机制基于LSN（Log Sequence Number，日志序列号）来追踪和管理日志提交。</p>
-<p>以下图为例解释</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/8.png" class>
-
+<p>组提交机制（Group Commit）是一种通过合并多个事务的日志提交操作来提高I/O效率的策略。这一机制基于LSN（Log Sequence Number，日志序列号）来追踪和管理日志提交。</p>
+<p>以下图为例解释<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/8.png" class></p>
 <ol>
 <li><strong>事务<code>trx1</code>开始</strong>：<ul>
 <li><code>trx1</code>进入事务队列并被选为组的领导者，日志记录的LSN开始增加。</li>
@@ -272,13 +269,10 @@
 </ol>
 <h1 id="3-事务执行过程中的binlog-和redolog-和undo-log"><a href="#3-事务执行过程中的binlog-和redolog-和undo-log" class="headerlink" title="3 事务执行过程中的binlog 和redolog 和undo log"></a>3 事务执行过程中的binlog 和redolog 和undo log</h1><p>下面将结合MySQL 的逻辑架构 和具体SQL , 来具体地看一下binlog 和redo log 的写入</p>
 <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/6cb5dc64/9.png" class>
-
-<p>SQL</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(ID int primary key, c int);</span><br><span class="line">mysql&gt; update T set c=c+1 where ID=2;</span><br></pre></td></tr></table></figure>
-
+<p>SQL<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(ID int primary key, c int);</span><br><span class="line">mysql&gt; update T set c=c+1 where ID=2;</span><br></pre></td></tr></table></figure></p>
 <p>结果MySQL 的逻辑架构， 该update sql的执行过程如下</p>
 <ol>
-<li>执行器先找InnoDB取 ID&#x3D;2 这一行。ID 是主键，引擎直接用树搜索找到这一行。如果 ID&#x3D;2 这一行所在的数据页本来就在buffer pool 中，就直接返回给执行器；否则，需要先从磁盘读入buffer pool，然后再返回。</li>
+<li>执行器先找InnoDB取 ID=2 这一行。ID 是主键，引擎直接用树搜索找到这一行。如果 ID=2 这一行所在的数据页本来就在buffer pool 中，就直接返回给执行器；否则，需要先从磁盘读入buffer pool，然后再返回。</li>
 <li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，得到新的一行数据，再调用引擎接口写入这行新数据。</li>
 <li>InnoDB引擎记录该行数据的undo log, 然后新数据更新到内存中，如果数据本来就在内存中，则直接修改数据页，如果不再内存中，则将修改记录在change buffer  中，同时将这个更新操作记录到 redo log 里面，此时 redo log 处于 prepare 状态。</li>
 <li>然后告知执行器执行完成了，随时可以提交事务。执行器生成这个操作的 binlog，并把 binlog 写入磁盘。</li>
@@ -292,12 +286,12 @@
 <li>如果 redo log 里面的事务是完整的，则直接提交；</li>
 <li>如果 redo log 里面的事务只有完整的 prepare，则判断对应的事务 binlog 是否存在并完整：<ol>
 <li>如果完整，则提交事务；</li>
-<li>否则，回滚事务。&#x3D;&#x3D;此处事务回滚基于undo log &#x3D;&#x3D;</li>
+<li>否则，回滚事务。==此处事务回滚基于undo log ==</li>
 </ol>
 </li>
 <li>如果redo log 没有完整的prepare, 则事务基于undo log 回滚</li>
 </ol>
-<p>⚠️说明一下，innodb_flush_log_at_trx_commit  实际上控制了redo prepare 和commit 两个阶段的刷盘策略，比如innodb_flush_log_at_trx_commit  &#x3D;1 时在 <code>prepare</code> 阶段和 <code>commit</code> 阶段，<code>redo log</code> 都会持久化写入磁盘。所以才会出现第二种磁盘有且只有完整prepare 的情况。</p>
+<p>⚠️说明一下，innodb_flush_log_at_trx_commit  实际上控制了redo prepare 和commit 两个阶段的刷盘策略，比如innodb_flush_log_at_trx_commit  =1 时在 <code>prepare</code> 阶段和 <code>commit</code> 阶段，<code>redo log</code> 都会持久化写入磁盘。所以才会出现第二种磁盘有且只有完整prepare 的情况。</p>
 <p>接下来根据一些具体的问题来详细说明崩溃恢复时的细节</p>
 <h2 id="41-如何判断-redo-log-是完整的"><a href="#4-1-如何判断-redo-log-是完整的" class="headerlink" title="4.1  如何判断 redo log 是完整的"></a>4.1  如何判断 redo log 是完整的</h2><p>redo log commit 阶段会有commit 标识</p>
 <h2 id="42-如果判断binlog-完整性"><a href="#4-2-如果判断binlog-完整性" class="headerlink" title="4.2. 如果判断binlog 完整性"></a>4.2. 如果判断binlog 完整性</h2><p>一个事务的 binlog 是有完整格式的：<br>statement 格式的 binlog，最后会有 COMMIT；<br>row 格式的 binlog，最后会有一个 XID event。</p>
@@ -309,7 +303,7 @@
 <p>binlog 是server 层日志， 是MySQL 一开始就有的功能，被用在了很多地方，比如备份、主备同步复制。redo log 是InnoDB 层日志，是InnoDB 为了实现事务功能新增的。使用2PC可以维护两份之间的逻辑一致。</p>
 <p>那么，为什么要维护两份日志间的逻辑一致呢。</p>
 <p>binlog 是server 层日志， 是MySQL 一开始就有的功能，被用在了很多地方，比如备份、主备同步复制。redo log 是InnoDB 层日志，是InnoDB 为了实现事务功能新增的。如果两份日志逻辑或者说数据不一致， 那么用日志恢复出来的数据库状态就有可能和它本来应该的状态不一致。</p>
-<p>具体举例来讲，如果不用2PC，两种日志要么是先写 redo log 再写 binlog，或者先写binlog 再写redo log 。<br>仍然用前面的 update 语句来做例子。假设当前 ID&#x3D;2 的行，字段 c 的值是 0，再假设执行 update 语句过程中在写完第一个日志后，第二个日志还没有写完期间发生了 crash，会出现什么情况呢？</p>
+<p>具体举例来讲，如果不用2PC，两种日志要么是先写 redo log 再写 binlog，或者先写binlog 再写redo log 。<br>仍然用前面的 update 语句来做例子。假设当前 ID=2 的行，字段 c 的值是 0，再假设执行 update 语句过程中在写完第一个日志后，第二个日志还没有写完期间发生了 crash，会出现什么情况呢？</p>
 <ol>
 <li><p>先写 redo log 后写 binlog。假设在 redo log 写完，binlog 还没有写完的时候，MySQL 进程异常重启。由于我们前面说过的，redo log 写完之后，系统即使崩溃，仍然能够把数据恢复回来，所以恢复后这一行 c 的值是 1。但是由于 binlog 没写完就 crash 了，这时候 binlog 里面就没有记录这个语句。因此，之后备份日志的时候，存起来的 binlog 里面就没有这条语句。然后你会发现，如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 binlog 丢失，这个临时库就会少了这一次更新，恢复出来的这一行 c 的值就是 0，与原库的值不同。</p>
 </li>
@@ -317,18 +311,18 @@
 </li>
 </ol>
 <p>同理，为什么处于 prepare 阶段的 redo log 加上完整 binlog 就可以提交事务。因为如果binlog 写完以后 MySQL 发生崩溃，这时候 binlog 已经写入了，之后就会被从库（或者用这个 binlog 恢复出来的库）使用。如果redo log 事务不提交的话，就会发生数据不一致的情况</p>
-<h2 id="45-不要binlog-可以吗"><a href="#4-5-不要binlog-可以吗" class="headerlink" title="4.5. 不要binlog 可以吗"></a>4.5. 不要binlog 可以吗</h2><p>仅从事务持久化&#x2F;崩溃恢复这个功能来讲， 只要redo log  是可以完成的。<br>但是binlog 作为 MySQL 一开始就有的功能，被用在了很多地方，有redo log 无法替代的功能 。</p>
+<h2 id="45-不要binlog-可以吗"><a href="#4-5-不要binlog-可以吗" class="headerlink" title="4.5. 不要binlog 可以吗"></a>4.5. 不要binlog 可以吗</h2><p>仅从事务持久化/崩溃恢复这个功能来讲， 只要redo log  是可以完成的。<br>但是binlog 作为 MySQL 一开始就有的功能，被用在了很多地方，有redo log 无法替代的功能 。</p>
 <ol>
 <li>归档。redo log 是循环写，写到末尾是要回到开头继续写的。这样历史日志没法保留，redo log 也就起不到归档的作用。</li>
 <li>主从复制同步</li>
 <li>MySQL 高可用</li>
-<li>在一些业务场景中， 也会使用binlog做数据同步，比如使用canal 同步binlog数据 到ES</li>
+<li>在一些业务场景中， 也会使用binlog做数据同步，比如使用canal 同步binlog数据 到ES<h2 id="46-数据一定不会丢失吗-双1-设置"><a href="#4-6-数据一定不会丢失吗-双1-设置" class="headerlink" title="4.6 数据一定不会丢失吗-双1 设置"></a>4.6 数据一定不会丢失吗-双1 设置</h2></li>
 </ol>
-<h2 id="46-数据一定不会丢失吗-双1-设置"><a href="#4-6-数据一定不会丢失吗-双1-设置" class="headerlink" title="4.6 数据一定不会丢失吗-双1 设置"></a>4.6 数据一定不会丢失吗-双1 设置</h2><p>在介绍binlog和redo log 写入过程的时候，有两个参数<br>sync_binlog  控制binlog 持久化到磁盘的频率</p>
+<p>在介绍binlog和redo log 写入过程的时候，有两个参数<br>sync_binlog  控制binlog 持久化到磁盘的频率</p>
 <ol>
-<li>sync_binlog&#x3D;0 的时候，表示每次提交事务都不主动刷新磁盘，由文件系统自己控制刷盘频率</li>
-<li>sync_binlog&#x3D;1 的时候，表示每次提交事务都会将 binlog cache 中的内容刷新到磁盘</li>
-<li>sync_binlog&#x3D;N(N&gt;1) 的时候，表示累积 N 个提交事务后才将多个binlog cache中的内容刷新到磁盘。</li>
+<li>sync_binlog=0 的时候，表示每次提交事务都不主动刷新磁盘，由文件系统自己控制刷盘频率</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会将 binlog cache 中的内容刷新到磁盘</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示累积 N 个提交事务后才将多个binlog cache中的内容刷新到磁盘。</li>
 </ol>
 <p>innodb_flush_log_at_trx_commit  控制redo log 持久化到磁盘的频率</p>
 <ol>
@@ -362,7 +356,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/9faedfe0/">InnoDB事务-隔离性的实现, MVCC & 锁</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/17f5a37e/">Ilya sutskever's approx 30 research papers about AI</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/9faedfe0/">InnoDB事务-隔离性的实现, MVCC & 锁</a></div></section></div>
 
 
 
@@ -752,4 +746,20 @@
 
 <!-- inject -->
 
-</div></body></html>
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>

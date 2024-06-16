@@ -20,12 +20,12 @@
   <title>TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心 - Sun Yan</title>
 
   
-    <meta name="description" content="0. 项目结构介绍   Module Description    trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件， 回查">
+    <meta name="description" content="0. 项目结构介绍    Module Description     trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心">
 <meta property="og:url" content="http://example.com/99d433fa/index.html">
 <meta property="og:site_name" content="Sun Yan">
-<meta property="og:description" content="0. 项目结构介绍   Module Description    trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件， 回查">
+<meta property="og:description" content="0. 项目结构介绍    Module Description     trustmessage-mysql 基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中   turstmessage-middleware 可靠消息中心中间件，基于RPC接口提交消息+2PC+MySQL 表实现   turstmessage-middlewareapi 可靠消息中心中间件，">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/99d433fa/1.png">
 <meta property="og:image" content="http://example.com/99d433fa/2.png">
@@ -72,7 +72,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a><a class="item title" href="/209fa7d3/"><span class="title">GPTs开发-Best English Name，你找到最合适、最满意的英文名</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/6cb5dc64/"><span class="title">InnoDB事务-持久性的实现,binglog & redo log</span></a><a class="item title" href="/9faedfe0/"><span class="title">InnoDB事务-隔离性的实现, MVCC & 锁</span></a><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/9cd551f5/"><span class="title">Intro to InnoDB事务</span></a><a class="item title" href="/99d433fa/"><span class="title">TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/17f5a37e/"><span class="title">Ilya sutskever's approx 30 research papers about AI</span></a><a class="item title" href="/6ac941eb/"><span class="title">递归神经网络（Recurrent Neural Networks, RNNs）</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/2472be8a/"><span class="title">The Unreasonable Effectiveness of Recurrent Neural Networks</span></a><a class="item title" href="/7057a5e3/"><span class="title">RECURRENT NEURAL NETWORK REGULARIZATION</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -96,14 +96,16 @@
     </div>
     
   </div>
-  </div><article class="md-text content"><h1 id="0-项目结构介绍"><a href="#0-项目结构介绍" class="headerlink" title="0. 项目结构介绍"></a>0. 项目结构介绍</h1><table>
+  </div><article class="md-text content"><h1 id="0-项目结构介绍"><a href="#0-项目结构介绍" class="headerlink" title="0. 项目结构介绍"></a>0. 项目结构介绍</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>Module</th>
 <th>Description</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>trustmessage-mysql</td>
 <td>基于2PC+MySQL表实现的可靠消息中心，业务操作+消息表操作均存在于同一个项目中</td>
 </tr>
@@ -119,7 +121,9 @@
 <td>Turstmessage-middlewareclient</td>
 <td>可靠消息中心中间件， 消息生产者，提供了HTTP回查接口、Dubbo泛化回查接口的示例</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>以下是项目正式介绍。</p>
 <p>在业务处理中，经常会有重要但没那么紧急的数据需要同步给下游，比如</p>
 <ol>
@@ -139,7 +143,7 @@
 <h2 id="11-业务流程"><a href="#1-1-业务流程" class="headerlink" title="1.1 业务流程"></a>1.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/1.png" class>
 <p>以上流程中，在本地事务提交后，有一个定时任务轮询消息表将需要发送的消息消息发送出去。有4个点需要注意一下</p>
 <ol>
-<li>事务提交后了，消息发送失败， 定时任务的重试机制，会找出这条消息进行异步补发 </li>
+<li>事务提交后了，消息发送失败， 定时任务的重试机制，会找出这条消息进行异步补发 </li>
 <li>事务提交后了，消息发送成功，但是消息状态修改状态， 定时任务会找出这条再次发送</li>
 <li>重试异步补发过程中，如果消息依然发送失败，那么会继续重试补发</li>
 <li>重试异步补发过程中，消息发送成功，但是数据库消息已发送状态修改失败，那么定时任务又会再次找到这条消息再发一遍</li>
@@ -155,33 +159,23 @@
 <p>基于以上两个考虑，系统对于重试都应该有个次数限制，达到次数限制后就应该告警让人工介入处理。</p>
 <h2 id="13-消息表设计"><a href="#1-3-消息表设计" class="headerlink" title="1.3 消息表设计"></a>1.3 消息表设计</h2><p>在本地事务+ 本地消息表 方案中，其消息表的设计一般如下，</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> message (</span><br><span class="line">	id <span class="type">bigint</span> unsigned <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">	message text COMMENT <span class="string">&#x27;消息内容&#x27;</span>,</span><br><span class="line">	send_status <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;0-投递中 1-投递成功 2-投递失败&#x27;</span>,</span><br><span class="line">	send_try_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;commit 消息发送 当前重试次数&#x27;</span>,</span><br><span class="line">	send_next_retry_time DATETIME <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息发送 下次重试时间&#x27;</span>,</span><br><span class="line">	create_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	update_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id),</span><br><span class="line">	<span class="keyword">UNIQUE</span> INDEX idx_messageKey(message_key)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB;</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-如果消息表和业务表操作是分布式事务"><a href="#2-如果消息表和业务表操作是分布式事务" class="headerlink" title="2. 如果消息表和业务表操作是分布式事务"></a>2. 如果消息表和业务表操作是分布式事务</h1><p>但是如果保证不了这两个表不在同一个库 &#x2F;数据库实例中，那就会在业务操作和消息表写入两个操作中遇到分布式事务。这在分库分表的业务中是很容易出现的情况。</p>
+<h1 id="2-如果消息表和业务表操作是分布式事务"><a href="#2-如果消息表和业务表操作是分布式事务" class="headerlink" title="2. 如果消息表和业务表操作是分布式事务"></a>2. 如果消息表和业务表操作是分布式事务</h1><p>但是如果保证不了这两个表不在同一个库 /数据库实例中，那就会在业务操作和消息表写入两个操作中遇到分布式事务。这在分库分表的业务中是很容易出现的情况。</p>
 <p>针对对分布式事务，常见的解决方案就是 2PC、3PC、TCC、SAGA。</p>
 <p>接下来将讲解以 2PC+MySQL消息表 实现的可靠消息中心</p>
-<h2 id="21-业务流程"><a href="#2-1-业务流程" class="headerlink" title="2.1 业务流程"></a>2.1 业务流程</h2><p>以MySQL消息表+ 2PC 来实现可靠消息中心， 其整体实现流程如下</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/2.png" class>
-
-<h2 id="22-消息可见性"><a href="#2-2-消息可见性" class="headerlink" title="2.2 消息可见性"></a>2.2 消息可见性</h2><p>消息可见性， 在涉及分布式事务的场景中，消息增加了一个<code>可见性</code>概念， 这是因为在引入2PC 后，写入消息表的消息不再像本地事务+本地消息表一样<code>写入即可见</code>，必须是commit后才对消费者可见， 所以在数据表的设计中需要增加一个状态字段来维护消息可见性。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message_status INT COMMENT &#x27;消息状态 1-prepare 2-commit 3-rollback 4-unknown&#x27;,</span><br></pre></td></tr></table></figure>
-
-<p>其状态流转如图所示</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/3.png" class>
+<h2 id="21-业务流程"><a href="#2-1-业务流程" class="headerlink" title="2.1 业务流程"></a>2.1 业务流程</h2><p>以MySQL消息表+ 2PC 来实现可靠消息中心， 其整体实现流程如下<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/2.png" class></p>
+<h2 id="22-消息可见性"><a href="#2-2-消息可见性" class="headerlink" title="2.2 消息可见性"></a>2.2 消息可见性</h2><p>消息可见性， 在涉及分布式事务的场景中，消息增加了一个<code>可见性</code>概念， 这是因为在引入2PC 后，写入消息表的消息不再像本地事务+本地消息表一样<code>写入即可见</code>，必须是commit后才对消费者可见， 所以在数据表的设计中需要增加一个状态字段来维护消息可见性。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message_status INT COMMENT &#x27;消息状态 1-prepare 2-commit 3-rollback 4-unknown&#x27;,</span><br></pre></td></tr></table></figure></p>
+<p>其状态流转如图所示<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/3.png" class></p>
 <h2 id="23-如果业务执行消息commit-or-rollback-失败怎么办-消息回查"><a href="#2-3-如果业务执行消息commit-or-rollback-失败怎么办-消息回查" class="headerlink" title="2.3 如果业务执行消息commit or rollback 失败怎么办-消息回查"></a>2.3 如果业务执行消息commit or rollback 失败怎么办-消息回查</h2><p>如流程图中所示，在2PC 阶段，拿到业务执行结果修改消息状态失败有可能是失败。</p>
 <p>一个操作执行失败后，一种常见的解决方案方案就是重试，尽最大努力交付。</p>
 <p>但是对于业务处理来讲，一般有超时时间的限制，因为这种同步重试可能并不适用，即使可以，一般重试次数都会限定在3次。</p>
 <p>除了同步重试，还有一种方案就是 消息回查，我个人理解这相当于一种异步重试。</p>
 <p>在本项目中，消息回查指的就是开启一个定时任务去全表扫描，找出insert一定时间后，其状态仍然是 prepare的消息 ，通过业务逻辑判断该条消息是否已经执行完成 or 失败，对应地把消息状态更改为 commit or rollback。</p>
-<p>为了进行消息回查，肯定要有一个业务唯一标识来识别该条消息需要对应业务数据，从而判断对应业务是否执行完成。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message_key VARCHAR(255) COMMENT &#x27;消息唯一键，用于做回查的标识&#x27;,</span><br></pre></td></tr></table></figure>
-
+<p>为了进行消息回查，肯定要有一个业务唯一标识来识别该条消息需要对应业务数据，从而判断对应业务是否执行完成。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">message_key VARCHAR(255) COMMENT &#x27;消息唯一键，用于做回查的标识&#x27;,</span><br></pre></td></tr></table></figure></p>
 <h2 id="24-消息回查不能无限次"><a href="#2-4-消息回查不能无限次" class="headerlink" title="2.4 消息回查不能无限次"></a>2.4 消息回查不能无限次</h2><ol>
 <li>浪费资源，回查了这么多次的都没拿到结果，一种可能就是业务逻辑出现问题了，适可而止赶紧去查问题吧</li>
 <li>系统数据迟迟无法达到最终一致性 ， 本身我们使用消息其终极目的就是为了让系统数据达到最终一致性， 如果一直无限制查询，这个目的是无法达到的, 所以赶紧停下去查问题吧</li>
 </ol>
-<p>所有消息回查应该有个次数限制， 这就是表中以下两个字段的作用</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">verify_try_count <span class="type">INT</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试次数&#x27;</span>,  </span><br><span class="line">verify_next_retry_time <span class="type">TIMESTAMP</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试时间 1-未发送 2-已发送&#x27;</span>,</span><br></pre></td></tr></table></figure>
-
+<p>所有消息回查应该有个次数限制， 这就是表中以下两个字段的作用<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">verify_try_count <span class="type">INT</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试次数&#x27;</span>,  </span><br><span class="line">verify_next_retry_time <span class="type">TIMESTAMP</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试时间 1-未发送 2-已发送&#x27;</span>,</span><br></pre></td></tr></table></figure></p>
 <h2 id="25-消息回查次数达到上限怎么办"><a href="#2-5-消息回查次数达到上限怎么办" class="headerlink" title="2.5 消息回查次数达到上限怎么办"></a>2.5 消息回查次数达到上限怎么办</h2><p>有两种参考方案</p>
 <ol>
 <li>默认修改消息状态为commit  或者 rollback，</li>
@@ -193,7 +187,6 @@
 <p>此处说明一下，这种方案当然也会有数据不一致的问题，因为下游业务始终还未拿到消息修改自己的状态，但是相比拿到了随机确定的的状态 导致的数据不一致性，此时问题还被控制在消息生产者这一环，问题排查会相对简单。</p>
 <h2 id="26-消息发送重试"><a href="#2-6-消息发送重试" class="headerlink" title="2.6 消息发送重试"></a>2.6 消息发送重试</h2><p>与本地事务+本地消息表方案一致</p>
 <h2 id="27-消息表设计"><a href="#2-7-消息表设计" class="headerlink" title="2.7 消息表设计"></a>2.7 消息表设计</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> message (</span><br><span class="line">	id <span class="type">bigint</span> unsigned <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">	message_key <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;消息唯一键，用于做回查的标识&#x27;</span>,</span><br><span class="line">	message text COMMENT <span class="string">&#x27;消息内容&#x27;</span>,</span><br><span class="line">	message_status <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;消息状态 1-prepare 2-commit 3-rollback 4-unknown&#x27;</span>,</span><br><span class="line">	verify_try_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;消息状态回查 当前重试次数&#x27;</span>,</span><br><span class="line">	verify_next_retry_time DATETIME <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试时间&#x27;</span>,</span><br><span class="line">	send_status <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;0-投递中 1-投递成功 2-投递失败&#x27;</span>,</span><br><span class="line">	send_try_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;commit 消息发送 当前重试次数&#x27;</span>,</span><br><span class="line">	send_next_retry_time DATETIME <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息发送 下次重试时间&#x27;</span>,</span><br><span class="line">	create_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	update_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id),</span><br><span class="line">	<span class="keyword">UNIQUE</span> INDEX idx_messageKey(message_key)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB;</span><br></pre></td></tr></table></figure>
-
 <h2 id="28-消费者消费消息"><a href="#2-8-消费者消费消息" class="headerlink" title="2.8 消费者消费消息"></a>2.8 消费者消费消息</h2><p>针对可见， 即已经commit 的消息，消费者该如何获取到消息消费呢，有两种方案</p>
 <ol>
 <li>消息者直接查询消息表</li>
@@ -210,7 +203,6 @@
 </ol>
 <p>以上3个功能和上一种方案没有本质上的区别， 只是基于一个中间件的定位，支持这3种功能需要更多的封装与数据信息。</p>
 <h2 id="31-业务流程"><a href="#3-1-业务流程" class="headerlink" title="3.1 业务流程"></a>3.1 业务流程</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/4.png" class>
-
 <h2 id="32-两阶段提交功能"><a href="#3-2-两阶段提交功能" class="headerlink" title="3.2 两阶段提交功能"></a>3.2 两阶段提交功能</h2><p>提供3个RPC 接口， prepare， commit, rollback, 接口底层封装对数据表的操作</p>
 <h2 id="33-消息唯一性"><a href="#3-3-消息唯一性" class="headerlink" title="3.3 消息唯一性"></a>3.3 消息唯一性</h2><p>当作为一个公共中间件，接受多个业务数据的时候，消息的唯一性应该有业务标识 + 消息标识共同确定，即bizId + messageKey</p>
 <h2 id="34-回查功能"><a href="#3-4-回查功能" class="headerlink" title="3.4 回查功能"></a>3.4 回查功能</h2><p>相比于直接在业务服务里集成可靠消息的功能时，可以简单直接的在服务内部查询，当作为公共中间件时，  只能通过服务间调用完成，服务间调用有两种形式</p>
@@ -228,38 +220,27 @@
 <p>其中接口定义信息需要生产消息时提供</p>
 <p>在实现消息生产者按照统一格式提供回查接口 这一点是，HTTP接口的回查相对简单， 如果RPC 接口， 要注意使用泛化调用。</p>
 <p>本项目实现了HTTP 接口的回查和 Dubbo 协议的泛化调用回查</p>
-<p>HTTP接口格式为</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8082/verifyMessage?bizID=1&amp;messageKey=key1</span><br></pre></td></tr></table></figure>
-
-
-<p>Dubbo RPC 接口定义为</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public interface VerifyMessageService &#123;  </span><br><span class="line">  </span><br><span class="line">// 消息回查接口  </span><br><span class="line">int verifyMessage(Integer bizID,String messageKey);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="35-消息转发"><a href="#3-5-消息转发" class="headerlink" title="3.5 消息转发"></a>3.5 消息转发</h2><p>在一个公共中间件里实现消息转发，必然也需要生产消息时提供这部分信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">forward_topic VARCHAR(255) COMMENT &#x27;业务转发topic&#x27;,  </span><br><span class="line">forward_key VARCHAR(255) COMMENT &#x27;业务转发指定key&#x27;,  </span><br></pre></td></tr></table></figure>
+<p>HTTP接口格式为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:8082/verifyMessage?bizID=1&amp;messageKey=key1</span><br></pre></td></tr></table></figure></p>
+<p>Dubbo RPC 接口定义为<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public interface VerifyMessageService &#123;  </span><br><span class="line">  </span><br><span class="line">// 消息回查接口  </span><br><span class="line">int verifyMessage(Integer bizID,String messageKey);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="35-消息转发"><a href="#3-5-消息转发" class="headerlink" title="3.5 消息转发"></a>3.5 消息转发</h2><p>在一个公共中间件里实现消息转发，必然也需要生产消息时提供这部分信息<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">forward_topic VARCHAR(255) COMMENT &#x27;业务转发topic&#x27;,  </span><br><span class="line">forward_key VARCHAR(255) COMMENT &#x27;业务转发指定key&#x27;,  </span><br></pre></td></tr></table></figure></p>
 <h2 id="36-消息表设计"><a href="#3-6-消息表设计" class="headerlink" title="3.6 消息表设计"></a>3.6 消息表设计</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> message (</span><br><span class="line">	id <span class="type">bigint</span> unsigned <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">    biz_id <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;业务ID&#x27;</span>,</span><br><span class="line">    message_key <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;消息唯一键，用于做回查的标识&#x27;</span>,</span><br><span class="line">	message text COMMENT <span class="string">&#x27;消息内容&#x27;</span>,</span><br><span class="line">	message_status <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;消息状态 1-prepare 2-commit 3-rollback 4-verify fail&#x27;</span>,</span><br><span class="line">    forward_topic <span class="type">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;业务转发topic&#x27;</span>,</span><br><span class="line">	forward_key <span class="type">VARCHAR</span>(<span class="number">255</span>) COMMENT <span class="string">&#x27;业务转发指定key&#x27;</span>,</span><br><span class="line">    verify_info <span class="type">VARCHAR</span>(<span class="number">2000</span>) COMMENT <span class="string">&#x27;回查信息&#x27;</span>,</span><br><span class="line">	verify_try_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;消息状态回查 当前重试次数&#x27;</span>,</span><br><span class="line">	verify_next_retry_time DATETIME <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息状态回查 下次重试时间&#x27;</span>,</span><br><span class="line">	send_status <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;0-投递中 1-投递成功 2-投递失败&#x27;</span>,</span><br><span class="line">	send_try_count <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span> COMMENT <span class="string">&#x27;commit消息发送 当前重试次数&#x27;</span>,</span><br><span class="line">	send_next_retry_time DATETIME  <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;消息发送 下次重试时间&#x27;</span>,</span><br><span class="line">	create_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	update_time DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id),</span><br><span class="line">	<span class="keyword">UNIQUE</span> INDEX idx_message_key_biz_id (message_key, biz_id)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB;</span><br></pre></td></tr></table></figure>
-
-
-
 <h1 id="4-基于kafka-提交消息实现的可靠事件中心"><a href="#4-基于kafka-提交消息实现的可靠事件中心" class="headerlink" title="4. 基于kafka 提交消息实现的可靠事件中心"></a>4. 基于kafka 提交消息实现的可靠事件中心</h1><p>在实现消息回查的可靠消息中心方案中，另外一种常见的方案是 业务代码直接把消息提交给kafka, 然后中间件消费消息并持久化道数据库中，等待消息提交commit 或者rollback , 没有的话就进行回查。如下图，图片源自极客时间专栏</p>
 <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/99d433fa/5.png" class>
-
-
 <p>我认为两种技术方案没有本质的区别， 其差异只是消息的prepare 、commit、rollback 的提交是由RPC 接口完成还是由消息生产消费完成， 其他回查的逻辑、发送逻辑、以及需要的信息基本无差异。</p>
 <p>不过在使用Kafka 提交时，有以下两种需要考虑</p>
 <h2 id="41-中间件如何识别一条消息是事务消息"><a href="#4-1-中间件如何识别一条消息是事务消息" class="headerlink" title="4.1 中间件如何识别一条消息是事务消息"></a>4.1 中间件如何识别一条消息是事务消息</h2><ol>
 <li>Topic命名约定</li>
 </ol>
 <p>一种简单的方法是通过Topic命名来区分。例如，所有需要支持回查的Topic可以遵循一个特定的命名模式，如添加前缀或后缀（例如，<code>replayable-myTopic</code>）。这种方法的优点是简单易实施，但缺点是灵活性较低，且对现有系统可能需要更多的改动。</p>
-<ol start="2">
+<ol>
 <li>特定主题或分区</li>
 </ol>
 <p>将需要回查的消息发送到Kafka的特定主题或分区中。这样，中间件只需监听这个特定的主题或分区来处理需要回查的消息。这种方法要求生产者在发送消息时知道哪些消息需要回查，并据此发送到正确的主题或分区。</p>
-<ol start="3">
+<ol>
 <li>Topic配置属性</li>
 </ol>
 <p>Kafka允许为每个Topic设置自定义配置属性。可以引入一个自定义属性（如<code>replayable=true</code>）来标识一个Topic需要支持消息回查。这种方式比命名约定更为灵活和隐蔽，但要求应用层和消息生产者遵循这一约定，并且需要在应用层实现逻辑来处理这些属性。</p>
-<ol start="4">
+<ol>
 <li>消息元数据标记</li>
 </ol>
 <p>在消息发送时，可以在消息的元数据（Metadata）中添加特定的标记或字段来指示这条消息需要进行回查。</p>
@@ -281,7 +262,7 @@
 <li>新版本依赖：较旧版本的Kafka客户端可能不支持消息头功能，这要求生产者和消费者使用支持消息头的Kafka版本。</li>
 <li><strong>额外处理</strong>：消费者需要额外的步骤来读取和解析消息头。</li>
 </ul>
-<ol start="2">
+<ol>
 <li>预先定义消息格式</li>
 </ol>
 <p><strong>优点</strong>：</p>
@@ -291,16 +272,14 @@
 <li>增加了消息体的大小。</li>
 <li>需要在消费端进行消息解析，略微增加了处理的复杂性。</li>
 </ul>
-<p>本项目以指定topic+预定义消息格式的方式简单实现了消息的提交，消息格式如下， 大家可以参考。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">package com.example.trustmessage.middlewareapi.common;</span><br><span class="line">public class MiddlewareMessage &#123;  </span><br><span class="line">	  </span><br><span class="line">	// 要给到业务方的真正消息  </span><br><span class="line">	private String message;  </span><br><span class="line">	</span><br><span class="line">	private int bizID; </span><br><span class="line">	  </span><br><span class="line">	// 用于消息回查的业务唯一标识  </span><br><span class="line">	private String messageKey;  </span><br><span class="line">	 </span><br><span class="line">	private int messageStatus;  </span><br><span class="line">	  </span><br><span class="line">	private String forwardTopic;  </span><br><span class="line">	  </span><br><span class="line">	// 向业务方转发时需要指定的key，没有则说明按照kafka 默认分区策略进行分区  </span><br><span class="line">	private String forwardKey;  </span><br><span class="line">	  </span><br><span class="line">	private VerifyInfo verifyInfo;  </span><br><span class="line">   </span><br><span class="line">	public static class VerifyInfo &#123;  </span><br><span class="line">		private int protocolType; // 1-http, 2-rpc-dubbo  </span><br><span class="line">		private String registryProtocol;  </span><br><span class="line">		private String registryAddress;  </span><br><span class="line">		private String url;  </span><br><span class="line">		private String version;   </span><br><span class="line">	&#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p>本项目以指定topic+预定义消息格式的方式简单实现了消息的提交，消息格式如下， 大家可以参考。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">package com.example.trustmessage.middlewareapi.common;</span><br><span class="line">public class MiddlewareMessage &#123;  </span><br><span class="line">	  </span><br><span class="line">	// 要给到业务方的真正消息  </span><br><span class="line">	private String message;  </span><br><span class="line">	</span><br><span class="line">	private int bizID; </span><br><span class="line">	  </span><br><span class="line">	// 用于消息回查的业务唯一标识  </span><br><span class="line">	private String messageKey;  </span><br><span class="line">	 </span><br><span class="line">	private int messageStatus;  </span><br><span class="line">	  </span><br><span class="line">	private String forwardTopic;  </span><br><span class="line">	  </span><br><span class="line">	// 向业务方转发时需要指定的key，没有则说明按照kafka 默认分区策略进行分区  </span><br><span class="line">	private String forwardKey;  </span><br><span class="line">	  </span><br><span class="line">	private VerifyInfo verifyInfo;  </span><br><span class="line">   </span><br><span class="line">	public static class VerifyInfo &#123;  </span><br><span class="line">		private int protocolType; // 1-http, 2-rpc-dubbo  </span><br><span class="line">		private String registryProtocol;  </span><br><span class="line">		private String registryAddress;  </span><br><span class="line">		private String url;  </span><br><span class="line">		private String version;   </span><br><span class="line">	&#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h1 id="5-基于rpc接口-vs-基于kafka提交"><a href="#5-基于RPC接口-vs-基于Kafka提交" class="headerlink" title="5. 基于RPC接口 vs 基于Kafka提交"></a>5. 基于RPC接口 vs 基于Kafka提交</h1><p>基于两种不同消息提交方式实现的中间件， 将从以下两方面进行比较</p>
 <ol>
 <li>消息的顺序性</li>
 <li>流量增加后扩容</li>
 </ol>
 <h2 id="51-消息的顺序性"><a href="#5-1-消息的顺序性" class="headerlink" title="5.1 消息的顺序性"></a>5.1 消息的顺序性</h2><p>使用中间件回查机制，由于网络原因，有可能出现 某条业务的commit or rollback 消息比prepare 先到达中间件，面对这种情况,commit or rollback的处理逻辑是需要报错的，client 只能重试或者等待回查机制更新消息状态</p>
-<p>但是由于kafka 可以在一个分区内的保证消息的有序性，所以基于Kafka提交的方案可以有一种优雅的方式保证prepare消息和commit&#x2F;rollback 消息的有序性。</p>
+<p>但是由于kafka 可以在一个分区内的保证消息的有序性，所以基于Kafka提交的方案可以有一种优雅的方式保证prepare消息和commit/rollback 消息的有序性。</p>
 <p>解决方案很简单，生产者在发送消息按照业务 唯一标识指定key ,即指定目标分区即可。</p>
 <h2 id="52-流量增加后扩容"><a href="#5-2-流量增加后扩容" class="headerlink" title="5.2 流量增加后扩容"></a>5.2 流量增加后扩容</h2><p>以下比较基于在代码层面已经做好分库分表、异步处理、批量处理、cache 等性能优化的基础上</p>
 <p>假设已经分库分表，数据库处理不是瓶颈<br>万一流量激增，基于Kafka提交的方案 可能会产生产生必须要处理的消息积压，针对消息积压常见的解决方案中</p>
@@ -718,4 +697,20 @@
 
 <!-- inject -->
 
-</div></body></html>
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>

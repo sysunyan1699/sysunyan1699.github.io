@@ -1,8 +1,14 @@
+http://example.com/17f5a37e/
+http://example.com/6ac941eb/
+http://example.com/f27811be/
+http://example.com/4579c6a3/
+http://example.com/2472be8a/
+http://example.com/7057a5e3/
+http://example.com/5fe6baa/
 http://example.com/60dfe914/
 http://example.com/81fcff81/
 http://example.com/8cb014c5/
 http://example.com/209fa7d3/
-http://example.com/5fe6baa/
 http://example.com/6cb5dc64/
 http://example.com/9faedfe0/
 http://example.com/b36b0ce9/
@@ -14,6 +20,8 @@ http://example.com/tags/index.html
 http://example.com/
 http://example.com/tags/AI/
 http://example.com/tags/chatGPT/
+http://example.com/tags/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/
+http://example.com/tags/Ilya-sutskever%E2%80%98s-30-papers/
 http://example.com/tags/MySQL/
 http://example.com/tags/%E4%BA%8B%E5%8A%A1/
 http://example.com/tags/Programming/

@@ -1,0 +1,943 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>神经网络（Neural Networks） - Sun Yan</title>
+
+  
+    <meta name="description" content="0. 什么是神经网络 (Neural Networks)神经网络是实现AI 的一种技术手段，一种广泛用于机器学习（Machine Learning）和深度学习（Deep Learning）领域的计算模型&#x2F;算法架构。 它受到人类大脑神经元（Neurons）和它们的互动方式的启发，它由多个层（Layers）组成，每层包含多个神经元，这些神经元通过权重（Weights）连接传递信息。 神经网络的训练过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="神经网络（Neural Networks）">
+<meta property="og:url" content="http://example.com/f27811be/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="0. 什么是神经网络 (Neural Networks)神经网络是实现AI 的一种技术手段，一种广泛用于机器学习（Machine Learning）和深度学习（Deep Learning）领域的计算模型&#x2F;算法架构。 它受到人类大脑神经元（Neurons）和它们的互动方式的启发，它由多个层（Layers）组成，每层包含多个神经元，这些神经元通过权重（Weights）连接传递信息。 神经网络的训练过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-07T09:16:16.000Z">
+<meta property="article:modified_time" content="2024-06-16T14:23:22.639Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="神经网络">
+<meta property="article:tag" content="Ilya sutskever‘s 30  papers">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  <meta name="keywords" content="AI,神经网络,Ilya sutskever‘s 30  papers">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/17f5a37e/"><span class="title">Ilya sutskever's approx 30 research papers about AI</span></a><a class="item title" href="/6ac941eb/"><span class="title">递归神经网络（Recurrent Neural Networks, RNNs）</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/2472be8a/"><span class="title">The Unreasonable Effectiveness of Recurrent Neural Networks</span></a><a class="item title" href="/7057a5e3/"><span class="title">RECURRENT NEURAL NETWORK REGULARIZATION</span></a><a class="item title" href="/5fe6baa/"><span class="title">使用github page+hexo 创建个人网站</span></a><a class="item title" href="/60dfe914/"><span class="title">Intro to chatGPT,从G、P、T的含义解释chatGPT</span></a><a class="item title" href="/81fcff81/"><span class="title">Intro to AI</span></a><a class="item title" href="/8cb014c5/"><span class="title">chatGPT是如何被训练出来的</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-06-07T09:16:16.000Z">2024-06-07</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-06-16T14:23:22.639Z">2024-06-16</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>神经网络（Neural Networks）</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><h1 id="0-什么是神经网络-neural-networks"><a href="#0-什么是神经网络-Neural-Networks" class="headerlink" title="0. 什么是神经网络 (Neural Networks)"></a>0. 什么是神经网络 (Neural Networks)</h1><p>神经网络是实现AI 的一种技术手段，一种广泛用于机器学习（Machine Learning）和深度学习（Deep Learning）领域的计算模型/算法架构。</p>
+<p>它受到人类大脑神经元（Neurons）和它们的互动方式的启发，它由多个层（Layers）组成，每层包含多个神经元，这些神经元通过权重（Weights）连接传递信息。</p>
+<p>神经网络的训练过程基于机器学习的基本前提，即能够从数据中学习。通过向网络提供大量的数据样本（包括输入和期望的输出），神经网络可以学习到如何映射输入到输出，这种能力是通过调整内部结构（即权重）来实现的。</p>
+<p>这一学习过程使用了机器学习中的核心概念，如损失函数（Loss Functions）、梯度下降（Gradient Descent）和反向传播算法（Backpropagation Algorithms）。这些都是机器学习领域的基本工具，用于训练模型以改进其性能。</p>
+<h1 id="1-神经网络的层次结构"><a href="#1-神经网络的层次结构" class="headerlink" title="1. 神经网络的层次结构"></a>1. 神经网络的层次结构</h1><h2 id="11-节点nodes或神经元neurons"><a href="#1-1-节点（Nodes）或神经元（Neurons）" class="headerlink" title="1.1  节点（Nodes）或神经元（Neurons）"></a>1.1  节点（Nodes）或神经元（Neurons）</h2><p>节点是神经网络的基本单位，也称为神经元。每个节点接收输入信号，进行加权求和和非线性变换，然后将结果传递给下一层的节点。节点的主要功能包括：</p>
+<ol>
+<li><strong>接收输入</strong>：从前一层的所有节点接收输入信号。</li>
+<li><strong>加权求和</strong>：对接收到的输入信号乘以相应的权重并求和。</li>
+<li><strong>应用激活函数</strong>：对加权求和的结果应用激活函数，生成节点的输出。</li>
+<li><strong>传递输出</strong>：将输出信号传递给下一层的节点。</li>
+</ol>
+<h2 id="12-层layers"><a href="#1-2-层（Layers）" class="headerlink" title="1.2  层（Layers）"></a>1.2  层（Layers）</h2><p>层是由多个节点组成的一个集合，在神经网络中起着分层处理输入数据的作用。每一层中的节点执行相同类型的计算，但每个节点有各自的权重和偏置。</p>
+<p>一个典型的神经网络由以下几个部分组成：</p>
+<ul>
+<li><strong>输入层（Input Layer）</strong>：接收外部输入数据，每个节点代表一个输入特征。</li>
+<li><strong>隐藏层（Hidden Layers）</strong>：位于输入层和输出层之间，用于特征提取和数据变换。一个神经网络可以有一个或多个隐藏层。</li>
+<li><strong>输出层（Output Layer）</strong>：生成最终的预测结果，每个节点代表一个输出。</li>
+</ul>
+<h2 id="13-节点和层的关系"><a href="#1-3-节点和层的关系" class="headerlink" title="1.3  节点和层的关系"></a>1.3  节点和层的关系</h2><p>节点和层之间的关系可以概括如下：</p>
+<ol>
+<li><strong>层是节点的集合</strong>：每一层由多个节点组成，这些节点在同一层内进行相同类型的计算。</li>
+<li><strong>数据传递和处理</strong>：数据在神经网络中逐层传递，每一层的节点接收前一层的输出，进行计算后将结果传递给下一层的节点。</li>
+<li><strong>层次结构</strong>：神经网络的层次结构决定了数据处理的顺序和方式。输入数据经过输入层后，依次通过一个或多个隐藏层进行复杂的特征提取，最终通过输出层生成预测结果。</li>
+</ol>
+<h2 id="14-层与层之间的连接"><a href="#1-4-层与层之间的连接" class="headerlink" title="1.4 层与层之间的连接"></a>1.4 层与层之间的连接</h2><p>层与层之间的连接由权重矩阵决定。每一层的节点与下一层的每个节点相连，连接的强度由权重值决定。在前向传播过程中，输入层的节点将输入数据传递给第一个隐藏层的节点，后者再将处理后的数据传递给下一个隐藏层，依此类推，直到输出层。</p>
+<h1 id="2-权重"><a href="#2-权重" class="headerlink" title="2. 权重"></a>2. 权重</h1><p>权重是连接神经网络中不同层节点的参数，用于调节输入信号在网络中的传递和变换强度。每个连接都有一个权重，表示输入信号对输出信号的影响力。</p>
+<ul>
+<li><strong>调节信号强度</strong>：权重乘以输入信号后，再通过求和和激活函数的变换，决定了输出信号的值。不同的权重值代表输入信号的重要程度。</li>
+<li><strong>特征学习</strong>：通过学习和调整权重，神经网络能够识别和提取输入数据中的重要特征。</li>
+<li><strong>优化</strong>：在训练过程中，权重被调整以最小化预测误差。通过反向传播算法，权重的值不断更新，使得模型的预测更加准确。</li>
+</ul>
+<h2 id="21-权重的存在形式"><a href="#2-1-权重的存在形式" class="headerlink" title="2.1 权重的存在形式"></a>2.1 权重的存在形式</h2><p>权重并不存在于单独的节点内，而是存在于节点之间的连接上。具体来说，每一层的节点与下一层的节点之间的连接由一组权重参数表示。权重矩阵表示了两个层之间所有节点连接的权重值。</p>
+<h2 id="22-权重的初始化和调整"><a href="#2-2-权重的初始化和调整" class="headerlink" title="2.2 权重的初始化和调整"></a>2.2 权重的初始化和调整</h2><p>权重的初始化方法有多种，包括零初始化、随机初始化、Xavier初始化和He初始化等。这些方法旨在为模型提供一个良好的起点，以便更好地进行训练。</p>
+<h2 id="23-权重的训练调整"><a href="#2-3-权重的训练调整" class="headerlink" title="2.3 权重的训练调整"></a>2.3 权重的训练调整</h2><p>在训练过程中，权重通过优化算法进行调整。最常用的优化算法是梯度下降（Gradient Descent）及其变种（如随机梯度下降、Adam优化算法等）。训练步骤如下：</p>
+<ol>
+<li><strong>前向传播</strong>：计算网络的预测输出。</li>
+<li><strong>计算损失</strong>：通过损失函数衡量预测输出与真实标签之间的差距。</li>
+<li><strong>反向传播</strong>：计算损失函数对每个权重的梯度。</li>
+<li><strong>更新权重</strong>：使用梯度下降法更新权重，以最小化损失函数。</li>
+</ol>
+<h2 id="24-优化算法"><a href="#2-4-优化算法" class="headerlink" title="2.4 优化算法"></a>2.4 优化算法</h2><p>为了提高训练效率和稳定性，可以使用各种优化算法，包括：</p>
+<ul>
+<li><strong>动量（Momentum）</strong>：结合当前梯度和之前更新的方向，加速收敛。</li>
+<li><strong>AdaGrad</strong>：根据过去的梯度调整学习率，适应性地进行参数更新。</li>
+<li><strong>RMSProp</strong>：改进AdaGrad，使用指数加权平均计算梯度平方和，避免学习率过快减小。</li>
+<li><strong>Adam</strong>：结合动量和RMSProp的优点，适应性地调整学习率和动量，广泛应用于各种神经网络训练。</li>
+</ul>
+<h2 id="25-权重在不同类型神经网络中的角色"><a href="#2-5-权重在不同类型神经网络中的角色" class="headerlink" title="2.5 权重在不同类型神经网络中的角色"></a>2.5 权重在不同类型神经网络中的角色</h2><p>不同类型的神经网络中，权重的具体作用可能有所不同：</p>
+<ul>
+<li><strong>前馈神经网络（Feedforward Neural Networks, FNNs）</strong>：权重连接每一层的所有节点，负责将输入数据逐层传递和变换。</li>
+<li><strong>卷积神经网络（Convolutional Neural Networks, CNNs）</strong>：权重是卷积核的参数，负责在局部感知野上提取特征。</li>
+<li><strong>递归神经网络（Recurrent Neural Networks, RNNs）</strong>：权重用于处理序列数据，包括当前时间步的输入与前一时间步的隐藏状态之间的关系。</li>
+</ul>
+<h1 id="3-偏置biases"><a href="#3-偏置（Biases）" class="headerlink" title="3. 偏置（Biases）"></a>3. 偏置（Biases）</h1><p>偏置是每个节点附加的一个参数，用于调整节点的输出独立于输入信号。偏置帮助神经网络学到更灵活的决策边界。</p>
+<p><strong>作用</strong></p>
+<ul>
+<li><strong>调节输出</strong>：偏置提供一个额外的自由度，使得神经网络能够更好地拟合数据。</li>
+<li><strong>避免零输出</strong>：在输入信号为零的情况下，偏置确保节点仍然能够产生非零输出。</li>
+</ul>
+<h1 id="4-激活函数activation-function"><a href="#4-激活函数（Activation-Function）" class="headerlink" title="4. 激活函数（Activation Function）"></a>4. 激活函数（Activation Function）</h1><p>激活函数（Activation Function）是神经网络中的一个关键组件，它引入了非线性变换，使得神经网络能够学习和表示复杂的非线性关系。如果没有激活函数，神经网络的每一层只进行线性变换，那么无论多少层的堆叠，整体仍然是一个线性变换。这将极大限制神经网络的表示能力。因此，激活函数对于神经网络的性能和能力至关重要。</p>
+<p>线性（Linear）和非线性（Nonlinear）是数学和信号处理中两个基本的概念，这些概念在神经网络和机器学习中也具有重要意义。理解这两个概念有助于掌握为什么激活函数对神经网络的性能如此重要。</p>
+<h2 id="41-线性linearvs-非线性nonlinear"><a href="#4-1-线性（Linear）vs-非线性（Nonlinear）" class="headerlink" title="4.1 线性（Linear）vs  非线性（Nonlinear）"></a>4.1 线性（Linear）vs  非线性（Nonlinear）</h2><h3 id="411-线性linear"><a href="#4-1-1-线性（Linear）" class="headerlink" title="4.1.1 线性（Linear）"></a>4.1.1 线性（Linear）</h3><p>线性关系是指两个变量之间的关系可以用一个线性方程表示。对于一个变量 $x$ 和其对应的输出 $y$，线性关系可以表示为：<br>$y = mx + b$<br>其中，$m$ 是斜率，$b$ 是截距。这意味着如果我们绘制 $y$ 对 $x$ 的图像，它将是一条直线。</p>
+<p><strong>特点</strong></p>
+<ul>
+<li><strong>叠加性</strong>：线性系统满足叠加原理，即输入的线性组合会产生输出的线性组合。如果 $f(x_1) = y_1$​ 和$f(x_2) = y_2$，那么对于任何常数 $a$和 $b$，有 $f(ax_1 + bx_2) = ay_1 + by_2$​。</li>
+<li><strong>同质性</strong>：线性系统满足同质性，即输入的放大会导致输出的相应放大。如果 $f(x) = y$，那么对于任何常数 $k$，有 $f(kx) = ky$。</li>
+</ul>
+<p><strong>在神经网络中的应用</strong><br>在神经网络中，线性变换通常通过矩阵乘法和加法实现，例如输入与权重矩阵的乘积加上偏置：<br>$z = W \cdot x + b$</p>
+<h3 id="412-非线性nonlinear"><a href="#4-1-2-非线性（Nonlinear）" class="headerlink" title="4.1.2 非线性（Nonlinear）"></a>4.1.2 非线性（Nonlinear）</h3><p>非线性关系是指两个变量之间的关系不能用一个简单的线性方程表示。非线性关系的数学表示形式可以非常多样，常见的形式包括多项式、指数函数、对数函数、三角函数等。<br>例如，对于变量 $x$ 和 $y$，非线性关系可以表示为：<br>$y=ax^2+bx+c$<br>其中，$a$、$b$、$c$ 是常数。这意味着如果我们绘制 $y$ 对 $x$ 的图像，它将不是一条直线，而是一个曲线。<br><strong>特点</strong></p>
+<ul>
+<li><strong>非叠加性</strong>：非线性系统不满足叠加原理。如果 $f(x_1) = y_1​$ 和 $f(x_2) = y_2​$，那么 $f(ax_1 + bx_2) \neq ay_1 + by_2$​。</li>
+<li><strong>复杂性</strong>：非线性系统可以表示复杂的关系和模式，能够捕捉到数据中的复杂结构和动态。</li>
+</ul>
+<p><strong>为什么需要非线性</strong><br>如果神经网络只使用线性激活函数（例如，恒等函数 f(z)=z），那么无论网络有多少层，其最终输出仍然是输入的线性变换。也就是说，整个网络等效于一个单层的线性模型，无法捕捉数据中的复杂关系。因此，引入非线性激活函数使得网络具有更强的表达能力，能够学习和表示复杂的非线性关系，从而解决更复杂的问题。</p>
+<h2 id="42-常见的非线性激活函数"><a href="#4-2-常见的非线性激活函数" class="headerlink" title="4.2 常见的非线性激活函数"></a>4.2 常见的非线性激活函数</h2><h4 id="421-sigmoid-函数"><a href="#4-2-1-Sigmoid-函数" class="headerlink" title="4.2.1 Sigmoid 函数"></a>4.2.1 Sigmoid 函数</h4><p>$σ(z)=\frac{1}{1+e^{−z}} ​$</p>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>输出值在0到1之间，适用于概率预测。</li>
+<li>在极值区间梯度较小，可能导致梯度消失问题。</li>
+<li>计算复杂度较高。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>常用于二分类问题的输出层。</li>
+</ul>
+<h4 id="422-tanh双曲正切函数"><a href="#4-2-2-Tanh（双曲正切）函数" class="headerlink" title="4.2.2 Tanh（双曲正切）函数"></a>4.2.2 Tanh（双曲正切）函数</h4><p>$tanh(z)=\frac{e^z-e^{-z}}{e^z+e^{-z}}$<br>​<br><strong>特点</strong>：</p>
+<ul>
+<li>输出值在-1到1之间。</li>
+<li>相对于Sigmoid函数，Tanh函数的输出均值为0，使得数据更中心化。</li>
+<li>也存在梯度消失问题，但在0附近的梯度较大，梯度消失问题稍好于Sigmoid。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>常用于隐藏层。<h3 id="423-relurectified-linear-unit函数"><a href="#4-2-3-ReLU（Rectified-Linear-Unit）函数" class="headerlink" title="4.2.3 ReLU（Rectified Linear Unit）函数"></a>4.2.3 ReLU（Rectified Linear Unit）函数</h3>$ReLU(z)=max(0,z)$</li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>计算简单，收敛速度快。</li>
+<li>在正区间保持线性关系，在负区间输出为0。</li>
+<li>解决了Sigmoid和Tanh的梯度消失问题。</li>
+<li>可能导致部分神经元“死亡”，即在训练过程中某些神经元的输出始终为0，不再更新。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>广泛用于隐藏层。<h4 id="424-leaky-relu-函数"><a href="#4-2-4-Leaky-ReLU-函数" class="headerlink" title="4.2.4 Leaky ReLU 函数"></a>4.2.4 Leaky ReLU 函数</h4>$Leaky  ReLU(z)=max(αz,z)$</li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>解决了ReLU的“死亡神经元”问题。</li>
+<li>在负区间给定一个很小的斜率（通常为0.01）。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>替代ReLU，在隐藏层中使用<h4 id="425-softmax-函数"><a href="#4-2-5-Softmax-函数" class="headerlink" title="4.2.5 Softmax 函数"></a>4.2.5 Softmax 函数</h4>$Softmax(z_i​)=\frac{e^z_i}{∑_j​​e^z_j} ​$</li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>将输出值转换为概率分布，总和为1。</li>
+<li>适用于多分类问题。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>常用于多分类问题的输出层。<h4 id="426-swish-函数"><a href="#4-2-6-Swish-函数" class="headerlink" title="4.2.6 Swish 函数"></a>4.2.6 Swish 函数</h4>$Swish(z)=z⋅σ(z)=\frac{z}{1+e^{−z}} ​​$</li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>平滑的非线性函数，性能优于ReLU和Sigmoid。</li>
+<li>由Google提出，结合了ReLU和Sigmoid的特点。</li>
+</ul>
+<p><strong>应用</strong>：</p>
+<ul>
+<li>新型激活函数，在一些深度学习模型中表现出色。</li>
+</ul>
+<h2 id="43-激活函数的选择"><a href="#4-3-激活函数的选择" class="headerlink" title="4.3 激活函数的选择"></a>4.3 激活函数的选择</h2><p>激活函数的选择对于神经网络的训练和性能有重要影响。以下是一些常见的选择准则：</p>
+<ol>
+<li><strong>隐藏层</strong>：通常使用ReLU或其变种（如Leaky ReLU、Swish），因为它们计算简单且能有效缓解梯度消失问题。</li>
+<li><strong>输出层</strong>：<ul>
+<li><strong>回归问题</strong>：使用线性激活函数。</li>
+<li><strong>二分类问题</strong>：使用Sigmoid函数。</li>
+<li><strong>多分类问题</strong>：使用Softmax函数</li>
+</ul>
+</li>
+</ol>
+<h1 id="5-训练过程"><a href="#5-训练过程" class="headerlink" title="5 训练过程"></a>5 训练过程</h1><p>假设我们有一个简单的神经网络，包含一个输入层、一个隐藏层和一个输出层：</p>
+<ol>
+<li>输入层**：2个节点，表示输入特征 $x_1$ 和 $x_2​$。</li>
+<li><strong>隐藏层</strong>：2个节点，表示隐藏状态 $h_1$ 和 $h_2$​，偏置向量分别为$b_1$、$b_2$,使用ReLU激活函数。</li>
+<li><strong>输出层</strong>：1个节点，表示输出 $y$，偏置向量分别为$b_3$,使用线性激活函数。</li>
+</ol>
+<p><strong>权重矩阵</strong></p>
+<ol>
+<li><p><strong>输入层到隐藏层的权重</strong>：假设权重为 $W^{(1)} = \begin{bmatrix} W_{11} &amp; W_{12} \ W_{21} &amp; W_{22} \end{bmatrix}$,其中 $W_{11}​$、$W_{12}$​ 连接 $x_1$​ 到 $h_1$​ 和 $h_2$​，$W_{21}​$、$W_{22}$​ 连接 $x_2$​ 到 $h_1$​ 和 $h_2​$。</p>
+</li>
+<li><p><strong>隐藏层到输出层的权重</strong>：假设权重为 $W^{(2)} = \begin{bmatrix} W_{31} &amp; W_{32} \end{bmatrix}$</p>
+<ul>
+<li>$W_{31}$​ 和 $W_{32}$分别连接$h_1$ 和$h_2​$到 $y$。其中 $W_{31}$、$W_{32}$分别连接 $h_1$和 $h_2$到 $y$</li>
+</ul>
+</li>
+</ol>
+<p>如果指定具体数据，可以设置为</p>
+<ul>
+<li>输入数据为$\mathbf{X} = [0.5, 0.6]$</li>
+<li><p>隐藏层权重矩阵 $\mathbf{W}^{(1)} = \begin{bmatrix} 0.1 &amp; 0.2 \ 0.3 &amp; 0.4 \end{bmatrix}$</p>
+</li>
+<li><p>隐藏层偏置向量 $\mathbf{b}^{(1)} = \begin{bmatrix} 0.1 \ 0.2 \end{bmatrix}$</p>
+</li>
+<li><p>输出层权重矩阵 $\mathbf{W}^{(2)} = \begin{bmatrix} 0.5 &amp; 0.6 \end{bmatrix}$</p>
+</li>
+<li>输出层偏置向量$\mathbf{b}^{(2)} = \begin{bmatrix} 0.3 \end{bmatrix}$</li>
+</ul>
+<p>在训练过程中，通过调整权重和偏置，使得模型的预测结果尽可能准确。以下的主要步骤.</p>
+<h2 id="51-前向传播forward-propagation"><a href="#5-1-前向传播（Forward-Propagation）" class="headerlink" title="5.1 前向传播（Forward Propagation）"></a>5.1 前向传播（Forward Propagation）</h2><p>前向传播是数据从输入层经过隐藏层传递到输出层的过程。在这个过程中，每一层的节点接收前一层的输出，进行加权求和，并通过激活函数生成输出。<br>具体步骤如下：</p>
+<ul>
+<li><strong>加权求和</strong>：每个节点接收前一层所有节点的输出，计算加权和。 $z_i = \sum_{j} w_{ij} x_j + b_i$​ 其中，$z_i$ 是第 $i$ 个节点的加权和，$w_{ij}$ 是从第 $j$ 个输入到第 $i$ 个节点的权重，$x_j$是第 $j$ 个输入，$b_i$​ 是偏置。</li>
+<li><strong>激活函数</strong>：对加权和应用激活函数，生成节点的输出。 $a_i = f(z_i)$常用的激活函数包括Sigmoid、Tanh和ReLU。</li>
+</ul>
+<h3 id="511-输入层"><a href="#5-1-1-输入层" class="headerlink" title="5.1.1 输入层"></a>5.1.1 输入层</h3><p>输入层接收外部数据，将其传递给第一个隐藏层。假设输入数据为 $\mathbf{X} = [x_1, x_2]$</p>
+<h3 id="512-隐藏层"><a href="#5-1-2-隐藏层" class="headerlink" title="5.1.2 隐藏层"></a>5.1.2 隐藏层</h3><ol>
+<li><p>计算隐藏层的输入加权和：<br>$z_1^{(1)} = w_{11}x_1 + w_{12}x_2 + b_1$</p>
+<p>$z_2^{(1)} = w_{21}x_1 + w_{22}x_2 + b_2$</p>
+<p>代入具体数据：$z^{(1)} = \mathbf{W}^{(1)} \mathbf{X} + \mathbf{b}^{(1)} = \begin{bmatrix} 0.1 &amp; 0.2 \ 0.3 &amp; 0.4 \end{bmatrix} \begin{bmatrix} 0.5 \ 0.6 \end{bmatrix} + \begin{bmatrix} 0.1 \ 0.2 \end{bmatrix} = \begin{bmatrix} 0.1 \cdot 0.5 + 0.2 \cdot 0.6 + 0.1 \ 0.3 \cdot 0.5 + 0.4 \cdot 0.6 + 0.2 \end{bmatrix} = \begin{bmatrix} 0.27 \ 0.62 \end{bmatrix}$</p>
+</li>
+<li><p>应用激活函数，计算隐藏层的输出：<br>$h_1 = \text{ReLU}(z_1^{(1)})$</p>
+<p>$h_2 = \text{ReLU}(z_2^{(1)})$</p>
+</li>
+</ol>
+<pre><code>$h^&#123;(1)&#125; = \text&#123;ReLU&#125;(z^&#123;(1)&#125;) = \begin&#123;bmatrix&#125; \max(0, 0.27) \\ \max(0, 0.62) \end&#123;bmatrix&#125; = \begin&#123;bmatrix&#125; 0.27 \\ 0.62 \end&#123;bmatrix&#125;$
+</code></pre><h3 id="513-输出层"><a href="#5-1-3-输出层" class="headerlink" title="5.1.3 输出层"></a>5.1.3 输出层</h3><ol>
+<li>计算输出层的输入加权和：<br>$z^{(2)} = w_{31}h_1 + w_{32}h_2 + b_3$<br>$z^{(2)} = \mathbf{W}^{(2)} a^{(1)} + \mathbf{b}^{(2)} = \begin{bmatrix} 0.5 &amp; 0.6 \end{bmatrix} \begin{bmatrix} 0.27 \ 0.62 \end{bmatrix} + \begin{bmatrix} 0.3 \end{bmatrix} = 0.5 \cdot 0.27 + 0.6 \cdot 0.62 + 0.3 = 0.735$</li>
+<li>应用激活函数，计算最终输出：<br>$y = z^{(2)}$<br>假设输出层使用线性激活函数（即不做非线性变换）<br>$y = z^{(2)} = 0.735$<h2 id="52-计算损失loss-calculation"><a href="#5-2-计算损失（Loss-Calculation）" class="headerlink" title="5.2 计算损失（Loss Calculation）"></a>5.2 计算损失（Loss Calculation）</h2></li>
+</ol>
+<p>使用损失函数计算预测输出与真实标签之间的差异。损失函数是一个衡量模型预测误差的指标，常见的损失函数包括均方误差（MSE）和交叉熵损失。</p>
+<ul>
+<li><p><strong>均方误差（MSE, Mean Squared Error）</strong>：用于回归问题。 $\text{MSE} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2$</p>
+</li>
+<li><p><strong>交叉熵损失（Cross-Entropy Loss）</strong>：用于分类问题。 $\text{Cross-Entropy} = -\sum_{i=1}^N y_i \log(\hat{y}_i)$</p>
+</li>
+</ul>
+<h2 id="53-反向传播backpropagation"><a href="#5-3-反向传播（Backpropagation）" class="headerlink" title="5.3 反向传播（Backpropagation）"></a>5.3 反向传播（Backpropagation）</h2><p>反向传播算法通过计算损失函数对每个模型参数（权重和偏置）的偏导数/梯度，来指导参数更新，使得损失函数逐步减小，从而提高模型的准确性。</p>
+<ul>
+<li><strong>计算梯度</strong>：首先计算输出层节点的损失梯度，即损失函数对输出层每个节点输出的偏导数。然后通过链式法则，依次计算每个隐藏层节点的梯度。梯度由后一层节点的梯度和当前层节点的输出值共同决定。</li>
+<li><strong>传播误差</strong>：误差从输出层逐层传播回输入层，计算每个参数的梯度。</li>
+</ul>
+<p>∂ 是偏导数符号</p>
+<h3 id="531-偏导数和梯度"><a href="#5-3-1-偏导数和梯度" class="headerlink" title="5.3.1 偏导数和梯度"></a>5.3.1 偏导数和梯度</h3><p>偏导数表示在固定其他变量的情况下，一个变量的变化率。假设 $f(x, y)$ 是一个关于 $x$ 和 $y$的函数，则 $f$ 对 $x$ 的偏导数记作 $\frac{\partial f}{\partial x}$。</p>
+<p>在神经网络中，偏导数用于计算梯度，帮助反向传播算法更新权重。梯度是损失函数关于每个参数的导数，表示损失函数变化率。对于一个权重 $w$，梯度 $\frac{\partial L}{\partial w}$ 表示权重变化对损失函数 $L$ 的影响。<br>具体而言，梯度表示损失函数相对于每个参数的偏导数：</p>
+<p>$\frac{\partial L}{\partial W} = \text{梯度}$</p>
+<p>通过计算每个参数的偏导数，反向传播算法能逐步调整网络权重，使得损失函数 $L$ 最小化，提高模型的预测能力。</p>
+<h3 id="532-偏导数推导过程"><a href="#5-3-2-偏导数推导过程" class="headerlink" title="5.3.2 偏导数推导过程"></a>5.3.2 偏导数推导过程</h3><p>如果 $f(x, y) = x^2 + y^2$，则对 $x$ 的偏导数为：</p>
+<p>$\frac{\partial f}{\partial x} = \frac{\partial (x^2 + y^2)}{\partial x} = 2x$</p>
+<p>根据求导法则，分开对每一项求导：<br>$\frac{\partial f}{\partial x} = \frac{\partial (x^2 + y^2)}{\partial x} =\frac{\partial}{\partial x} (x^2) + \frac{\partial}{\partial x} (y^2)$</p>
+<p>对于 $x^2$，使用幂函数求导法则 $\frac{\partial}{\partial x} (x^n) = nx^{n-1}$：<br>$\frac{\partial}{\partial x} (x^2) = 2x^{2-1}= 2x$<br>对于 $y^2$，因为$y$ 被视为常数，对 $x$ 求导结果为 0：<br>$\frac{\partial}{\partial x} (y^2) = 0$</p>
+<p>同理，对 $y$ 的偏导数为：</p>
+<p>$\frac{\partial f}{\partial y} = \frac{\partial (x^2 + y^2)}{\partial y} = 2y$</p>
+<p>现在根据以上理解逐层反向计算每个参数的梯度</p>
+<h3 id="533-计算输出层的梯度"><a href="#5-3-3-计算输出层的梯度" class="headerlink" title="5.3.3  计算输出层的梯度"></a>5.3.3  计算输出层的梯度</h3><p>假设我们使用均方误差（MSE）作为损失函数：<br>$L = \frac{1}{2} (y - t)^2$</p>
+<p>其中，$t$ 是目标值。</p>
+<p>首先，计算损失相对于输出 $y$ 的梯度：</p>
+<p>$\frac{\partial L}{\partial y} = y - t$</p>
+<p>然后，计算损失相对于隐藏层到输出层权重 $W_{31}$​ 和 $W_{32}$的梯度：</p>
+<p>$\frac{\partial L}{\partial W_{31}} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial W_{31}}=\frac{\partial L}{\partial y} \cdot \frac{\partial (w_{31}h_1 + w_{32}h_2 + b_3)}{\partial W_{31}} = (y - t) \cdot h_1$</p>
+<p>由于 $W_{31}$和 $h_1$​ 相乘，而 $h_1$​  不依赖于 $W_{31}$，其余项在偏导数计算中都是常数，因此可以忽略。所以</p>
+<p>在这个表达式中，$W_{31}$和 $h_1$​ 相乘，其余项与 $W_{31}$无关，因此在对 $W_{31}​$ 求导时可以忽略。<br>$\frac{\partial L}{\partial W_{31}} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial W_{31}}=\frac{\partial L}{\partial y} \cdot \frac{\partial (w_{31}h_1)}{\partial W_{31}}$</p>
+<p>根据幂函数求导法则 $\frac{\partial}{\partial x} (x^n) = nx^{n-1}$<br>根据线性求导法则，常数项可以直接提取出来  $\frac{\partial}{\partial x} (a\cdot x) = a$</p>
+<p>$\frac{\partial L}{\partial W_{31}} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial W_{31}}=\frac{\partial L}{\partial y} \cdot \frac{\partial (w_{31}h_1)}{\partial W_{31}} = \frac{\partial L}{\partial y} \cdot \frac{\partial (w_{31}h_1)}{\partial W_{31}}= (y-t) \cdot h_1$</p>
+<p>同理可得：<br>$\frac{\partial L}{\partial W_{32}} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial W_{32}} = (y - t) \cdot h_2$</p>
+<p>计算损失相对于偏置 $b_3​$ 的梯度：</p>
+<p>$\frac{\partial L}{\partial b_3} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial b_3} = (y - t) \cdot 1 = y - t$</p>
+<h3 id="534-计算隐藏层的梯度"><a href="#5-3-4-计算隐藏层的梯度" class="headerlink" title="5.3.4 计算隐藏层的梯度"></a>5.3.4 计算隐藏层的梯度</h3><p>对于隐藏层的梯度，需要计算损失相对于隐藏状态 $h_1$​ 和 $h_2$​ 的梯度：</p>
+<p>$\frac{\partial L}{\partial h_1} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial h_1} = (y - t) \cdot W_{31}$</p>
+<p>$\frac{\partial L}{\partial h_2} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial h_2} = (y - t) \cdot W_{32}$</p>
+<p>其中，$y = w_{31}h_1 + w_{32}h_2 + b_3$</p>
+<p>计算推导过程同上，可以得到以上结果</p>
+<p>由于隐藏层使用的是ReLU激活函数，其导数为：</p>
+<p>$\frac{\partial \text{ReLU}(z)}{\partial z} = \begin{cases} 1 &amp; \text{if } z &gt; 0 \ 0 &amp; \text{if } z \leq 0 \end{cases}$</p>
+<p>其中 $h_1 = \text{ReLU}(z_1^{(1)})$</p>
+<p>因此应用链式法则后：</p>
+<p>$\frac{\partial L}{\partial z_1} = \frac{\partial L}{\partial h_1} \cdot \frac{\partial h_1}{\partial z_1} = (y - t) \cdot W_{31} \cdot \begin{cases} 1 &amp; \text{if } z_1 &gt; 0 \ 0 &amp; \text{if } z_1 \leq 0 \end{cases}$</p>
+<p>$\frac{\partial L}{\partial z_2} = \frac{\partial L}{\partial h_2} \cdot \frac{\partial h_2}{\partial z_2} = (y - t) \cdot W_{32} \cdot \begin{cases} 1 &amp; \text{if } z_2 &gt; 0 \ 0 &amp; \text{if } z_2 \leq 0 \end{cases}$</p>
+<h3 id="535-计算输入层的梯度"><a href="#5-3-5-计算输入层的梯度" class="headerlink" title="5.3.5 计算输入层的梯度"></a>5.3.5 计算输入层的梯度</h3><p>最后，计算损失相对于输入层权重 $W_{11}, W_{12}, W_{21}, W_{22}$​ 的梯度：</p>
+<p>$\frac{\partial L}{\partial W_{11}} = \frac{\partial L}{\partial z_1} \cdot \frac{\partial z_1}{\partial W_{11}} = \frac{\partial L}{\partial z_1} \cdot x_1$</p>
+<p>$\frac{\partial L}{\partial W_{12}} = \frac{\partial L}{\partial z_2} \cdot \frac{\partial z_2}{\partial W_{12}} = \frac{\partial L}{\partial z_2} \cdot x_1$</p>
+<p>$\frac{\partial L}{\partial W_{21}} = \frac{\partial L}{\partial z_1} \cdot \frac{\partial z_1}{\partial W_{21}} = \frac{\partial L}{\partial z_1} \cdot x_2$</p>
+<p>$\frac{\partial L}{\partial W_{22}} = \frac{\partial L}{\partial z_2} \cdot \frac{\partial z_2}{\partial W_{22}} = \frac{\partial L}{\partial z_2} \cdot x_2$​</p>
+<h2 id="54-更新权重weight-update"><a href="#5-4-更新权重（Weight-Update）" class="headerlink" title="5.4 更新权重（Weight Update）"></a>5.4 更新权重（Weight Update）</h2><p>使用梯度下降算法根据计算得到的梯度调整权重。梯度下降的基本公式为：<br>$W_{new​}=W_{old}​−η⋅\frac{\partial L}{\partial W}$</p>
+<p>其中，$\eta$ 是学习率（Learning Rate），$\frac{\partial L}{\partial W}$​ 是损失函数对权重的梯度。</p>
+<p>常见的梯度下降变种</p>
+<ul>
+<li><strong>批量梯度下降（Batch Gradient Descent）</strong>：在整个训练数据集上计算梯度，然后更新权重。适用于小数据集，但计算量大，效率较低。</li>
+<li><strong>随机梯度下降（Stochastic Gradient Descent, SGD）</strong>：在每个训练样本上计算梯度，然后更新权重。计算效率高，但梯度噪声大，收敛不稳定。</li>
+<li><strong>小批量梯度下降（Mini-Batch Gradient Descent）</strong>：在小批量训练样本上计算梯度，然后更新权重。结合了批量和随机梯度下降的优点，常用在实际训练中。</li>
+</ul>
+<h1 id="7-超参数hyperparameters-vs-模型参数parameters"><a href="#7-超参数（Hyperparameters）-vs-模型参数（Parameters）" class="headerlink" title="7. 超参数（Hyperparameters） vs  模型参数（Parameters）"></a>7. 超参数（Hyperparameters） vs  模型参数（Parameters）</h1><h2 id="超参数hyperparameters"><a href="#超参数（Hyperparameters）：" class="headerlink" title="超参数（Hyperparameters）："></a><strong>超参数（Hyperparameters）</strong>：</h2><ul>
+<li>定义：超参数是指在模型训练之前需要手动设置的参数，不通过训练数据学习得到，而是通过试验、经验或自动调优方法设定。</li>
+<li>作用：控制模型的训练过程、模型复杂度、正则化程度等。</li>
+<li>示例：学习率（learning rate）、批大小（batch size）、隐藏层的数量和大小、正则化系数（如L2正则化中的λ）、训练轮数（epochs）等。</li>
+<li>调整方法：手动调试（Manual Tuning）、网格搜索（Grid Search）、随机搜索（Random Search）、贝叶斯优化（Bayesian Optimization）等。</li>
+<li>调整频率：通常在训练之前设定，在训练过程中不变。可能需要多次试验和调优过程才能确定最佳超参数。</li>
+</ul>
+<h2 id="模型参数model-parameters"><a href="#模型参数（Model-Parameters）：" class="headerlink" title="模型参数（Model Parameters）："></a><strong>模型参数（Model Parameters）</strong>：</h2><ul>
+<li>定义：模型参数是指在模型训练过程中通过数据学习得到的参数，这些参数定义了模型的最终形态和行为。</li>
+<li>作用：直接影响模型的预测输出，反映了模型从数据中学到的知识。</li>
+<li>示例：神经网络中的权重和偏置、线性回归中的回归系数、支持向量机中的支持向量等。</li>
+<li>调整方法：通过训练数据和优化算法（如梯度下降）自动调整。</li>
+<li>调整频率：在每个训练迭代中都要更新，直到模型收敛或达到预设的训练轮数。</li>
+</ul>
+<h2 id="神经网络中的超参数和模型参数"><a href="#神经网络中的超参数和模型参数" class="headerlink" title="神经网络中的超参数和模型参数"></a>神经网络中的超参数和模型参数</h2><p><strong>超参数</strong>：</p>
+<ul>
+<li>学习率（Learning Rate）：决定每次权重更新的步长。</li>
+<li>批大小（Batch Size）：决定每次权重更新时使用的训练样本数量。</li>
+<li>隐藏层数和每层神经元数量：定义神经网络的结构和复杂度。</li>
+<li>正则化系数：控制正则化项在损失函数中的权重，防止过拟合。</li>
+<li>训练轮数（Epochs）：模型在整个训练数据集上完整训练的次数。</li>
+</ul>
+<p><strong>模型参数</strong>：</p>
+<ul>
+<li>权重（Weights）：连接神经元的权重，表示输入特征的重要性。</li>
+<li>偏置（Biases）：每个神经元的偏置，用于调整激活函数的输出。</li>
+</ul>
+<h1 id="8-序列数据-vs-非序列数据"><a href="#8-序列数据-vs-非序列数据" class="headerlink" title="8. 序列数据 vs 非序列数据"></a>8. 序列数据 vs 非序列数据</h1><h2 id="1-序列数据sequential-data"><a href="#1-序列数据（Sequential-Data）" class="headerlink" title="1. 序列数据（Sequential Data）"></a>1. 序列数据（Sequential Data）</h2><p>序列数据（Sequential Data）是指按照时间或其他顺序排列的数据，其中每个数据点的意义和价值都依赖于它在序列中的位置和前后数据点的关系。序列数据广泛存在于许多实际应用中，如时间序列、自然语言处理、语音识别等。</p>
+<h3 id="序列数据的特点"><a href="#序列数据的特点" class="headerlink" title="序列数据的特点"></a>序列数据的特点</h3><ol>
+<li><strong>时间依赖性</strong>：序列数据中的每个数据点与其前后数据点存在依赖关系。这种依赖性可以是短期的（仅依赖于最近的数据点）或长期的（依赖于较早的数据点）。</li>
+<li><strong>顺序关系</strong>：序列数据的顺序是至关重要的，数据点的顺序关系决定了其实际意义。例如，在语音信号中，音频帧的顺序决定了最终语音的内容。</li>
+<li><strong>动态性</strong>：序列数据往往是动态变化的，数据点的值随时间或其他顺序变化而变化。</li>
+</ol>
+<p>递归神经网络（RNN）和其变体如LSTM和GRU擅长处理序列数据</p>
+<h2 id="2-非序列数据"><a href="#2-非序列数据" class="headerlink" title="2. 非序列数据"></a>2. 非序列数据</h2><p>非序列化数据是指那些数据点之间没有时间或顺序依赖关系的数据。与序列化数据（如时间序列、文本、语音信号等）不同，非序列化数据中的每个数据点都是独立的，不依赖于前后的数据点。非序列化数据在各种领域中广泛存在，包括图像数据、表格数据（结构化数据）、图数据等。<br>不同类型的非序列化数据可以通过不同的神经网络进行处理，如卷积神经网络（CNN）处理图像数据，前馈神经网络（FNN）处理表格数据，图神经网络（GNN）处理图数据。在实际应用中，选择合适的神经网络模型能够有效地处理各种非序列化数据，解决实际问题。</p>
+<h3 id="非序列化数据的实际应用"><a href="#非序列化数据的实际应用" class="headerlink" title="非序列化数据的实际应用"></a>非序列化数据的实际应用</h3><h4 id="1-图像数据的应用"><a href="#1-图像数据的应用" class="headerlink" title="1. 图像数据的应用"></a>1. 图像数据的应用</h4><p>图像数据是高维非序列数据，具有空间结构特性。卷积神经网络（CNN）是处理图像数据的主要神经网络类型。</p>
+<p><strong>医疗影像分析</strong>：通过CNN处理医疗影像（如MRI、CT图像），进行疾病诊断和分类。</p>
+<p><strong>自动驾驶</strong>：使用CNN分析汽车摄像头捕捉的道路图像，识别行人、交通标志和其他车辆。<br><strong>图像分类</strong>：使用CNN对输入图像进行分类。例如，ImageNet数据集上的物体识别任务。</p>
+<ul>
+<li>具体应用：卷积层提取图像的局部特征，池化层减少特征维度，全连接层进行分类。</li>
+<li>典型模型：AlexNet、VGG、ResNet等。<br><strong>图像分割</strong>：将图像划分为具有不同语义意义的区域。例如，自动驾驶中的道路标记识别。</li>
+<li>具体应用：利用全卷积神经网络（FCN）或U-Net对图像进行像素级分类。</li>
+<li>典型模型：U-Net、SegNet等。</li>
+</ul>
+<h4 id="2-表格数据的应用"><a href="#2-表格数据的应用" class="headerlink" title="2. 表格数据的应用"></a>2. 表格数据的应用</h4><p>表格数据通常存储在数据库或电子表格中，包含多种特征和目标变量。前馈神经网络（FNN）适用于处理表格数据。<br><strong>回归分析</strong>：预测连续值，如房价预测。</p>
+<ul>
+<li>具体应用：输入层接收多种特征，隐藏层提取特征之间的复杂关系，输出层给出预测值。</li>
+<li>典型模型：多层感知器（MLP）。<br>-<strong>分类任务</strong>：对数据进行分类，如信用卡欺诈检测。</li>
+<li>具体应用：输入层接收各特征值，隐藏层提取特征间关系，输出层进行分类。</li>
+<li>典型模型：多层感知器（MLP）。</li>
+</ul>
+<p><strong>客户分类</strong>：使用FNN对客户进行分类，如根据客户购买行为预测客户流失风险。</p>
+<h4 id="3-图数据的应用"><a href="#3-图数据的应用" class="headerlink" title="3. 图数据的应用"></a>3. 图数据的应用</h4><p>图数据由节点和边构成，具有复杂的连接结构。图神经网络（Graph Neural Networks, GNNs）专门用于处理图数据。</p>
+<p><strong>节点分类</strong>：在图中为每个节点分配标签，如社交网络中的用户分类。</p>
+<ul>
+<li>具体应用：图卷积神经网络（GCN）通过聚合邻居节点的信息更新每个节点的表示，然后进行分类。</li>
+<li>典型模型：GCN、GraphSAGE。<br><strong>图分类</strong>：对整个图进行分类，如分子结构的化学性质预测。</li>
+<li>具体应用：将图嵌入到固定长度的向量表示中，然后使用前馈神经网络进行分类。</li>
+<li>典型模型：DGCNN、GraphSAGE。</li>
+</ul>
+<p><strong>社交网络分析</strong>：通过GNN分析社交网络中的用户关系，进行用户分类和推荐系统。</p>
+<p><strong>化学分子建模</strong>：使用GNN分析化学分子结构，预测分子的物理和化学性质。</p>
+<h1 id="9-向量"><a href="#9-向量" class="headerlink" title="9. 向量"></a>9. 向量</h1><p>在神经网络中，向量是一个重要的数学工具，用于表示和操作多个数值。向量在神经网络的各个部分都有广泛的应用，包括输入数据、权重、偏置、激活值等。为了更好地理解向量在神经网络中的角色，我们可以从以下几个方面进行详细阐述：</p>
+<h3 id="向量的定义"><a href="#向量的定义" class="headerlink" title="向量的定义"></a>向量的定义</h3><p>一个向量是一个具有方向和大小的数量集合，通常用一维数组来表示。在神经网络中，向量可以用来表示输入特征、隐藏层的激活值、输出值以及模型的权重和偏置。</p>
+<h3 id="向量在神经网络中的具体应用"><a href="#向量在神经网络中的具体应用" class="headerlink" title="向量在神经网络中的具体应用"></a>向量在神经网络中的具体应用</h3><h4 id="1-输入向量"><a href="#1-输入向量" class="headerlink" title="1. 输入向量"></a>1. 输入向量</h4><p>输入向量表示神经网络接收到的原始数据。在一个简单的前馈神经网络中，输入向量通常是一个包含多个特征的数据点。例如，对于一个图像分类任务，每个输入向量可能代表一张图像的像素值。</p>
+<p><strong>示例</strong>： 对于一个具有三个特征的输入数据点$(x_1, x_2, x_3)$，输入向量可以表示为：$\mathbf{x} = \begin{bmatrix} x_1 \ x_2 \ x_3 \end{bmatrix}$</p>
+<h4 id="2-权重向量"><a href="#2-权重向量" class="headerlink" title="2. 权重向量"></a>2. 权重向量</h4><p>权重向量表示神经元之间的连接强度。在神经网络中，每个神经元的输出都是前一层神经元输出的加权和。权重向量决定了输入特征对输出的影响程度。</p>
+<p><strong>示例</strong>： 对于一个具有三个输入特征的神经元，其权重向量可以表示为： $\mathbf{w} = \begin{bmatrix} w_1 \ w_2 \ w_3 \end{bmatrix}$</p>
+<h4 id="3-偏置向量"><a href="#3-偏置向量" class="headerlink" title="3. 偏置向量"></a>3. 偏置向量</h4><p>偏置向量是一个额外的参数，用于调整神经元的输出，使其能够更好地拟合数据。偏置向量与权重向量一起，影响每个神经元的输出。</p>
+<p><strong>示例</strong>： 对于一个具有三个输入特征的神经元，其偏置向量可以表示为： $\mathbf{b} = b$</p>
+<h4 id="4-激活值向量"><a href="#4-激活值向量" class="headerlink" title="4. 激活值向量"></a>4. 激活值向量</h4><p>激活值向量表示神经网络中每一层的输出。在前向传播过程中，输入向量与权重向量相乘并加上偏置向量，经过激活函数后得到的值即为激活值。</p>
+<p><strong>示例</strong>： 对于一个具有三个神经元的隐藏层，其激活值向量可以表示为： $\mathbf{a} = \begin{bmatrix} a_1 \ a_2 \ a_3 \end{bmatrix}$</p>
+<h3 id="向量操作"><a href="#向量操作" class="headerlink" title="向量操作"></a>向量操作</h3><p>在神经网络中，常见的向量操作包括向量加法、向量乘法（点积）、标量乘法和向量的激活函数应用。</p>
+<h4 id="1-向量加法"><a href="#1-向量加法" class="headerlink" title="1. 向量加法"></a>1. 向量加法</h4><p>向量加法是将两个向量的对应元素相加。假设有两个向量 $\mathbf{a}$ 和 $\mathbf{b}$，它们的向量加法表示为： $\mathbf{c} = \mathbf{a} + \mathbf{b}$<br>$\mathbf{c} = \begin{bmatrix} a_1 + b_1 \ a_2 + b_2 \ a_3 + b_3 \end{bmatrix}$</p>
+<h4 id="2-向量乘法点积"><a href="#2-向量乘法（点积）" class="headerlink" title="2. 向量乘法（点积）"></a>2. 向量乘法（点积）</h4><p>向量点积是将两个向量的对应元素相乘并求和。假设有两个向量 a\mathbf{a}a 和 $\mathbf{b}$，它们的点积表示为：<br>$c = \mathbf{a} \cdot \mathbf{b}$<br>$c = a_1 \cdot b_1 + a_2 \cdot b_2 + a_3 \cdot b_3$</p>
+<h4 id="3-标量乘法"><a href="#3-标量乘法" class="headerlink" title="3. 标量乘法"></a>3. 标量乘法</h4><p>标量乘法是将向量的每个元素乘以一个标量。假设有一个向量 $\mathbf{a}$ 和一个标量 $k$，它们的标量乘法表示为： $\mathbf{b} = k \cdot \mathbf{a}$</p>
+<p>$\mathbf{b} = \begin{bmatrix} k \cdot a_1 \ k \cdot a_2 \ k \cdot a_3 \end{bmatrix}$</p>
+<h3 id="示例前向传播中的向量运算"><a href="#示例：前向传播中的向量运算" class="headerlink" title="示例：前向传播中的向量运算"></a>示例：前向传播中的向量运算</h3><p>以一个简单的两层神经网络为例，说明向量在前向传播中的应用。</p>
+<p><strong>输入层</strong>：输入向量 $\mathbf{x}$<br>$\mathbf{x} = \begin{bmatrix} x_1 \ x_2 \end{bmatrix}$</p>
+<p><strong>隐藏层</strong>：权重向量 $\mathbf{W}$ 和偏置向量 $\mathbf{b}$<br>$\mathbf{W} = \begin{bmatrix} w_{11} &amp; w_{12} \ w_{21} &amp; w_{22} \end{bmatrix}$</p>
+<p>$\mathbf{b} = \begin{bmatrix} b_1 \ b_2 \end{bmatrix}$</p>
+<p><strong>计算隐藏层激活值</strong>：<br>$\mathbf{z} = \mathbf{W} \cdot \mathbf{x} + \mathbf{b}$</p>
+<p>$\mathbf{z} = \begin{bmatrix} w_{11}x_1 + w_{12}x_2 + b_1 \ w_{21}x_1 + w_{22}x_2 + b_2 \end{bmatrix}$</p>
+<p><strong>应用激活函数（如ReLU）</strong>：<br>$\mathbf{a} = \text{ReLU}(\mathbf{z})$<br>$\mathbf{a} = \begin{bmatrix} \text{ReLU}(z_1) \ \text{ReLU}(z_2) \end{bmatrix}$</p>
+<p><strong>输出层</strong>：权重向量 $\mathbf{W’}$ 和偏置 $\mathbf{b’}$<br>$\mathbf{W’} = \begin{bmatrix} w_{31} &amp; w_{32} \end{bmatrix}$<br>$\mathbf{b’} = b’$</p>
+<p><strong>计算输出值</strong>：<br>$y = \mathbf{W’} \cdot \mathbf{a} + \mathbf{b’}$<br>$y = w_{31}a_1 + w_{32}a_2 + b’$</p>
+<h1 id="9-误差"><a href="#9-误差" class="headerlink" title="9. 误差"></a>9. 误差</h1><p>训练误差、测试误差和验证误差是三个不同的概念，它们分别衡量模型在不同数据集上的表现。这些误差帮助我们评估模型的拟合程度和泛化能力</p>
+<h2 id="91-区别和联系"><a href="#9-1-区别和联系" class="headerlink" title="9.1 区别和联系"></a>9.1 区别和联系</h2><ul>
+<li><strong>训练误差</strong>：衡量模型在训练数据上的表现，主要用于训练过程中调整模型参数。</li>
+<li><strong>验证误差</strong>：衡量模型在验证数据上的表现，主要用于超参数调优和模型选择。验证数据是从训练数据中分离出来的一部分，不参与模型训练。</li>
+<li><strong>测试误差</strong>：衡量模型在测试数据上的表现，主要用于评估模型的最终泛化能力。测试数据在训练和验证过程中都不使用，只有在模型训练完成后才用于评估。<h3 id="92-训练误差training-error"><a href="#9-2-训练误差（Training-Error）" class="headerlink" title="9.2 训练误差（Training Error）"></a>9.2 训练误差（Training Error）</h3></li>
+</ul>
+<p>训练误差是指模型在训练数据上的误差。它反映了模型对训练数据的拟合程度。<br><strong>计算方法</strong></p>
+<p>训练误差通常通过在训练数据上计算损失函数（例如均方误差、交叉熵损失等）来得到。例如，如果使用均方误差（MSE）作为损失函数，训练误差可以表示为：</p>
+<p>$\text{MSE}_{\text{train}} = \frac{1}{N_{\text{train}}} \sum_{i=1}^{N_{\text{train}}} (y_i - \hat{y}_i)^2$</p>
+<p>其中，NtrainN_{\text{train}}Ntrain​ 是训练数据的样本数量，yiy_iyi​ 是第 iii 个样本的真实值，y^i\hat{y}_i y^​i​ 是模型对第 iii 个样本的预测值。</p>
+<p><strong>目标</strong><br>最小化训练误差，以便模型能够良好地拟合训练数据。</p>
+<p><strong>意义</strong><br>低训练误差表明模型能够很好地拟合训练数据。但这并不一定意味着模型在新数据上的表现也会良好。</p>
+<h2 id="92-预测误差测试误差"><a href="#9-2-预测误差-测试误差" class="headerlink" title="9.2 预测误差/测试误差"></a>9.2 预测误差/测试误差</h2><p>预测误差/测试误差 是指模型在未见过的数据（通常是测试数据或验证数据）上的误差。它反映了模型的泛化能力，即模型在新数据上的表现。</p>
+<ul>
+<li><strong>计算方法</strong>：在模型训练完成后，使用测试数据或验证数据计算损失函数的值，计算方法与训练误差类似</li>
+<li><strong>目标</strong>：评估模型的泛化能力，期望模型在测试数据上的误差尽可能低。</li>
+<li><strong>意义</strong>：低预测误差表明模型具有良好的泛化能力，能够在新数据上表现良好。</li>
+</ul>
+<h2 id="93-误差的作用"><a href="#9-3-误差的作用" class="headerlink" title="9.3 误差的作用"></a>9.3 误差的作用</h2><p>训练误差和预测误差的关系可以帮助我们诊断模型的状态，判断模型是否过拟合或欠拟合。</p>
+<ul>
+<li><strong>欠拟合（Underfitting）</strong>：模型在训练数据和测试数据上的误差都很高，说明模型复杂度不足，无法捕捉数据中的规律。</li>
+<li><strong>合适拟合（Good Fit）</strong>：模型在训练数据上的误差较低，并且在测试数据上的误差也较低，说明模型具有良好的泛化能力。</li>
+<li><strong>过拟合（Overfitting）</strong>：模型在训练数据上的误差很低，但在测试数据上的误差很高，说明模型过于复杂，捕捉到了训练数据中的噪声和细节，泛化能力较差。</li>
+</ul>
+<h1 id="10过度拟合"><a href="#10-过度拟合" class="headerlink" title="10.过度拟合"></a>10.过度拟合</h1><p>过度拟合（Overfitting）是机器学习中的一个常见问题，指的是模型在训练数据上表现良好，但在未见过的测试数据或实际应用中表现不佳。这通常是因为模型过于复杂，捕捉到了训练数据中的噪声和偶然性模式，而不是数据的潜在规律。</p>
+<h3 id="过度拟合的具体表现"><a href="#过度拟合的具体表现" class="headerlink" title="过度拟合的具体表现"></a>过度拟合的具体表现</h3><ol>
+<li><strong>训练误差低，测试误差高</strong>：模型在训练数据上的误差很低，但在测试数据或新数据上的误差很高。</li>
+<li><strong>高方差</strong>：模型对训练数据中的细节和噪声过于敏感，导致对不同数据集的表现差异很大。</li>
+<li><strong>复杂模型</strong>：过于复杂的模型（例如，具有太多参数的深度神经网络）容易过度拟合。</li>
+</ol>
+<h3 id="过度拟合的原因"><a href="#过度拟合的原因" class="headerlink" title="过度拟合的原因"></a>过度拟合的原因</h3><ol>
+<li><strong>模型复杂度高</strong>：模型的参数过多，能够拟合训练数据中的每一个细节和噪声。</li>
+<li><strong>训练数据不足</strong>：训练数据量过少，模型无法学习到数据的真实分布和规律。</li>
+<li><strong>噪声数据</strong>：训练数据中包含大量噪声，模型将这些噪声误认为是数据的潜在模式。</li>
+<li><strong>缺乏正则化</strong>：没有使用正则化技术来约束模型的复杂度。</li>
+</ol>
+<h3 id="如何检测过度拟合"><a href="#如何检测过度拟合" class="headerlink" title="如何检测过度拟合"></a>如何检测过度拟合</h3><ol>
+<li><strong>训练误差与验证误差</strong>：在训练过程中，观察训练误差和验证误差的变化。如果训练误差持续下降，而验证误差在某个点之后开始上升，这通常是过度拟合的信号。</li>
+<li><strong>交叉验证</strong>：使用交叉验证技术评估模型在多个数据子集上的表现，避免模型对单一训练集的过度依赖。</li>
+<li><strong>学习曲线</strong>：绘制学习曲线（训练误差和验证误差随训练样本数量变化的曲线），分析模型的学习行为。</li>
+</ol>
+<h3 id="解决过度拟合的方法"><a href="#解决过度拟合的方法" class="headerlink" title="解决过度拟合的方法"></a>解决过度拟合的方法</h3><ol>
+<li><strong>增加训练数据</strong>：通过增加训练数据量，模型可以更好地学习数据的真实分布，减少对噪声的拟合。</li>
+<li><strong>简化模型</strong>：减少模型的参数数量或选择更简单的模型，避免过度拟合。</li>
+<li><strong>正则化</strong>：使用正则化技术（如L1和L2正则化）来约束模型参数，使其更平滑，减少对训练数据的过度拟合。<ul>
+<li><strong>L1正则化</strong>：通过对模型参数的绝对值求和，使部分参数变为零，起到特征选择的作用。</li>
+<li><strong>L2正则化</strong>：通过对模型参数的平方和进行约束，使参数值尽可能小，从而使模型更平滑。</li>
+</ul>
+</li>
+<li><strong>Dropout</strong>：在训练过程中随机丢弃一部分神经元，防止模型对某些路径的过度依赖。</li>
+<li><strong>数据增强</strong>：通过对训练数据进行旋转、缩放、裁剪等变换，生成更多的训练样本，增加数据的多样性。</li>
+<li><strong>早停法（Early Stopping）</strong>：在训练过程中监控验证误差，当验证误差不再下降时，提前停止训练，防止模型过度拟合。<h1 id="11-泛化能力"><a href="#11-泛化能力" class="headerlink" title="11. 泛化能力"></a>11. 泛化能力</h1>泛化能力（Generalization）是指机器学习模型在训练数据以外的数据（通常是未见过的测试数据或真实应用中的数据）上表现良好的能力。它反映了模型对数据的普遍规律的学习程度，而不是对训练数据的记忆程度。</li>
+</ol>
+<p>一个具有良好泛化能力的模型能够有效地从训练数据中学习到潜在的规律，并将这些规律应用于新数据上，从而在实际应用中保持高效和准确的表现。</p>
+<p>理解泛化能力需要考虑以下几个方面：</p>
+<ol>
+<li>训练误差和测试误差<br>如果模型在训练数据上的误差很低，但在测试数据上的误差很高，这通常表明模型过度拟合（Overfitting）。相反，如果模型在训练数据和测试数据上的误差都较低，这表明模型具有良好的泛化能力。</li>
+<li>模型复杂度<ul>
+<li><strong>简单模型</strong>：模型复杂度低，参数较少，容易欠拟合（Underfitting），即无法充分捕捉数据中的规律。</li>
+<li><strong>复杂模型</strong>：模型复杂度高，参数较多，容易过度拟合，即捕捉了训练数据中的噪声和偶然模式。<br>一个具有良好泛化能力的模型应在简单和复杂之间取得平衡，既能捕捉数据的潜在规律，又不过度拟合噪声。</li>
+</ul>
+</li>
+</ol>
+<h1 id="12正则化"><a href="#12-正则化" class="headerlink" title="12.正则化"></a>12.正则化</h1><p>正则化（Regularization）是一种在机器学习和统计学中用于防止模型过拟合（overfitting）的技术,提高模型泛化能力的关键技术。</p>
+<h4 id="正则化的类型"><a href="#正则化的类型" class="headerlink" title="正则化的类型"></a>正则化的类型</h4><ol>
+<li>L1 正则化（Lasso 正则化）*<ul>
+<li>定义：在损失函数中添加所有模型参数绝对值的和。</li>
+<li>数学表达： $\text{Loss} = \text{Original Loss} + \lambda \sum |w_i|$</li>
+<li>特点：可以导致一些参数完全为零，起到特征选择的作用。</li>
+</ul>
+</li>
+<li>L2 正则化（Ridge 正则化）：<ul>
+<li><strong>定义</strong>：在损失函数中添加所有模型参数平方和。</li>
+<li><strong>数学表达</strong>： $\text{Loss} = \text{Original Loss} + \lambda \sum w_i^2$</li>
+<li><strong>特点</strong>：可以防止参数变得过大，但不会使参数完全为零。</li>
+</ul>
+</li>
+<li><strong>弹性网络（Elastic Net）正则化</strong>：<ul>
+<li><strong>定义</strong>：结合 L1 和 L2 正则化。</li>
+<li><strong>数学表达</strong>：$\text{Loss} = \text{Original Loss} + \lambda_1 \sum |w_i| + \lambda_2 \sum w_i^2$</li>
+<li><strong>特点</strong>：结合了 L1 和 L2 的优点，既可以选择特征又可以防止参数过大。</li>
+</ul>
+</li>
+<li><strong>Dropout 正则化</strong>：<ul>
+<li><strong>定义</strong>：在每次训练时随机丢弃一部分神经元，使得模型在训练过程中不会过于依赖某些特定的神经元。</li>
+<li><strong>特点</strong>：通过在训练过程中引入随机性，增强模型的鲁棒性。</li>
+</ul>
+</li>
+</ol>
+<h4 id="正则化的原理"><a href="#正则化的原理" class="headerlink" title="正则化的原理"></a>正则化的原理</h4><ul>
+<li><strong>复杂度惩罚</strong>：通过向损失函数中添加一个表示模型复杂度的项，模型在训练时不仅要最小化原始损失函数，还要考虑模型的复杂度。</li>
+<li><strong>参数约束</strong>：限制模型参数的大小或数量，防止模型在训练数据上过度拟合。</li>
+<li><strong>增强泛化能力</strong>：通过控制模型的复杂度，提升模型在未见数据上的表现。</li>
+</ul>
+<h4 id="正则化在模型中的应用"><a href="#正则化在模型中的应用" class="headerlink" title="正则化在模型中的应用"></a>正则化在模型中的应用</h4><p>正则化技术在许多机器学习模型中应用广泛，包括线性回归、逻辑回归、支持向量机（SVM）、神经网络等。在实际应用中，正则化参数（如 λ\lambdaλ）通常需要通过交叉验证等方法进行调优，以获得最佳的模型性能。</p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/6ac941eb/">递归神经网络（Recurrent Neural Networks, RNNs）</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/17f5a37e/">Ilya sutskever's approx 30 research papers about AI</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E4%BB%80%E4%B9%88%E6%98%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C-neural-networks"><span class="toc-text">0. 什么是神经网络 (Neural Networks)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="toc-text">1. 神经网络的层次结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E8%8A%82%E7%82%B9nodes%E6%88%96%E7%A5%9E%E7%BB%8F%E5%85%83neurons"><span class="toc-text">1.1  节点（Nodes）或神经元（Neurons）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%B1%82layers"><span class="toc-text">1.2  层（Layers）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E8%8A%82%E7%82%B9%E5%92%8C%E5%B1%82%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-text">1.3  节点和层的关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%B1%82%E4%B8%8E%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-text">1.4 层与层之间的连接</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%9D%83%E9%87%8D"><span class="toc-text">2. 权重</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E6%9D%83%E9%87%8D%E7%9A%84%E5%AD%98%E5%9C%A8%E5%BD%A2%E5%BC%8F"><span class="toc-text">2.1 权重的存在形式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E6%9D%83%E9%87%8D%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E5%92%8C%E8%B0%83%E6%95%B4"><span class="toc-text">2.2 权重的初始化和调整</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E6%9D%83%E9%87%8D%E7%9A%84%E8%AE%AD%E7%BB%83%E8%B0%83%E6%95%B4"><span class="toc-text">2.3 权重的训练调整</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95"><span class="toc-text">2.4 优化算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#25-%E6%9D%83%E9%87%8D%E5%9C%A8%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-text">2.5 权重在不同类型神经网络中的角色</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%81%8F%E7%BD%AEbiases"><span class="toc-text">3. 偏置（Biases）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0activation-function"><span class="toc-text">4. 激活函数（Activation Function）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-%E7%BA%BF%E6%80%A7linearvs-%E9%9D%9E%E7%BA%BF%E6%80%A7nonlinear"><span class="toc-text">4.1 线性（Linear）vs  非线性（Nonlinear）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#411-%E7%BA%BF%E6%80%A7linear"><span class="toc-text">4.1.1 线性（Linear）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#412-%E9%9D%9E%E7%BA%BF%E6%80%A7nonlinear"><span class="toc-text">4.1.2 非线性（Nonlinear）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-%E5%B8%B8%E8%A7%81%E7%9A%84%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0"><span class="toc-text">4.2 常见的非线性激活函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#421-sigmoid-%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.1 Sigmoid 函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#422-tanh%E5%8F%8C%E6%9B%B2%E6%AD%A3%E5%88%87%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.2 Tanh（双曲正切）函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#423-relurectified-linear-unit%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.3 ReLU（Rectified Linear Unit）函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#424-leaky-relu-%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.4 Leaky ReLU 函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#425-softmax-%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.5 Softmax 函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#426-swish-%E5%87%BD%E6%95%B0"><span class="toc-text">4.2.6 Swish 函数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-text">4.3 激活函数的选择</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B"><span class="toc-text">5 训练过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#51-%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%ADforward-propagation"><span class="toc-text">5.1 前向传播（Forward Propagation）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#511-%E8%BE%93%E5%85%A5%E5%B1%82"><span class="toc-text">5.1.1 输入层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#512-%E9%9A%90%E8%97%8F%E5%B1%82"><span class="toc-text">5.1.2 隐藏层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#513-%E8%BE%93%E5%87%BA%E5%B1%82"><span class="toc-text">5.1.3 输出层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#52-%E8%AE%A1%E7%AE%97%E6%8D%9F%E5%A4%B1loss-calculation"><span class="toc-text">5.2 计算损失（Loss Calculation）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#53-%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADbackpropagation"><span class="toc-text">5.3 反向传播（Backpropagation）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#531-%E5%81%8F%E5%AF%BC%E6%95%B0%E5%92%8C%E6%A2%AF%E5%BA%A6"><span class="toc-text">5.3.1 偏导数和梯度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#532-%E5%81%8F%E5%AF%BC%E6%95%B0%E6%8E%A8%E5%AF%BC%E8%BF%87%E7%A8%8B"><span class="toc-text">5.3.2 偏导数推导过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#533-%E8%AE%A1%E7%AE%97%E8%BE%93%E5%87%BA%E5%B1%82%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="toc-text">5.3.3  计算输出层的梯度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#534-%E8%AE%A1%E7%AE%97%E9%9A%90%E8%97%8F%E5%B1%82%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="toc-text">5.3.4 计算隐藏层的梯度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#535-%E8%AE%A1%E7%AE%97%E8%BE%93%E5%85%A5%E5%B1%82%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="toc-text">5.3.5 计算输入层的梯度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#54-%E6%9B%B4%E6%96%B0%E6%9D%83%E9%87%8Dweight-update"><span class="toc-text">5.4 更新权重（Weight Update）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E8%B6%85%E5%8F%82%E6%95%B0hyperparameters-vs-%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0parameters"><span class="toc-text">7. 超参数（Hyperparameters） vs  模型参数（Parameters）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B6%85%E5%8F%82%E6%95%B0hyperparameters"><span class="toc-text">超参数（Hyperparameters）：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0model-parameters"><span class="toc-text">模型参数（Model Parameters）：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E8%B6%85%E5%8F%82%E6%95%B0%E5%92%8C%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="toc-text">神经网络中的超参数和模型参数</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE-vs-%E9%9D%9E%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE"><span class="toc-text">8. 序列数据 vs 非序列数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AEsequential-data"><span class="toc-text">1. 序列数据（Sequential Data）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-text">序列数据的特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%9D%9E%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE"><span class="toc-text">2. 非序列数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="toc-text">非序列化数据的实际应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%9B%BE%E5%83%8F%E6%95%B0%E6%8D%AE%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">1. 图像数据的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%A1%A8%E6%A0%BC%E6%95%B0%E6%8D%AE%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">2. 表格数据的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%9B%BE%E6%95%B0%E6%8D%AE%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">3. 图数据的应用</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%90%91%E9%87%8F"><span class="toc-text">9. 向量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%91%E9%87%8F%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-text">向量的定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%91%E9%87%8F%E5%9C%A8%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8"><span class="toc-text">向量在神经网络中的具体应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%BE%93%E5%85%A5%E5%90%91%E9%87%8F"><span class="toc-text">1. 输入向量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%9D%83%E9%87%8D%E5%90%91%E9%87%8F"><span class="toc-text">2. 权重向量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%81%8F%E7%BD%AE%E5%90%91%E9%87%8F"><span class="toc-text">3. 偏置向量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%BF%80%E6%B4%BB%E5%80%BC%E5%90%91%E9%87%8F"><span class="toc-text">4. 激活值向量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%91%E9%87%8F%E6%93%8D%E4%BD%9C"><span class="toc-text">向量操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%90%91%E9%87%8F%E5%8A%A0%E6%B3%95"><span class="toc-text">1. 向量加法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%90%91%E9%87%8F%E4%B9%98%E6%B3%95%E7%82%B9%E7%A7%AF"><span class="toc-text">2. 向量乘法（点积）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%A0%87%E9%87%8F%E4%B9%98%E6%B3%95"><span class="toc-text">3. 标量乘法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E5%89%8D%E5%90%91%E4%BC%A0%E6%92%AD%E4%B8%AD%E7%9A%84%E5%90%91%E9%87%8F%E8%BF%90%E7%AE%97"><span class="toc-text">示例：前向传播中的向量运算</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E8%AF%AF%E5%B7%AE"><span class="toc-text">9. 误差</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#91-%E5%8C%BA%E5%88%AB%E5%92%8C%E8%81%94%E7%B3%BB"><span class="toc-text">9.1 区别和联系</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#92-%E8%AE%AD%E7%BB%83%E8%AF%AF%E5%B7%AEtraining-error"><span class="toc-text">9.2 训练误差（Training Error）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#92-%E9%A2%84%E6%B5%8B%E8%AF%AF%E5%B7%AE%E6%B5%8B%E8%AF%95%E8%AF%AF%E5%B7%AE"><span class="toc-text">9.2 预测误差&#x2F;测试误差</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#93-%E8%AF%AF%E5%B7%AE%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-text">9.3 误差的作用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10%E8%BF%87%E5%BA%A6%E6%8B%9F%E5%90%88"><span class="toc-text">10.过度拟合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E5%BA%A6%E6%8B%9F%E5%90%88%E7%9A%84%E5%85%B7%E4%BD%93%E8%A1%A8%E7%8E%B0"><span class="toc-text">过度拟合的具体表现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%87%E5%BA%A6%E6%8B%9F%E5%90%88%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="toc-text">过度拟合的原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E8%BF%87%E5%BA%A6%E6%8B%9F%E5%90%88"><span class="toc-text">如何检测过度拟合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E8%BF%87%E5%BA%A6%E6%8B%9F%E5%90%88%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-text">解决过度拟合的方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E6%B3%9B%E5%8C%96%E8%83%BD%E5%8A%9B"><span class="toc-text">11. 泛化能力</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12%E6%AD%A3%E5%88%99%E5%8C%96"><span class="toc-text">12.正则化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-text">正则化的类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E5%8C%96%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-text">正则化的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E5%8C%96%E5%9C%A8%E6%A8%A1%E5%9E%8B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">正则化在模型中的应用</span></a></li></ol></li></ol></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>
