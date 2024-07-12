@@ -1,0 +1,734 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>Java反射实践与原理 - Sun Yan</title>
+
+  
+    <meta name="description" content="反射作为一种高级技术，虽然在业务开发中很少直接编写相关代码，但实际存在于 Java 开发中的方方面面。  Spring Framework： 依赖注入：使用反射实例化对象、设置属性和调用方法，实现IoC。 AOP：通过反射在方法调用前后动态添加逻辑，如日志记录和事务管理。   Hibernate： 对象关系映射（ORM）：利用反射读取和写入实体类属性，实现Java对象与数据库表的映射。   JUn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java反射实践与原理">
+<meta property="og:url" content="http://example.com/b381342a/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="反射作为一种高级技术，虽然在业务开发中很少直接编写相关代码，但实际存在于 Java 开发中的方方面面。  Spring Framework： 依赖注入：使用反射实例化对象、设置属性和调用方法，实现IoC。 AOP：通过反射在方法调用前后动态添加逻辑，如日志记录和事务管理。   Hibernate： 对象关系映射（ORM）：利用反射读取和写入实体类属性，实现Java对象与数据库表的映射。   JUn">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/b381342a/1.png">
+<meta property="og:image" content="http://example.com/b381342a/2.png">
+<meta property="og:image" content="http://example.com/b381342a/3.png">
+<meta property="og:image" content="http://example.com/b381342a/4.png">
+<meta property="og:image" content="http://example.com/b381342a/5.png">
+<meta property="article:published_time" content="2020-05-15T06:25:11.000Z">
+<meta property="article:modified_time" content="2024-07-11T07:39:58.741Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/b381342a/1.png">
+  
+  
+  
+  <meta name="keywords" content="Java">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/a10675df/"><span class="title">Spring AOP XML配置方式原理详解</span></a><a class="item title" href="/4316da89/"><span class="title">Spring AOP  注解方式原理详解</span></a><a class="item title" href="/678b23b2/"><span class="title">Spring bean 实例化过程</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a><a class="item title" href="/114991e5/"><span class="title">Spring 启动过程 拓展点</span></a><a class="item title" href="/50be4554/"><span class="title">Spring IOC容器 和 Spring bean</span></a><a class="item title" href="/62ebaa0e/"><span class="title">Spring AOP  实践</span></a><a class="item title" href="/abd111cb/"><span class="title">Java动态代理</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a><a class="item title" href="/b381342a/"><span class="title">Java反射实践与原理</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2020-05-15T06:25:11.000Z">2020-05-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-07-11T07:39:58.741Z">2024-07-11</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>Java反射实践与原理</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p>反射作为一种高级技术，虽然在业务开发中很少直接编写相关代码，但实际存在于 Java 开发中的方方面面。</p>
+<ol>
+<li><strong>Spring Framework</strong>：<ul>
+<li><strong>依赖注入</strong>：使用反射实例化对象、设置属性和调用方法，实现IoC。</li>
+<li><strong>AOP</strong>：通过反射在方法调用前后动态添加逻辑，如日志记录和事务管理。</li>
+</ul>
+</li>
+<li><strong>Hibernate</strong>：<ul>
+<li><strong>对象关系映射（ORM）</strong>：利用反射读取和写入实体类属性，实现Java对象与数据库表的映射。</li>
+</ul>
+</li>
+<li><p><strong>JUnit测试框架</strong>：使用反射发现和执行测试方法，支持注解定义测试。</p>
+</li>
+<li><p><strong>Java 标准库中的动态代理</strong>：</p>
+<ul>
+<li><code>java.lang.reflect.Proxy</code> 使用反射创建代理对象，并将方法调用委托给 <code>InvocationHandler</code>。</li>
+</ul>
+</li>
+<li><strong>RPC（远程过程调用）</strong>：<ul>
+<li>动态代理实现远程接口，使本地调用像调用本地方法一样调用远程服务。</li>
+</ul>
+</li>
+<li><strong>Java 序列化</strong>：<ul>
+<li>反射获取对象字段及其值，将对象转换为字节流。</li>
+</ul>
+</li>
+<li><strong>JSON/XML 解析库</strong>：<ul>
+<li>如 Jackson、Gson 和 JAXB，使用反射将 JSON 或 XML 数据与 Java 对象相互转换。</li>
+</ul>
+</li>
+<li><strong>开发工具和 IDE</strong>：使用反射检查和操作运行中的应用程序，获取对象信息、调用方法等。</li>
+</ol>
+<h1 id="0-什么是反射"><a href="#0-什么是反射" class="headerlink" title="0. 什么是反射"></a>0. 什么是反射</h1><p>反射指的是允许程序在运行时动态地检查和操作类、方法、字段等。通过反射，程序可以在运行时了解一个类的结构，并且可以创建对象、调用方法、访问和修改字段等。</p>
+<h2 id="如何理解反"><a href="#如何理解“反”" class="headerlink" title="如何理解“反”"></a>如何理解“反”</h2><p>“反”在反射中的含义可以理解为“反向操作”或“反查”。</p>
+<p>通常，我们在编写代码时会显式地调用方法、访问字段或创建对象，比如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Person</span> <span class="variable">person</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>();</span><br><span class="line">person.setName(<span class="string">&quot;Alice&quot;</span>);</span><br></pre></td></tr></table></figure></p>
+<p>这是正向操作，即程序明确知道要操作的类和方法。这种方式称为编译时绑定，因为所有的类型、方法和变量调用在编写代码时就已确定，并在编译期间已经建立了它们的关联。这种方式依赖于静态类型检查，能够在编译阶段捕获许多错误，同时也提高了代码的执行效率。</p>
+<p>而反射则相当于反向操作，程序在编写代码时并不知道具体的类和方法（编码时只是给出了“字面名称”，而不是实际的类和方法），而是在运行时通过反射机制获取类的信息并进行操作。<br>这种方式称为运行时绑定，因为代码在运行时才确定要调用的具体类、方法或属性。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;Person&quot;</span>);</span><br><span class="line"><span class="type">Object</span> <span class="variable">person</span> <span class="operator">=</span> clazz.newInstance();</span><br><span class="line"><span class="type">Method</span> <span class="variable">setNameMethod</span> <span class="operator">=</span> clazz.getMethod(<span class="string">&quot;setName&quot;</span>, String.class);</span><br><span class="line">setNameMethod.invoke(person, <span class="string">&quot;Alice&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>在这个反射的例子中，我们没有在代码中直接调用 <code>Person</code> 类或其方法。相反，我们在运行时加载了类，检索了构造函数和方法，并动态地调用了它们。</p>
+<h2 id="反与正的对比"><a href="#“反”与“正”的对比" class="headerlink" title="“反”与“正”的对比"></a>“反”与“正”的对比</h2><ul>
+<li><strong>性能</strong>：正常方法（编译时绑定）通常性能更高，因为它们在编译时就已经解决了大部分引用问题；而反射（运行时绑定）在查找和调用过程中需要消耗额外的资源，性能相对较低。</li>
+<li><strong>类型安全</strong>：正常方法在编译时就能检查类型安全性，而反射则需要程序员在运行时手动确保类型的正确性，这增加了出错的风险。</li>
+<li><strong>灵活性</strong>：反射提供了极高的灵活性，可以在运行时动态加载和操作类，这在开发通用框架或需要大量运行时信息的复杂系统中非常有用。</li>
+</ul>
+<h2 id="反射的工作原理"><a href="#反射的工作原理" class="headerlink" title="反射的工作原理"></a>反射的工作原理</h2><p>反射基于两部分内容实现</p>
+<ol>
+<li>java.lang.Class 类</li>
+<li>java.lang.reflect 包中的类（如 Method, Field, Constructor 等）来实现</li>
+</ol>
+<h1 id="1-class-类"><a href="#1-Class-类" class="headerlink" title="1. Class 类"></a>1. Class 类</h1><p>Class类也是一个实实在在的类，存在于JDK的java.lang包中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Class</span>&lt;T&gt; <span class="keyword">implements</span> <span class="title class_">java</span>.io.Serializable,</span><br><span class="line">                              GenericDeclaration,</span><br><span class="line">                              Type,</span><br><span class="line">                              AnnotatedElement &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Java 编译器将 Java 源代码（<code>.java</code> 文件）编译后 ，产生<code>.class</code> 文件， 保存了类的字节码及相关的元数据。</p>
+<p>当 JVM 运行加载一个类时，它会读取相应的 <code>.class</code> 文件，并根据字节码信息生成一个 <code>Class</code> 对象表示该类。</p>
+<p>这个 <code>Class</code> 对象是 JVM 内存中的一个运行时数据结构，包含了类的详细信息，如类名、修饰符、字段、方法、接口、父类等。</p>
+<p><code>Class</code> 对象在 JVM 的方法区（Java 8 及之前）或元空间（Java 8 及之后）中分配内存，存储类的元数据。</p>
+<p>无论创建多少个该类的实例对象，它们都共享同一个 <code>Class</code> 对象。</p>
+<h2 id="11-class-文件的内容"><a href="#1-1-class-文件的内容" class="headerlink" title="1.1 .class 文件的内容"></a>1.1 .class 文件的内容</h2><p><code>.class</code> 文件包含以下内容：</p>
+<ul>
+<li>魔数（Magic Number）：用于识别文件格式。</li>
+<li>版本信息：表示编译器生成该 <code>.class</code> 文件时使用的 JDK 版本。</li>
+<li>常量池（Constant Pool）：保存字面量和符号引用。</li>
+<li>访问标志（Access Flags）：描述类或接口的访问级别和其他属性。</li>
+<li>类、父类和接口信息：包括类名、父类名和实现的接口。</li>
+<li>字段（Fields）：类的字段信息。</li>
+<li>方法（Methods）：类的方法信息。</li>
+<li>属性（Attributes）：类的其他属性信息，如注解、源文件信息等。</li>
+</ul>
+<h2 id="12-class-对象的生成时机"><a href="#1-2-Class-对象的生成时机" class="headerlink" title="1.2 Class 对象的生成时机"></a>1.2 <code>Class</code> 对象的生成时机</h2><p>当 JVM 运行加载一个类，读取相应的 <code>.class</code> 文件 时，会进行以下步骤：</p>
+<ol>
+<li><strong>加载（Loading）</strong>：通过类加载器读取 <code>.class</code> 文件的字节码。</li>
+<li><strong>链接（Linking）</strong>：<ul>
+<li>验证（Verification）：确保字节码符合 JVM 规范，不会破坏 JVM 的安全性。</li>
+<li>准备（Preparation）：为类的静态变量分配内存，并将其初始化为默认值。</li>
+<li>解析（Resolution）：将常量池中的符号引用替换为直接引用。</li>
+</ul>
+</li>
+<li><strong>初始化（Initialization）</strong>：执行类的静态初始化块和静态变量的初始化。</li>
+</ol>
+<p>在这些步骤完成之后，JVM 会在内存中创建一个 <code>Class</code> 对象来表示这个类。这个 <code>Class</code> 对象包含了类的所有元数据，并且无论创建多少个该类的实例对象，它们都共享同一个 <code>Class</code> 对象。</p>
+<p>[[JVM#类加载-加载，生成Class对象]]</p>
+<h2 id="13-class-对象的唯一性"><a href="#1-3-Class-对象的唯一性" class="headerlink" title="1.3 Class 对象的唯一性"></a>1.3 <code>Class</code> 对象的唯一性</h2><p>对于同一个类，无论创建多少个实例对象，它们共享同一个 <code>Class</code> 对象。</p>
+<p>类加载器在决定 <code>Class</code> 对象的唯一性上起着关键作用。如果同一个类被不同的类加载器加载，那么它们会有不同的 <code>Class</code> 对象。</p>
+<p>比如创建一个Shapes类，那么，JVM就会创建一个Shapes对应Class类的Class对象，无论创建多少个实例对象，在JVM中都只有一个Class对象。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b381342a/1.png" class></p>
+<p>可以通过以下代码验证唯一性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassUniqueDemo</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建多个实例对象</span></span><br><span class="line">        <span class="type">Person</span> <span class="variable">person1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Alice&quot;</span>, <span class="number">30</span>);</span><br><span class="line">        <span class="type">Person</span> <span class="variable">person2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Bob&quot;</span>, <span class="number">25</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取 Class 对象</span></span><br><span class="line">        Class&lt;?&gt; class1 = person1.getClass();</span><br><span class="line">        Class&lt;?&gt; class2 = person2.getClass();</span><br><span class="line">        Class&lt;?&gt; class3 = Person.class;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 打印 Class 对象的哈希码</span></span><br><span class="line">        System.out.println(<span class="string">&quot;class1: &quot;</span> + class1.hashCode());</span><br><span class="line">        System.out.println(<span class="string">&quot;class2: &quot;</span> + class2.hashCode());</span><br><span class="line">        System.out.println(<span class="string">&quot;class3: &quot;</span> + class3.hashCode());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 验证所有实例对象的 Class 对象是否相同</span></span><br><span class="line">        System.out.println(<span class="string">&quot;class1 == class2: &quot;</span> + (class1 == class2));</span><br><span class="line">        System.out.println(<span class="string">&quot;class1 == class3: &quot;</span> + (class1 == class3));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(String name, <span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="14-关于class-的一点总结"><a href="#1-4-关于Class-的一点总结" class="headerlink" title="1.4 关于Class 的一点总结"></a>1.4 关于Class 的一点总结</h2><p>到这，我们可以总结一下关于Class 的相关信息</p>
+<ul>
+<li><code>Class</code>类是Java中的一种类，与关键字<code>class</code>不同。</li>
+<li><code>Class</code>对象是由Java虚拟机（JVM）加载的，它代表Java中的类或接口。</li>
+<li>每个通过<code>class</code>关键字定义的类，在编译后都会生成一个<code>.class</code>文件。JVM加载这个<code>.class</code>文件，并生成对应的<code>Class</code>对象。</li>
+<li>无论一个类创建了多少个实例，所有这些实例都共享同一个<code>Class</code>对象。这是因为<code>Class</code>对象表示类的元数据，存储了类的结构信息，而实例则是类的具体实现。</li>
+<li><code>Class</code>类的构造函数是私有的，确保了<code>Class</code>对象只能由JVM内部创建。开发者不能直接通过构造函数创建<code>Class</code>对象，而是通过类加载机制间接地获得<code>Class</code>对象。</li>
+</ul>
+<h1 id="2-使用反射访问类的各个组成部分"><a href="#2-使用反射访问类的各个组成部分" class="headerlink" title="2. 使用反射访问类的各个组成部分"></a>2. 使用反射访问类的各个组成部分</h1><h2 id="21-获取class-对象"><a href="#2-1-获取Class-对象" class="headerlink" title="2.1 获取Class 对象"></a>2.1 获取Class 对象</h2><p>获取一个类的 <code>Class</code> 对象有4种， 但是前3种更常用</p>
+<ol>
+<li><p>通过类名</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = ClassName.class;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过对象实例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = objectInstance.getClass();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>forName 全限定类名：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;com.example.ClassName&quot;</span>);</span><br></pre></td></tr></table></figure></li>
+<li>通过 ClassLoader 获取 Class 对象(Spring bean 创建过程中会用到这种方式)</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> Thread.currentThread().getContextClassLoader();</span><br><span class="line">Class&lt;?&gt; clazz = classLoader.loadClass(<span class="string">&quot;com.example.MyClass&quot;</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>Class.forName</code> vs <code>ClassLoader.loadClass</code></p>
+<p><code>Class.forName</code>和<code>ClassLoader.loadClass</code>都是通过全限定名获取<code>Class</code>对象的方法，但它们在类的初始化行为、使用场景和加载器选择上存在显著区别：</p>
+<ul>
+<li><strong>类的初始化</strong>：<code>Class.forName</code>默认会触发类的初始化，而<code>ClassLoader.loadClass</code>默认不会。</li>
+<li><strong>使用场景</strong>：<code>Class.forName</code>适用于简单场景和需要触发初始化的情况；<code>ClassLoader.loadClass</code>适用于需要控制类加载器和避免类初始化的情况。</li>
+<li><strong>加载器的选择</strong>：<code>Class.forName</code>使用当前线程的上下文<code>ClassLoader</code>，而<code>ClassLoader.loadClass</code>可以显式指定<code>ClassLoader</code>。</li>
+</ul>
+<h2 id="22-获取构造函数-constructor"><a href="#2-2-获取构造函数-Constructor" class="headerlink" title="2.2  获取构造函数 Constructor"></a>2.2  获取构造函数 Constructor</h2><p>Class 类中有以下4个方法来获取构造函数</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b381342a/2.png" class>
+<ul>
+<li><strong><code>getConstructors()</code></strong>：获取所有公共/public构造函数。</li>
+<li><strong><code>getConstructor(Class&lt;?&gt;... parameterTypes)</code></strong>：获取指定参数类型的公共构造函数。</li>
+<li><strong><code>getDeclaredConstructors()</code></strong>：获取所有声明的构造函数（包括公共、保护、默认（包）访问和私有）。</li>
+<li><strong><code>getDeclaredConstructor(Class&lt;?&gt;... parameterTypes)</code></strong>：获取指定参数类型的声明的构造函数（包括公共、保护、默认（包）访问和私有）。</li>
+</ul>
+<h3 id="221-constructornewinstance"><a href="#2-2-1-constructor-newInstance" class="headerlink" title="2.2.1 constructor.newInstance"></a>2.2.1 constructor.newInstance</h3><p>使用构造函数获取实例化对象<br>从以上代码示例中可以看出，一般情况下我们使用反射获取一个对象的步骤：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Constructor&lt;?&gt; constructor = clazz.getConstructor();</span><br><span class="line"><span class="type">Object</span> <span class="variable">instance</span> <span class="operator">=</span> constructor.newInstance();</span><br></pre></td></tr></table></figure>
+<h2 id="23-method"><a href="#2-3-Method" class="headerlink" title="2.3 Method"></a>2.3 Method</h2><p>![<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b381342a/3.png" class></p>
+<ul>
+<li><strong><code>getMethods()</code></strong>：获取所有公共方法，包括继承的方法。</li>
+<li><strong><code>getMethod(String name, Class&lt;?&gt;... parameterTypes)</code></strong>：获取指定名称和参数类型的公共方法，包括继承的方法。</li>
+<li><strong><code>getDeclaredMethods()</code></strong>：获取所有声明的方法，包括公共、保护、默认（包）访问和私有方法，但不包括继承的方法。</li>
+<li><strong><code>getDeclaredMethod(String name, Class&lt;?&gt;... parameterTypes)</code></strong>：获取指定名称和参数类型的声明的方法，包括公共、保护、默认（包）访问和私有方法，但不包括继承的方法。</li>
+</ul>
+<h2 id="24-field"><a href="#2-4-Field" class="headerlink" title="2.4  Field"></a>2.4  Field</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b381342a/4.png" class>
+<ul>
+<li><strong><code>getFields()</code></strong>：获取所有公共字段，包括继承的公共字段。</li>
+<li><strong><code>getField(String name)</code></strong>：获取指定名称的公共字段。</li>
+<li><strong><code>getDeclaredFields()</code></strong>：获取所有声明的字段，包括公共、保护、默认（包）访问和私有字段，但不包括继承的字段。</li>
+<li><strong><code>getDeclaredField(String name)</code></strong>：获取指定名称的声明的字段，包括公共、保护、默认（包）访问和私有字段，但不包括继承的字段。</li>
+</ul>
+<h2 id="25-getinterfaces"><a href="#2-5-getInterfaces" class="headerlink" title="2.5 getInterfaces"></a>2.5 getInterfaces</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Class&lt;?&gt;[] getInterfaces()</span><br></pre></td></tr></table></figure>
+<p>返回一个 <code>Class</code> 对象数组，表示类或接口实现的所有接口。</p>
+<h2 id="26-示例代码"><a href="#2-6-示例代码" class="headerlink" title="2.6 示例代码"></a>2.6 示例代码</h2><p>以下是一个完整的示例代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReflectionExample</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取Class对象</span></span><br><span class="line">            Class&lt;?&gt; clazz = Class.forName(<span class="string">&quot;com.example.codingInAction.reflectionPractice.Person&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取所有构造函数</span></span><br><span class="line">            Constructor&lt;?&gt;[] constructors = clazz.getDeclaredConstructors();</span><br><span class="line">            <span class="keyword">for</span> (Constructor&lt;?&gt; constructor : constructors) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Constructor: &quot;</span> + constructor);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获取无参构造函数</span></span><br><span class="line">            Constructor&lt;?&gt; constructor1 = clazz.getDeclaredConstructor();</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;Constructor1: &quot;</span> + constructor1);</span><br><span class="line"></span><br><span class="line">            Constructor&lt;?&gt; constructor2 = clazz.getDeclaredConstructor(String.class);</span><br><span class="line">            System.out.println(<span class="string">&quot;Constructor2: &quot;</span> + constructor2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            Constructor&lt;?&gt; constructor3 = clazz.getDeclaredConstructor(<span class="type">int</span>.class);</span><br><span class="line">            System.out.println(<span class="string">&quot;Constructor3: &quot;</span> + constructor3);</span><br><span class="line"></span><br><span class="line">            Constructor&lt;?&gt; constructor4 = clazz.getConstructor(String.class, <span class="type">int</span>.class);</span><br><span class="line">            System.out.println(<span class="string">&quot;Constructor4: &quot;</span> + constructor4);</span><br><span class="line"></span><br><span class="line">            <span class="type">Object</span> <span class="variable">alex</span> <span class="operator">=</span> constructor4.newInstance(<span class="string">&quot;Alex&quot;</span>, <span class="number">30</span>);</span><br><span class="line">            System.out.println(alex);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取所有方法</span></span><br><span class="line">            Method[] methods = clazz.getDeclaredMethods();</span><br><span class="line">            <span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Method: &quot;</span> + method);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取指定名称和参数类型的声明的方法</span></span><br><span class="line">            <span class="type">Method</span> <span class="variable">setAgeMethod</span> <span class="operator">=</span> clazz.getDeclaredMethod(<span class="string">&quot;setAge&quot;</span>, <span class="type">int</span>.class);</span><br><span class="line">            System.out.println(<span class="string">&quot;Method: &quot;</span> + setAgeMethod);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 如果是私有方法，需要设置成 可访问</span></span><br><span class="line">            <span class="comment">// setAgeMethod.setAccessible(true);</span></span><br><span class="line"></span><br><span class="line">            setAgeMethod.invoke(alex, <span class="number">35</span>);</span><br><span class="line"></span><br><span class="line">            <span class="type">Method</span> <span class="variable">getAgeMethod</span> <span class="operator">=</span> clazz.getDeclaredMethod(<span class="string">&quot;getAge&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> <span class="variable">age</span> <span class="operator">=</span> (Integer) getAgeMethod.invoke(alex);</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;alex&#x27;s age is &quot;</span> + age);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取所有字段</span></span><br><span class="line">            Field[] fields = clazz.getDeclaredFields();</span><br><span class="line">            <span class="keyword">for</span> (Field field : fields) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Field: &quot;</span> + field);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取指定名称的声明的字段</span></span><br><span class="line">            <span class="type">Field</span> <span class="variable">ageField</span> <span class="operator">=</span> clazz.getDeclaredField(<span class="string">&quot;age&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;Field: &quot;</span> + ageField);</span><br><span class="line">            <span class="comment">//如果是private, 需要设置成 “可访问”</span></span><br><span class="line">             ageField.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;Age: &quot;</span> + ageField.get(alex));</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |</span><br><span class="line">                 InvocationTargetException | InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="3-反射的缺点"><a href="#3-反射的缺点" class="headerlink" title="3. 反射的缺点"></a>3. 反射的缺点</h1><h2 id="31-破坏封装性"><a href="#3-1-破坏封装性" class="headerlink" title="3.1 破坏封装性"></a>3.1 破坏封装性</h2><p>在面向对象编程中，封装性是指将对象的属性和实现细节隐藏起来，只暴露必要的接口给外部使用。通过访问控制修饰符（如 <code>private</code>、<code>protected</code>、<code>public</code>），类可以控制哪些成员可以被外部访问，从而保护对象的内部状态，确保对象的一致性和安全性。</p>
+<p>从上面的代码可以明显看出一个问题， 我们定义的private 构造函数和字段， 通过getDeclared* 和setAccessible  后可以使得原本私有的成员变得可访问，这无疑破坏了priavte 的语义，也就是封装性。</p>
+<ol>
+<li>访问私有方法</li>
+<li>访问私有变量</li>
+</ol>
+<p><strong>反射破坏封装性的影响</strong></p>
+<ol>
+<li><strong>安全性问题</strong>：私有字段和方法的访问控制被绕过，可能会导致程序的安全性问题。</li>
+<li><strong>对象一致性</strong>：私有字段的修改可能会破坏对象的一致性，导致不可预知的行为。例如，某个字段可能需要通过特定的方法进行修改，以确保其值的合法性，而直接修改字段可能会绕过这些检查。</li>
+<li><strong>维护性降低</strong>：使用反射访问私有成员会使代码变得难以维护，因为这些操作依赖于类的内部实现，而不是其公开的接口。类的实现细节变化可能会导致反射代码失效。</li>
+</ol>
+<p><strong>如何避免反射破坏封装性</strong></p>
+<ol>
+<li><strong>最小化反射的使用</strong>：尽量减少反射的使用，尤其是对于私有成员的访问。</li>
+<li><strong>使用适当的访问修饰符</strong>：确保类的设计合理，公开必要的接口，私有化不应被外部访问的成员。</li>
+<li><strong>安全管理器</strong>：在敏感应用中，使用安全管理器来限制反射操作，防止未经授权的访问。</li>
+</ol>
+<h2 id="32-效率低"><a href="#3-2-效率低" class="headerlink" title="3.2 效率低"></a>3.2 效率低</h2><p><a target="_blank" rel="noopener" href="https://juejin.im/post/5da33b2351882509334fc0d3#heading-6">大家都说 Java 反射效率低，你知道原因在哪里么</a>  </p>
+<p>反射效率低的原因主要在于额外的类型检查和安全检查、方法调用的间接性、缺乏编译时优化以及增加的内存开销。在实际开发中，除非确实需要动态性和灵活性，否则应尽量避免使用反射，以提高代码的性能和可维护性。如果必须使用反射，应尽量减少反射调用的次数，或者在初始化阶段使用反射将结果缓存起来，以降低运行时的开销。</p>
+<p><strong>1. 额外的类型检查和安全检查</strong></p>
+<ol>
+<li><strong>类型检查</strong>：<ul>
+<li>反射在运行时执行，JVM 需要在每次访问字段或调用方法时进行类型检查，以确保操作的合法性。这与普通方法调用的编译时类型检查相比，增加了额外的开销。</li>
+</ul>
+</li>
+<li><strong>安全检查</strong>：<ul>
+<li>反射需要进行安全检查（如访问控制检查），特别是在设置 <code>setAccessible(true)</code> 时。这些检查在每次反射调用时都会进行，增加了运行时的开销。</li>
+</ul>
+</li>
+</ol>
+<p><strong>2.  方法调用的间接性</strong><br>普通方法调用是通过直接的字节码指令进行的，JVM 可以进行各种优化，如内联（inlining）、即时编译（JIT）等。而反射调用是通过反射 API 间接调用方法，不能享受这些优化。</p>
+<p><strong>3. 缺乏编译时优化</strong><br>编译时优化可以显著提高代码执行效率，但反射操作是在运行时决定的，因此编译器无法进行这些优化。编译器对普通方法调用可以进行多种优化，如常量折叠、循环展开等，但对反射操作则无能为力。</p>
+<p><strong>4. 内存开销</strong><br>反射操作会带来额外的内存开销，包括：</p>
+<ul>
+<li>创建和维护反射对象（如 <code>Method</code>、<code>Field</code> 等）。</li>
+<li>反射调用时需要创建数组来传递参数和返回值。</li>
+<li>反射调用的结果需要进行类型转换，这也会增加内存开销。</li>
+</ul>
+<h1 id="4-源码解析-invoke"><a href="#4-源码解析-invoke" class="headerlink" title="4. 源码解析-invoke"></a>4. 源码解析-invoke</h1><p>重点介绍method.invoke 的实现原理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CallerSensitive</span></span><br><span class="line"><span class="meta">@ForceInline</span> <span class="comment">// to ensure Reflection.getCallerClass optimization</span></span><br><span class="line"><span class="meta">@HotSpotIntrinsicCandidate</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object obj, Object... args)</span></span><br><span class="line">        <span class="keyword">throws</span> IllegalAccessException, IllegalArgumentException,</span><br><span class="line">           InvocationTargetException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 检查是否需要进行访问控制检查</span></span><br><span class="line">    <span class="keyword">if</span> (!override) &#123;</span><br><span class="line">        <span class="comment">// 获取调用者的类</span></span><br><span class="line">        Class&lt;?&gt; caller = Reflection.getCallerClass();</span><br><span class="line">        <span class="comment">// 检查访问权限，检查调用者是否有权限调用目标方法。如果目标方法是静态的，则第三个参数为 null，否则为目标对象的类。</span></span><br><span class="line">        checkAccess(caller, clazz,</span><br><span class="line">                    Modifier.isStatic(modifiers) ? <span class="literal">null</span> : obj.getClass(),</span><br><span class="line">                    modifiers);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取MethodAccessor实例</span></span><br><span class="line">    <span class="comment">// 这是一个volatile字段，确保多线程访问时的可见性。</span></span><br><span class="line">    <span class="type">MethodAccessor</span> <span class="variable">ma</span> <span class="operator">=</span> methodAccessor;             <span class="comment">// read volatile</span></span><br><span class="line">    <span class="comment">// 如果 methodAccessor 为空，则调用此方法获取一个新的 MethodAccessor 实例。</span></span><br><span class="line">    <span class="comment">// MethodAccessor 是实际执行反射调用的接口，其实现由JVM提供，可能是生成的字节码或本地代码。</span></span><br><span class="line">    <span class="keyword">if</span> (ma == <span class="literal">null</span>) &#123;</span><br><span class="line">        ma = acquireMethodAccessor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用MethodAccessor调用目标方法</span></span><br><span class="line">    <span class="keyword">return</span> ma.invoke(obj, args);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="41-优化与性能"><a href="#4-1-优化与性能" class="headerlink" title="4.1 优化与性能"></a>4.1 优化与性能</h2><p>通过注解 <code>@ForceInline</code> 和 <code>@HotSpotIntrinsicCandidate</code>，JVM可以对 <code>invoke</code> 方法进行内联优化和本地代码优化，从而减少反射调用的性能开销。</p>
+<h2 id="42-acquiremethodaccessor"><a href="#4-2-acquireMethodAccessor" class="headerlink" title="4.2 acquireMethodAccessor"></a>4.2 acquireMethodAccessor</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Method</span> <span class="keyword">extends</span> <span class="title class_">Executable</span> &#123;</span><br><span class="line">  </span><br><span class="line">      <span class="keyword">private</span> MethodAccessor <span class="title function_">acquireMethodAccessor</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// First check to see if one has been created yet, and take it</span></span><br><span class="line">        <span class="comment">// if so</span></span><br><span class="line">        <span class="type">MethodAccessor</span> <span class="variable">tmp</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (root != <span class="literal">null</span>) tmp = root.getMethodAccessor();</span><br><span class="line">        <span class="keyword">if</span> (tmp != <span class="literal">null</span>) &#123;</span><br><span class="line">            methodAccessor = tmp;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Otherwise fabricate one and propagate it up to the root</span></span><br><span class="line">            tmp = reflectionFactory.newMethodAccessor(<span class="built_in">this</span>);</span><br><span class="line">            setMethodAccessor(tmp);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从以上代码可以看出， 生成MethodAccessor时用到了工厂模式， 说明有多个MethodAccessor，下面来具体看一下MethodAccessor及其实现</p>
+<h2 id="43-methodaccessor"><a href="#4-3-MethodAccessor" class="headerlink" title="4.3 MethodAccessor"></a>4.3 MethodAccessor</h2><p><code>MethodAccessor</code> 是一个内部接口，用于抽象反射机制中实际的方法调用实现。具体的实现类有几种，其中包括 <code>DelegatingMethodAccessorImpl</code>、<code>MethodAccessorImpl</code> 和 <code>NativeMethodAccessorImpl</code>。每个实现类都有其特定的作用和实现方式。</p>
+<p>其实现可能是动态生成的字节码（如<code>MethodAccessorImpl</code>），或者是通过JNI调用本地代码（如 <code>NativeMethodAccessorImpl</code>）。具体实现可能会在不同的JVM中有所不同，但主要目的是为了提高反射调用的性能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">MethodAccessor</span> &#123;  </span><br><span class="line"><span class="comment">/** Matches specification in &#123;<span class="doctag">@link</span> java.lang.reflect.Method&#125; */</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object obj, Object[] args)</span>  </span><br><span class="line"><span class="keyword">throws</span> IllegalArgumentException, InvocationTargetException;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/b381342a/5.png" class>
+<ol>
+<li><code>NativeMethodAccessorImpl</code> 使用JNI来调用本地方法，具有较高的性能。</li>
+<li><code>MethodAccessorImpl</code> 使用生成字节码的方式来提高性能。</li>
+<li><code>DelegatingMethodAccessorImpl</code> 用于在运行时动态替换 <code>MethodAccessor</code> 实现，以优化反射调用的性能。</li>
+</ol>
+<h3 id="431-nativemethodaccessorimpl"><a href="#4-3-1-NativeMethodAccessorImpl" class="headerlink" title="4.3.1 NativeMethodAccessorImpl"></a>4.3.1 <code>NativeMethodAccessorImpl</code></h3><p><code>NativeMethodAccessorImpl</code> 使用 JNI（Java Native Interface）来调用本地方法。它是通过本地代码实现的，在冷启动方面具有较高的效率，但是实际调用是性能较慢。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Used only for the first few invocations of a Method; afterward,</span></span><br><span class="line"><span class="comment">    switches to bytecode-based implementation */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NativeMethodAccessorImpl</span> <span class="keyword">extends</span> <span class="title class_">MethodAccessorImpl</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Method method;</span><br><span class="line">    <span class="keyword">private</span> DelegatingMethodAccessorImpl parent;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> numInvocations;</span><br><span class="line"></span><br><span class="line">    NativeMethodAccessorImpl(Method method) &#123;</span><br><span class="line">        <span class="built_in">this</span>.method = method;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object obj, Object[] args)</span></span><br><span class="line">        <span class="keyword">throws</span> IllegalArgumentException, InvocationTargetException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// We can&#x27;t inflate methods belonging to vm-anonymous classes because</span></span><br><span class="line">        <span class="comment">// that kind of class can&#x27;t be referred to by name, hence can&#x27;t be</span></span><br><span class="line">        <span class="comment">// found from the generated bytecode.</span></span><br><span class="line">        <span class="keyword">if</span> (++numInvocations &gt; ReflectionFactory.inflationThreshold()</span><br><span class="line">                &amp;&amp; !ReflectUtil.isVMAnonymousClass(method.getDeclaringClass())) &#123;</span><br><span class="line">            <span class="type">MethodAccessorImpl</span> <span class="variable">acc</span> <span class="operator">=</span> (MethodAccessorImpl)</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">MethodAccessorGenerator</span>().</span><br><span class="line">                    generateMethod(method.getDeclaringClass(),</span><br><span class="line">                                   method.getName(),</span><br><span class="line">                                   method.getParameterTypes(),</span><br><span class="line">                                   method.getReturnType(),</span><br><span class="line">                                   method.getExceptionTypes(),</span><br><span class="line">                                   method.getModifiers());</span><br><span class="line">            parent.setDelegate(acc);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> invoke0(method, obj, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">setParent</span><span class="params">(DelegatingMethodAccessorImpl parent)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.parent = parent;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> Object <span class="title function_">invoke0</span><span class="params">(Method m, Object obj, Object[] args)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="432-methodaccessorimpl"><a href="#4-3-2-MethodAccessorImpl" class="headerlink" title="4.3.2 MethodAccessorImpl"></a>4.3.2 <code>MethodAccessorImpl</code></h3><p><code>MethodAccessorImpl</code> 是通过生成字节码来提高反射调用的性能。具体实现涉及生成动态字节码，以直接调用目标方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">MethodAccessorImpl</span> <span class="keyword">extends</span> <span class="title class_">MagicAccessorImpl</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">MethodAccessor</span> &#123;  </span><br><span class="line"><span class="comment">/** Matches specification in &#123;<span class="doctag">@link</span> java.lang.reflect.Method&#125; */</span>  </span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">abstract</span> Object <span class="title function_">invoke</span><span class="params">(Object obj, Object[] args)</span>  </span><br><span class="line"><span class="keyword">throws</span> IllegalArgumentException, InvocationTargetException;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="433-delegatingmethodaccessorimpl"><a href="#4-3-3-DelegatingMethodAccessorImpl" class="headerlink" title="4.3.3 DelegatingMethodAccessorImpl"></a>4.3.3 <code>DelegatingMethodAccessorImpl</code></h3><p><code>DelegatingMethodAccessorImpl</code> 是一种委托实现，它将调用委托给另一个 <code>MethodAccessor</code> 实例。这种设计通常用于在运行时动态替换 <code>MethodAccessor</code> 实现，以提高性能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DelegatingMethodAccessorImpl</span> <span class="keyword">extends</span> <span class="title class_">MethodAccessorImpl</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> MethodAccessorImpl delegate;</span><br><span class="line"></span><br><span class="line">    DelegatingMethodAccessorImpl(MethodAccessorImpl delegate) &#123;</span><br><span class="line">        setDelegate(delegate);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object obj, Object[] args)</span></span><br><span class="line">        <span class="keyword">throws</span> IllegalArgumentException, InvocationTargetException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> delegate.invoke(obj, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">setDelegate</span><span class="params">(MethodAccessorImpl delegate)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.delegate = delegate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="44-invoke-实现的两种方式"><a href="#4-4-invoke-实现的两种方式" class="headerlink" title="4.4 invoke 实现的两种方式"></a>4.4 invoke 实现的两种方式</h2><p>从<code>MethodAccessor</code>的3个实现类可以看出，<code>invoke</code> 方法内部的实现涉及到两种不同的方式：原生（native）实现方式和Java字节码实现方式。这两种实现方式旨在优化不同阶段的反射调用性能。下面详细解释这两种实现方式以及它们在<code>invoke</code>方法中的动态切换。</p>
+<h3 id="441-初始实现native-实现方式"><a href="#4-4-1-初始实现：Native-实现方式" class="headerlink" title="4.4.1 初始实现：Native 实现方式"></a>4.4.1 初始实现：Native 实现方式</h3><p>在反射调用的初始阶段，使用JNI（Java Native Interface）/ <code>NativeMethodAccessorImpl</code> 方式可以==快速生成==一个可调用的反射方法。这是因为JNI调用直接利用了现有的本地代码实现，不需要额外的字节码生成过程。</p>
+<p>这种方式启动快，适合初次和少量调用。</p>
+<h4 id="生成速度"><a href="#生成速度" class="headerlink" title="生成速度"></a>生成速度</h4><ul>
+<li><strong>生成快</strong>：初次调用反射方法时，使用JNI（Java Native Interface）方式可以快速生成一个可调用的反射方法。这是因为JNI调用直接利用了现有的本地代码实现，不需要额外的字节码生成过程。</li>
+</ul>
+<h4 id="运行性能"><a href="#运行性能" class="headerlink" title="运行性能"></a>运行性能</h4><ul>
+<li><strong>运行性能相对较慢</strong>：虽然JNI方式生成速度快，但在实际调用过程中，反射调用通过JNI进行本地方法调用，没有针对Java方法调用的优化。在需要多次调用同一个反射方法时，运行性能会比较低。</li>
+</ul>
+<h3 id="442-优化阶段java-字节码实现方式"><a href="#4-4-2-优化阶段：Java-字节码实现方式" class="headerlink" title="4.4.2 优化阶段：Java 字节码实现方式"></a>4.4.2 优化阶段：Java 字节码实现方式</h3><p>当反射调用达到一定频率时，JVM会动态切换到基于Java 字节码 <code>MethodAccessorImpl</code>实现方式。这种方式通过动态生成字节码来直接调用目标方法。</p>
+<h4 id="1-生成速度"><a href="#1-生成速度" class="headerlink" title="1. 生成速度"></a>1. 生成速度</h4><ul>
+<li><strong>生成较慢</strong>：使用字节码生成方式需要在运行时动态生成和编译Java字节码，这个过程相对复杂，初次生成时会比JNI方式慢。<h4 id="2-调用过程"><a href="#2-调用过程" class="headerlink" title="2. 调用过程"></a>2. 调用过程</h4></li>
+<li><strong>运行时有性能优化</strong>：一旦生成了字节码实现，JVM的即时编译器（JIT）可以对这些字节码进行优化，从而提高执行效率。<h4 id="3-运行性能"><a href="#3-运行性能" class="headerlink" title="3. 运行性能"></a>3. 运行性能</h4></li>
+<li><strong>执行比较快</strong>：生成字节码后，JVM的即时编译器（JIT）可以对这些字节码进行优化，从而提高执行效率。特别是在多次调用时优势明显。</li>
+</ul>
+<p>根据以上2种方式的特点介绍，可以总结为</p>
+<ul>
+<li><strong>JNI方式生成快</strong>，但是运行性能相对较慢。</li>
+<li><strong>字节码生成方式生成较慢</strong>，但生成后调用时性能更高，因为JVM的即时编译器可以对字节码进行优化。</li>
+<li><strong>动态切换</strong>所以当反射调用达到一定次数后，更希望执行速度得到优化，JVM就会动态切换，会从JNI方式切换到字节码生成方式，以提高运行时性能。</li>
+</ul>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/abd111cb/">Java动态代理</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E4%BB%80%E4%B9%88%E6%98%AF%E5%8F%8D%E5%B0%84"><span class="toc-text">0. 什么是反射</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E5%8F%8D"><span class="toc-text">如何理解“反”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E4%B8%8E%E6%AD%A3%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-text">“反”与“正”的对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-text">反射的工作原理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-class-%E7%B1%BB"><span class="toc-text">1. Class 类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-class-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text">1.1 .class 文件的内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-class-%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%94%9F%E6%88%90%E6%97%B6%E6%9C%BA"><span class="toc-text">1.2 Class 对象的生成时机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-class-%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="toc-text">1.3 Class 对象的唯一性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%85%B3%E4%BA%8Eclass-%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%BB%E7%BB%93"><span class="toc-text">1.4 关于Class 的一点总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8%E5%8F%8D%E5%B0%84%E8%AE%BF%E9%97%AE%E7%B1%BB%E7%9A%84%E5%90%84%E4%B8%AA%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86"><span class="toc-text">2. 使用反射访问类的各个组成部分</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E8%8E%B7%E5%8F%96class-%E5%AF%B9%E8%B1%A1"><span class="toc-text">2.1 获取Class 对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E8%8E%B7%E5%8F%96%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0-constructor"><span class="toc-text">2.2  获取构造函数 Constructor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#221-constructornewinstance"><span class="toc-text">2.2.1 constructor.newInstance</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-method"><span class="toc-text">2.3 Method</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-field"><span class="toc-text">2.4  Field</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#25-getinterfaces"><span class="toc-text">2.5 getInterfaces</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#26-%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">2.6 示例代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%8F%8D%E5%B0%84%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-text">3. 反射的缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-%E7%A0%B4%E5%9D%8F%E5%B0%81%E8%A3%85%E6%80%A7"><span class="toc-text">3.1 破坏封装性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-%E6%95%88%E7%8E%87%E4%BD%8E"><span class="toc-text">3.2 效率低</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-invoke"><span class="toc-text">4. 源码解析-invoke</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-%E4%BC%98%E5%8C%96%E4%B8%8E%E6%80%A7%E8%83%BD"><span class="toc-text">4.1 优化与性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-acquiremethodaccessor"><span class="toc-text">4.2 acquireMethodAccessor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-methodaccessor"><span class="toc-text">4.3 MethodAccessor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#431-nativemethodaccessorimpl"><span class="toc-text">4.3.1 NativeMethodAccessorImpl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#432-methodaccessorimpl"><span class="toc-text">4.3.2 MethodAccessorImpl</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#433-delegatingmethodaccessorimpl"><span class="toc-text">4.3.3 DelegatingMethodAccessorImpl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#44-invoke-%E5%AE%9E%E7%8E%B0%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-text">4.4 invoke 实现的两种方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#441-%E5%88%9D%E5%A7%8B%E5%AE%9E%E7%8E%B0native-%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="toc-text">4.4.1 初始实现：Native 实现方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E9%80%9F%E5%BA%A6"><span class="toc-text">生成速度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%80%A7%E8%83%BD"><span class="toc-text">运行性能</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#442-%E4%BC%98%E5%8C%96%E9%98%B6%E6%AE%B5java-%E5%AD%97%E8%8A%82%E7%A0%81%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="toc-text">4.4.2 优化阶段：Java 字节码实现方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%94%9F%E6%88%90%E9%80%9F%E5%BA%A6"><span class="toc-text">1. 生成速度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="toc-text">2. 调用过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%BF%90%E8%A1%8C%E6%80%A7%E8%83%BD"><span class="toc-text">3. 运行性能</span></a></li></ol></li></ol></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>
