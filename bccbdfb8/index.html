@@ -1,0 +1,690 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>Spring中三级缓存无法解决的循环依赖 - Sun Yan</title>
+
+  
+    <meta name="description" content="建议了解以下内容后再阅读本文 Spring IOC容器 和 Spring beanSpring IOC 容器启动过程拓展点Spring bean 实例化Java 动态代理Spring AOP 实践Spring AOP XML配置方式原理详解Spring AOP 注解方式原理详解 关于Spring 循环依赖， 在  Spring bean 实例化一文中讲解了使用三级缓存+暴露早期引用机制 解决循环依">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring中三级缓存无法解决的循环依赖">
+<meta property="og:url" content="http://example.com/bccbdfb8/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="建议了解以下内容后再阅读本文 Spring IOC容器 和 Spring beanSpring IOC 容器启动过程拓展点Spring bean 实例化Java 动态代理Spring AOP 实践Spring AOP XML配置方式原理详解Spring AOP 注解方式原理详解 关于Spring 循环依赖， 在  Spring bean 实例化一文中讲解了使用三级缓存+暴露早期引用机制 解决循环依">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/bccbdfb8/1.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/2.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/3.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/4.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/5.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/6.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/7.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/8.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/9.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/9.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/6.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/10.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/11.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/12.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/13.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/14.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/8.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/15.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/16.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/17.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/18.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/19.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/20.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/25.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/21.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/22.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/23.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/24.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/26.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/27.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/28.png">
+<meta property="og:image" content="http://example.com/bccbdfb8/29.png">
+<meta property="article:published_time" content="2024-07-16T13:57:56.000Z">
+<meta property="article:modified_time" content="2024-07-16T14:34:43.100Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/bccbdfb8/1.png">
+  
+  
+  
+  <meta name="keywords" content="java,Spring">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/bccbdfb8/"><span class="title">Spring中三级缓存无法解决的循环依赖</span></a><a class="item title" href="/a10675df/"><span class="title">Spring AOP XML配置方式原理详解</span></a><a class="item title" href="/4316da89/"><span class="title">Spring AOP  注解方式原理详解</span></a><a class="item title" href="/678b23b2/"><span class="title">Spring bean 实例化过程</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a><a class="item title" href="/114991e5/"><span class="title">Spring 启动过程 拓展点</span></a><a class="item title" href="/50be4554/"><span class="title">Spring IOC容器 和 Spring bean</span></a><a class="item title" href="/62ebaa0e/"><span class="title">Spring AOP  实践</span></a><a class="item title" href="/abd111cb/"><span class="title">Java动态代理</span></a><a class="item title" href="/f27811be/"><span class="title">神经网络（Neural Networks）</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-07-16T13:57:56.000Z">2024-07-16</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-07-16T14:34:43.100Z">2024-07-16</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>Spring中三级缓存无法解决的循环依赖</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p>建议了解以下内容后再阅读本文</p>
+<p><a target="_blank" rel="noopener" href="https://sunyan.xyz/50be4554/">Spring IOC容器 和 Spring bean</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/114991e5/">Spring IOC 容器启动过程拓展点</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/678b23b2/">Spring bean 实例化</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/abd111cb/">Java 动态代理</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/62ebaa0e/">Spring AOP 实践</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/a10675df/">Spring AOP XML配置方式原理详解</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/4316da89/">Spring AOP 注解方式原理详解</a></p>
+<p>关于Spring 循环依赖， 在  <a target="_blank" rel="noopener" href="https://sunyan.xyz/678b23b2/">Spring bean 实例化</a>一文中讲解了使用三级缓存+暴露早期引用机制 解决循环依赖问题，但其实不是所有的循环依赖都可以被解决，即使三级缓存+暴露早期引用机制，在Spring  启动过程中依然有可能遇到一下循环依赖错误, 该报错信息位于doCreateBean方法中。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.beans.factory.BeanCurrentlyInCreationException: Error creating bean with name <span class="string">&#x27;springTransactionService&#x27;</span>: Bean with name <span class="string">&#x27;springTransactionService&#x27;</span> has been injected into other beans [userService] in its raw version as part of a circular reference, but has eventually been wrapped. This means that said other beans <span class="keyword">do</span> not use the <span class="keyword">final</span> version of the bean. This is often the result of over-eager type matching - consider using <span class="string">&#x27;getBeanNamesForType&#x27;</span> with the <span class="string">&#x27;allowEagerInit&#x27;</span> flag turned off, <span class="keyword">for</span> example.</span><br></pre></td></tr></table></figure></p>
+<p>在单例bean（单例bean 才能使用缓存）且不使用构造器注入（构造器注入无法使用早期引用）的前提下</p>
+<ol>
+<li>普通不需要代理的bean 之间 循环依赖一定可以解决</li>
+<li>需要代理的bean 之间产生循环依赖不一定能解决。</li>
+</ol>
+<h1 id="1-再看docreatebean"><a href="#1-再看doCreateBean" class="headerlink" title="1. 再看doCreateBean"></a>1. 再看doCreateBean</h1><p><code>doCreateBean</code> 方法中包含了bean 实例化的全过程，在  <a target="_blank" rel="noopener" href="https://sunyan.xyz/678b23b2/">Spring bean 实例化</a> 一文中，已经说明了实例化的整个流程，并对三层缓存的内容和缓存添加时机都进行了详细介绍，本文将在这些内容之外介绍更多细节，来更好理解循环依赖的过程。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">AbstractAutowireCapableBeanFactory.java </span><br><span class="line"><span class="keyword">protected</span> Object <span class="title function_">createBean</span><span class="params">(String beanName, RootBeanDefinition mbd, <span class="meta">@Nullable</span> Object[] args)</span>&#123;</span><br><span class="line">  <span class="type">Object</span> <span class="variable">beanInstance</span> <span class="operator">=</span> doCreateBean(beanName, mbdToUse, args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> Object <span class="title function_">doCreateBean</span><span class="params">(String beanName, RootBeanDefinition mbd, <span class="meta">@Nullable</span> Object[] args)</span></span><br><span class="line">			<span class="keyword">throws</span> BeanCreationException &#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Instantiate the bean.</span></span><br><span class="line">		<span class="type">BeanWrapper</span> <span class="variable">instanceWrapper</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">		<span class="keyword">if</span> (mbd.isSingleton()) &#123;</span><br><span class="line">			instanceWrapper = <span class="built_in">this</span>.factoryBeanInstanceCache.remove(beanName);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (instanceWrapper == <span class="literal">null</span>) &#123;</span><br><span class="line">			instanceWrapper = createBeanInstance(beanName, mbd, args);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="type">Object</span> <span class="variable">bean</span> <span class="operator">=</span> instanceWrapper.getWrappedInstance();</span><br><span class="line">		Class&lt;?&gt; beanType = instanceWrapper.getWrappedClass();</span><br><span class="line">		<span class="keyword">if</span> (beanType != NullBean.class) &#123;</span><br><span class="line">			mbd.resolvedTargetType = beanType;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Allow post-processors to modify the merged bean definition.</span></span><br><span class="line">		<span class="comment">//检查是否已经对 Bean 定义进行了后处理，如果没有，则调用 applyMergedBeanDefinitionPostProcessors 方法应用后处理器。</span></span><br><span class="line">		<span class="keyword">synchronized</span> (mbd.postProcessingLock) &#123;</span><br><span class="line">			<span class="keyword">if</span> (!mbd.postProcessed) &#123;</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BeanCreationException</span>(mbd.getResourceDescription(), beanName,</span><br><span class="line">							<span class="string">&quot;Post-processing of merged bean definition failed&quot;</span>, ex);</span><br><span class="line">				&#125;</span><br><span class="line">				mbd.postProcessed = <span class="literal">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Eagerly cache singletons to be able to resolve circular references</span></span><br><span class="line">		<span class="comment">// even when triggered by lifecycle interfaces like BeanFactoryAware.</span></span><br><span class="line">		<span class="type">boolean</span> <span class="variable">earlySingletonExposure</span> <span class="operator">=</span> (mbd.isSingleton() &amp;&amp; <span class="built_in">this</span>.allowCircularReferences &amp;&amp;</span><br><span class="line">				isSingletonCurrentlyInCreation(beanName));</span><br><span class="line">		<span class="comment">//如果允许循环引用，并且当前 Bean 是单例，则调用 addSingletonFactory 方法，提供一个回调以获取早期 Bean 引用。</span></span><br><span class="line">		<span class="keyword">if</span> (earlySingletonExposure) &#123;</span><br><span class="line">			<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(<span class="string">&quot;Eagerly caching bean &#x27;&quot;</span> + beanName +</span><br><span class="line">						<span class="string">&quot;&#x27; to allow for resolving potential circular references&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">      <span class="comment">// 添加第3级缓存， 此处第二个参数又是一个ObjectFactory的匿名类实现</span></span><br><span class="line">			addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Initialize the bean instance.</span></span><br><span class="line">		<span class="type">Object</span> <span class="variable">exposedObject</span> <span class="operator">=</span> bean;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			populateBean(beanName, mbd, instanceWrapper);</span><br><span class="line">			exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">			<span class="keyword">if</span> (ex <span class="keyword">instanceof</span> BeanCreationException &amp;&amp; beanName.equals(((BeanCreationException) ex).getBeanName())) &#123;</span><br><span class="line">				<span class="keyword">throw</span> (BeanCreationException) ex;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BeanCreationException</span>(</span><br><span class="line">						mbd.getResourceDescription(), beanName, <span class="string">&quot;Initialization of bean failed&quot;</span>, ex);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 验证循环引用的处理过程是否正确</span></span><br><span class="line">		<span class="keyword">if</span> (earlySingletonExposure) &#123;</span><br><span class="line">			<span class="comment">// 尝试获取早期引用，那么这个早期引用肯定是因为循环依赖，其他bean在getSingleton(beanName, true)生产出来的</span></span><br><span class="line">			<span class="comment">// 因为该bean 自己的生产过程中，只会主动添加一级、三级缓存</span></span><br><span class="line">			<span class="type">Object</span> <span class="variable">earlySingletonReference</span> <span class="operator">=</span> getSingleton(beanName, <span class="literal">false</span>);</span><br><span class="line">			<span class="keyword">if</span> (earlySingletonReference != <span class="literal">null</span>) &#123;</span><br><span class="line">				<span class="comment">// 表示init后，Bean实例未被代理,在未代理的情况下，exposedObject 和 bean 是相同的引用</span></span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (exposedObject == bean) &#123;</span><br><span class="line">					<span class="comment">// 如果存在早期暴露的单例引用，并且exposedObject未被代理，将exposedObject替换为早期暴露的单例引用。</span></span><br><span class="line">					exposedObject = earlySingletonReference;</span><br><span class="line">				&#125; <span class="comment">// 如果在暴露早期引用的情况下，init阶段还存在代理操作时，要确保依赖当前bean 的其他bean 引用到了正确的版本</span></span><br><span class="line">				<span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">this</span>.allowRawInjectionDespiteWrapping &amp;&amp; hasDependentBean(beanName)) &#123;</span><br><span class="line">					<span class="comment">// 获取所有依赖当前Bean的Bean名称。</span></span><br><span class="line">					String[] dependentBeans = getDependentBeans(beanName);</span><br><span class="line">					Set&lt;String&gt; actualDependentBeans = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;(dependentBeans.length);</span><br><span class="line">					<span class="keyword">for</span> (String dependentBean : dependentBeans) &#123;</span><br><span class="line">						<span class="comment">// 尝试移除只为类型检查而创建的单例Bean。如果成功移除，表示这个Bean只是为类型检查而创建的，不是实际使用的Bean。</span></span><br><span class="line">						<span class="comment">// 通过这个循环，Spring会过滤掉那些只为类型检查而创建的Bean，保留那些实际依赖当前Bean的Bean。</span></span><br><span class="line">						<span class="keyword">if</span> (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) &#123;</span><br><span class="line">							actualDependentBeans.add(dependentBean);</span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">if</span> (!actualDependentBeans.isEmpty()) &#123;</span><br><span class="line">						<span class="comment">// 这段逻辑确保在处理循环依赖时，确保依赖的Bean使用的是最终版本的Bean，而不是中间状态的原始Bean。</span></span><br><span class="line">						<span class="comment">// 如果存在实际依赖当前Bean的Bean。抛出BeanCurrentlyInCreationException异常</span></span><br><span class="line">						<span class="comment">// 因为这意味着有Bean在循环依赖的过程中使用了当前Bean的原始版本，但最终当前Bean被包装（如被AOP代理）。</span></span><br><span class="line">						<span class="comment">// 这意味着被依赖的Bean使用的不是最终版本的Bean，这可能导致一些问题。</span></span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BeanCurrentlyInCreationException</span>(beanName,</span><br><span class="line">								<span class="string">&quot;Bean with name &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27; has been injected into other beans [&quot;</span> +</span><br><span class="line">								StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +</span><br><span class="line">								<span class="string">&quot;] in its raw version as part of a circular reference, but has eventually been &quot;</span> +</span><br><span class="line">								<span class="string">&quot;wrapped. This means that said other beans do not use the final version of the &quot;</span> +</span><br><span class="line">								<span class="string">&quot;bean. This is often the result of over-eager type matching - consider using &quot;</span> +</span><br><span class="line">								<span class="string">&quot;&#x27;getBeanNamesForType&#x27; with the &#x27;allowEagerInit&#x27; flag turned off, for example.&quot;</span>);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> exposedObject;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="11-ifearlysingletonexposure"><a href="#1-1-if-earlySingletonExposure" class="headerlink" title="1.1 if(earlySingletonExposure)"></a>1.1 if(earlySingletonExposure)</h2><p>关于更多的细节，重点来看init 阶段完成后的以下代码<br>这段逻辑中抛出的异常即是指循环依赖处理失败</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">	<span class="comment">// 验证循环引用的处理过程是否正确</span></span><br><span class="line"><span class="keyword">if</span> (earlySingletonExposure) &#123;</span><br><span class="line">	<span class="comment">// 尝试获取早期引用，那么这个早期引用肯定是因为循环依赖，其他bean在getSingleton(beanName, true)生产出来的</span></span><br><span class="line">	<span class="comment">// 因为该bean 自己的生产过程中，只会主动添加一级、三级缓存</span></span><br><span class="line">	<span class="type">Object</span> <span class="variable">earlySingletonReference</span> <span class="operator">=</span> getSingleton(beanName, <span class="literal">false</span>);</span><br><span class="line">	<span class="keyword">if</span> (earlySingletonReference != <span class="literal">null</span>) &#123;</span><br><span class="line">		<span class="comment">// 表示init后，Bean实例未被代理,在未代理的情况下，exposedObject 和 bean 是相同的引用</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (exposedObject == bean) &#123;</span><br><span class="line">			<span class="comment">// 如果存在早期暴露的单例引用，并且exposedObject未被代理，将exposedObject替换为早期暴露的单例引用。</span></span><br><span class="line">			exposedObject = earlySingletonReference;</span><br><span class="line">		&#125; <span class="comment">// 如果在暴露早期引用的情况下，init阶段还存在代理操作时，要确保依赖当前bean 的其他bean 引用到了正确的版本</span></span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">this</span>.allowRawInjectionDespiteWrapping &amp;&amp; hasDependentBean(beanName)) &#123;</span><br><span class="line">			<span class="comment">// 获取所有依赖当前Bean的Bean名称。</span></span><br><span class="line">			String[] dependentBeans = getDependentBeans(beanName);</span><br><span class="line">			Set&lt;String&gt; actualDependentBeans = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;(dependentBeans.length);</span><br><span class="line">			<span class="keyword">for</span> (String dependentBean : dependentBeans) &#123;</span><br><span class="line">				<span class="comment">// 尝试移除只为类型检查而创建的单例Bean。如果成功移除，表示这个Bean只是为类型检查而创建的，不是实际使用的Bean。</span></span><br><span class="line">				<span class="comment">// 通过这个循环，Spring会过滤掉那些只为类型检查而创建的Bean，保留那些实际依赖当前Bean的Bean。</span></span><br><span class="line">				<span class="keyword">if</span> (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) &#123;</span><br><span class="line">					actualDependentBeans.add(dependentBean);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (!actualDependentBeans.isEmpty()) &#123;</span><br><span class="line">				<span class="comment">// 这段逻辑确保在处理循环依赖时，确保依赖的Bean使用的是最终版本的Bean，而不是中间状态的原始Bean。</span></span><br><span class="line">				<span class="comment">// 如果存在实际依赖当前Bean的Bean。抛出BeanCurrentlyInCreationException异常</span></span><br><span class="line">				<span class="comment">// 因为这意味着有Bean在循环依赖的过程中使用了当前Bean的原始版本，但最终当前Bean被包装（如被AOP代理）。</span></span><br><span class="line">				<span class="comment">// 这意味着被依赖的Bean使用的不是最终版本的Bean，这可能导致一些问题。</span></span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">BeanCurrentlyInCreationException</span>(beanName,</span><br><span class="line">						<span class="string">&quot;Bean with name &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27; has been injected into other beans [&quot;</span> +</span><br><span class="line">						StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +</span><br><span class="line">						<span class="string">&quot;] in its raw version as part of a circular reference, but has eventually been &quot;</span> +</span><br><span class="line">						<span class="string">&quot;wrapped. This means that said other beans do not use the final version of the &quot;</span> +</span><br><span class="line">						<span class="string">&quot;bean. This is often the result of over-eager type matching - consider using &quot;</span> +</span><br><span class="line">						<span class="string">&quot;&#x27;getBeanNamesForType&#x27; with the &#x27;allowEagerInit&#x27; flag turned off, for example.&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="12-bean-exposedobject-earlysingletonreference"><a href="#1-2-bean、exposedObject、earlySingletonReference" class="headerlink" title="1.2 bean、exposedObject、earlySingletonReference"></a>1.2 bean、exposedObject、earlySingletonReference</h2><p>先来对这3个指向bean 实例的变量进行解释</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">BeanWrapper</span> <span class="variable">instanceWrapper</span> <span class="operator">=</span> createBeanInstance(beanName, mbd, args);</span><br><span class="line"></span><br><span class="line"><span class="comment">// bean 指create阶段后获取的引用， 这个引用非常原始，肯定不会是代理对象</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">bean</span> <span class="operator">=</span> instanceWrapper.getWrappedInstance();</span><br><span class="line"></span><br><span class="line"><span class="comment">// exposedObject 是doCreateBean方法最终会返回的数据</span></span><br><span class="line"><span class="comment">// 经过init阶段后，如果执行了代理逻辑，则会产生一个新的代理对象赋值给 exposedObject，这时exposedObject和bean就不相等了</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">exposedObject</span> <span class="operator">=</span> bean;</span><br><span class="line">exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// bean的早期引用， 即三级缓存中第二级缓存</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">earlySingletonReference</span> <span class="operator">=</span> getSingleton(beanName, <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="13-同一个bean实例-的同一个apc不会重复执行"><a href="#1-3-同一个bean实例-的同一个APC不会重复执行" class="headerlink" title="1.3 同一个bean实例 的同一个APC不会重复执行"></a>1.3 同一个bean实例 的同一个APC不会重复执行</h2><p>针对<code>AbstractAutoProxyCreator</code> 而言，对一个bean产生对象的有两个时机</p>
+<ol>
+<li>因为循环依赖被其他bean 依赖时，通过<code>AbstractAutoProxyCreator.getEarlyBeanReference</code>获取其早期引用，即代理对象引用</li>
+<li>bean 正常实例化流程中, 在init 阶段通过<code>BeanPostProcessor.postProcessAfterInitialization</code> 方法，触发<code>AbstractAutoProxyCreator.postProcessAfterInitialization</code>  方法执行，该方法中包含生成代理对象的逻辑</li>
+</ol>
+<p>具体代码如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutoProxyCreator</span> <span class="keyword">extends</span> <span class="title class_">ProxyProcessorSupport</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">SmartInstantiationAwareBeanPostProcessor</span>, BeanFactoryAware &#123;</span><br><span class="line">  <span class="comment">// 生成了早期引用的bean缓存，</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Object, Object&gt; earlyProxyReferences = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">  </span><br><span class="line">	<span class="meta">@Override</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> &#123;  </span><br><span class="line">		<span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);  </span><br><span class="line">		<span class="built_in">this</span>.earlyProxyReferences.put(cacheKey, bean);  </span><br><span class="line">		<span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  </span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(<span class="meta">@Nullable</span> Object bean, String beanName)</span> &#123; </span><br><span class="line">		<span class="comment">// 如果 `bean` 为 `null`，则直接返回 `null`。</span></span><br><span class="line">		<span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;  </span><br><span class="line">			<span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);  </span><br><span class="line">			<span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean) &#123;  </span><br><span class="line">				<span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">		<span class="keyword">return</span> bean;  </span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">  	<span class="keyword">protected</span> Object <span class="title function_">getCacheKey</span><span class="params">(Class&lt;?&gt; beanClass, <span class="meta">@Nullable</span> String beanName)</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (StringUtils.hasLength(beanName)) &#123;</span><br><span class="line">			<span class="keyword">return</span> (FactoryBean.class.isAssignableFrom(beanClass) ?</span><br><span class="line">					BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> beanClass;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="131-earlyproxyreferences"><a href="#1-3-1-earlyProxyReferences" class="headerlink" title="1.3.1 earlyProxyReferences"></a>1.3.1 <code>earlyProxyReferences</code></h3><p>之所以说对一个bean 来讲，同一个<code>AbstractAutoProxyCreator</code>实例的代理逻辑不会重复执行，是因为<code>earlyProxyReferences</code> 这个缓存的存在。</p>
+<p><code>earlyProxyReferences</code>  是一个ConcurrentHashMap， key 是beanName(先忽略对FactoryBean的处理，即使加了&amp; 前缀，也是一个字符串，继续理解成beanName就可以了)， value是bean 实例对象。</p>
+<p>根据<code>getEarlyBeanReference</code>和<code>postProcessAfterInitialization</code>的逻辑可以看出，如果一个bean 提前获取了早期引用，则会在<code>earlyProxyReferences</code>  中将其记录下来。</p>
+<p>⚠️：注意记录的不是早期引用（早期引用可以是原始bean ,也可能是代理对象引用），早期引用是存储在三级缓存中的第二级缓存中的。</p>
+<p>那么在bean 实例化init 阶段， 进入<code>AbstractAutoProxyCreator.postProcessAfterInitialization</code> 方法时，通过cacheKey读取value , 判断<code>earlyProxyReferences</code> 中记录的bean和当前入参bean是否一致， 如果一致，就不用重复执行<code>wrapIfNecessary</code>逻辑了。</p>
+<h3 id="132-earlyproxyreferencesremove"><a href="#1-3-2-earlyProxyReferences-remove" class="headerlink" title="1.3.2 earlyProxyReferences.remove"></a>1.3.2 earlyProxyReferences.remove</h3><p>判断<code>earlyProxyReferences</code> 中记录的bean和当前入参bean是否一致， 是通过以下代码逻辑完成的，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean)</span><br></pre></td></tr></table></figure>
+<p><code>earlyProxyReferences.remove(cacheKey)</code> 的结果有3种情况 null,   与入参bean 相等的值，与入参bean 不相等的值，</p>
+<ol>
+<li><strong>返回 <code>null</code>：</strong><ul>
+<li><strong>解释：</strong> 这表明入参bean 没有在其他 bean 的依赖注入过程中提前暴露引用。</li>
+<li><strong>处理：</strong> 需要对入参bean 进行代理创建，调用 <code>wrapIfNecessary</code> 方法。</li>
+</ul>
+</li>
+<li><strong>返回与 入参bean 相等的值：</strong><ul>
+<li><strong>解释：</strong> 这表明该入参bean 已经因为其他 bean 的依赖注入提前执行<code>wrapIfNecessary</code>，所以这里不需要重复执行了</li>
+<li><strong>处理：</strong> 不需要对该 bean 进行代理创建，因此不调用 <code>wrapIfNecessary</code> 方法。</li>
+</ul>
+</li>
+<li><strong>返回与入参bean 不相等的值：</strong><ul>
+<li><strong>解释：</strong> cacheKey 对应的bean 确实已经提前暴露了引用，但是具有相同cacheKey 的 入参bean不是当初来获取早期引用的那个bean, 所以仍然要对这个入参bean 执行<code>wrapIfNecessary</code> 逻辑</li>
+<li><strong>处理：</strong> 需要对该 bean 进行代理创建，调用 <code>wrapIfNecessary</code> 方法</li>
+</ul>
+</li>
+</ol>
+<p>前两种情况都比较好理解， 第3种情况需要多加解释，而且第三种也是无法解决的循环依赖。</p>
+<p>出现的原因可以分为2种</p>
+<ol>
+<li>能生成代理对象的不只AbstractAutoProxyCreator， 还有AbstractAdvisingBeanPostProcessor</li>
+<li>存在多个AbstractAutoProxyCreator</li>
+</ol>
+<p>⚠️：这个缓存的使用逻辑， 和实际开发中我们要删除缓存时思路一致， 要先判断要删除的线程是不是和当前添加缓存的线程一致，一致的话才能删除缓存，否则会造成数据不一致。</p>
+<h1 id="2-有动态代理的循环引用实例"><a href="#2-有动态代理的循环引用实例" class="headerlink" title="2.  有动态代理的循环引用实例"></a>2.  有动态代理的循环引用实例</h1><h2 id="21-有动态代理的循环引用示例代码"><a href="#2-1-有动态代理的循环引用示例代码" class="headerlink" title="2.1 有动态代理的循环引用示例代码"></a>2.1 有动态代理的循环引用示例代码</h2><p>该示例代码是Springboot 项目，构造一个依赖循环的例子</p>
+<p>在如下代码中，userService和springTransactionService通过属性注入互相依赖， 且定义了一个Aspect , 这个Aspect 会为userService和springTransactionService 都生成代理对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringTransactionService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">performTransaction</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 模拟业务逻辑</span></span><br><span class="line">        System.out.println(<span class="string">&quot;performTransaction&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> <span class="keyword">implements</span> <span class="title class_">UserI</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    SpringTransactionService springTransactionService;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createUser</span><span class="params">(String username)</span> &#123;</span><br><span class="line">        <span class="comment">// 模拟业务处理</span></span><br><span class="line">        System.out.println(<span class="string">&quot;Creating user: &quot;</span> + username);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">deleteUser</span><span class="params">(String username)</span> &#123;</span><br><span class="line">        <span class="comment">// 模拟业务处理</span></span><br><span class="line">        System.out.println(<span class="string">&quot;Deleting user: &quot;</span> + username);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoggingAspect</span> &#123;</span><br><span class="line">    <span class="comment">//定义一个匹配userService中所有方法的切点表达式</span></span><br><span class="line">    <span class="meta">@Pointcut(&quot;execution(* com.example.codingInAction.service.*.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">userServiceAllMethod</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在方法执行之前执行的通知</span></span><br><span class="line">    <span class="meta">@Before(&quot;userServiceAllMethod()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">logBefore</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Before method: &quot;</span> + joinPoint.getSignature().getName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在方法执行之后执行的通知</span></span><br><span class="line">    <span class="meta">@After(&quot;userServiceAllMethod()&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">logAfter</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;After method: &quot;</span> + joinPoint.getSignature().getName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定义一个只匹配 UserService.createUser 方法的切点表达式</span></span><br><span class="line">    <span class="meta">@Around(&quot;execution(* com.example.codingInAction.service.UserService.createUser(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">logAround</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(joinPoint.getSignature().getName() + <span class="string">&quot; 方法开始执行&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> joinPoint.proceed();  <span class="comment">// 执行目标方法</span></span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        System.out.println(joinPoint.getSignature().getName() + <span class="string">&quot; 方法执行时间: &quot;</span> + (endTime - startTime) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例代码启动入口</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CodingInActionApplication</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(CodingInActionApplication.class, args);</span><br></pre></td></tr></table></figure>
+<h2 id="22-springtransactionservice-实例化"><a href="#2-2-springTransactionService-实例化" class="headerlink" title="2.2 springTransactionService 实例化"></a>2.2 springTransactionService 实例化</h2><h3 id="221-三级缓存"><a href="#2-2-1-三级缓存" class="headerlink" title="2.2.1 三级缓存"></a>2.2.1 三级缓存</h3><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/1.png" class>
+<p>springTransactionService 经过createBeanInstance阶段后，放入第三级缓存，以便在需要之时提前暴露引用</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/2.png" class>
+<h3 id="222-populate-with-userservice"><a href="#2-2-2-populate-with-userService" class="headerlink" title="2.2.2 populate with  userService"></a>2.2.2 populate with  userService</h3><p>springTransactionService 在populate阶段发现需要userService, 通过getBean 获取userService 实例。</p>
+<h4 id="2221-getbeanuserservice"><a href="#2-2-2-1-getBean-userService" class="headerlink" title="2.2.2.1 getBean(userService)"></a>2.2.2.1 getBean(userService)</h4><p>此时userService 还没有进行实例化，所以在三级缓存中不存在，要走create 流程进行实例化</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/3.png" class>
+<h4 id="2222-userservice-放入第三级缓存"><a href="#2-2-2-2-userService-放入第三级缓存" class="headerlink" title="2.2.2.2 userService 放入第三级缓存"></a>2.2.2.2 userService 放入第三级缓存</h4><p>userService 经过createBeanInstance阶段后，放入第三级缓存，以便在需要之时提前暴露引用<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/4.png" class></p>
+<h4 id="2223-userservice-populate-with-springtransactionservice"><a href="#2-2-2-3-userService-populate-with-springTransactionService" class="headerlink" title="2.2.2.3 userService populate with springTransactionService"></a>2.2.2.3 userService populate with springTransactionService</h4><p>userService在populate 阶段发现需要springTransactionService ， 再次通过getBean 流程获取springTransactionService， 此时springTransactionService的三级缓存已经存在，可以获取早期引用。</p>
+<h4 id="2224-获取springtransactionservice早期引用"><a href="#2-2-2-4-获取springTransactionService早期引用" class="headerlink" title="2.2.2.4 获取springTransactionService早期引用"></a>2.2.2.4 获取springTransactionService早期引用</h4><p>获取springTransactionService  时，依然是getBean作为入口<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/5.png" class><br>由于springTransactionService  已经完成createInstance 放入了第三级缓存，此时getSingleton(beanName )方法是可以获取到早期引用的， 获取早期引用的逻辑如下<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/6.png" class><br>以singletonFactory.getObject 为入口，进入三级缓存获取早期引用的逻辑<code>AbstractAutoProxyCreator.getEarlyBeanReference</code></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/7.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/8.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/9.png" class>
+<p>经过<code>AbstractAutoProxyCreator</code> 这个<code>BeanPostProcessor</code> 处理，其earlyProxyReferences 记录了springTransactionService曾来获取过早期引用， 并最终返回了一个CGLIB 动态代理对象</p>
+<p>⚠️ wrapIfNecessary  只对需要产生代理的对象生成代理对象，不需要产生代理的对象会直接返回原对象.在这个例子中是springTransactionService 代理对象的引用</p>
+<p>getEarlyBeanReference 返回的数据，即singletonFactory.getObject 获取到数据会放到第二级缓存中，同时删除第三级缓存。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/9.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/6.png" class>
+<h4 id="2225-userservice-init"><a href="#2-2-2-5-userService-init" class="headerlink" title="2.2.2.5 userService init"></a>2.2.2.5 userService init</h4><p>现在 userService populate 阶段结束，开始init 阶段，省略其他部分，只看AutoProxyCreator这个BeanPostProcessor.</p>
+<p>由于userService 之前没有获取过早期引用， 所以<code>earlyProxyReferences</code> 并不存在userService,<code>this.earlyProxyReferences.remove(cacheKey)</code> 返回null, 需要进入<code>wrapIfNecessary</code> 逻辑，由于userService 符合LoggingAspect 切点表达式，经过<code>wrapIfNecessary</code> 后， 会生成userService的动态代理对象</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/10.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/11.png" class>
+<h4 id="2226-earlysingletonexposure"><a href="#2-2-2-6-earlySingletonExposure" class="headerlink" title="2.2.2.6 earlySingletonExposure"></a>2.2.2.6 earlySingletonExposure</h4><p>由于目前为止，userService 并没有触发早期引用的暴露逻辑，即从三级缓存中获取早期引用放到二级缓存中的逻辑，所以一级缓存，二级缓存中均不存在userService, 所以<code>getSingleton(beanName, false)</code>会返回null， 因此userService不需要进行早期引用暴露的特殊处理，直接返回实例化完成的bean 即可（有可能是原始bean, 也有可能是代理对象，在这个例子中是代理对象）<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/12.png" class></p>
+<h4 id="2227-一级缓存"><a href="#2-2-2-7-一级缓存" class="headerlink" title="2.2.2.7 一级缓存"></a>2.2.2.7 一级缓存</h4><p>实例化完成的userService 会放入一级缓存中，同时删除二、三级缓存，确保一个bean 在同一时刻只会存在于某一级缓存中</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/13.png" class>
+<h3 id="223-springtransactionservice-init"><a href="#2-2-3-springTransactionService-init" class="headerlink" title="2.2.3 springTransactionService  init"></a>2.2.3 springTransactionService  init</h3><p>springTransactionService populate 阶段完成，现在来到init阶段，只看我们关心的 <code>AbstractAutoProxyCreator.postProcessAfterInitialization</code><br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/14.png" class><br>由于前面在userService 的实例化过程中，我们已经通过<code>getEarlyBeanReference</code><br>获取过springTransactionService的早期引用(且是经过springTransactionService包装过的代理对象引用)</p>
+<p>所以<code>earlyProxyReferences</code>中已经记录了springTransactionService相关数据，且和传进来bean数据一致，所以这里的逻辑会直接返回，而不是再走一遍<code>wrapIfNecessary</code>逻辑。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/8.png" class></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/15.png" class>
+<h3 id="224-earlysingletonexposure"><a href="#2-2-4-earlySingletonExposure" class="headerlink" title="2.2.4 earlySingletonExposure"></a>2.2.4 earlySingletonExposure</h3><p>现在springTransactionService 已经完成了实例化的3个阶段，逻辑来到<code>doCreateBean</code>中最后关于循环依赖和早期引用的处理逻辑<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/16.png" class></p>
+<p>由于在userService 的实例化过程中，springTransactionService已经提前暴露了引用，且是代理对象的引用， 所以<code>getSingleton(beanName, false)</code>会获取到其早期引用。</p>
+<p>此时bean 与 exposedObject相等，说明在init阶段没有执行代理逻辑，doCreateBean 最终会返回提前暴露的引用earlySingletonReference</p>
+<p>至此springTransactionService   经过和userService 的循环依赖处理，已经成功初始化。userService 也成功初始化，后续在对userService 执行getBean 操作都会直接从一级缓存中获取。</p>
+<p>下面来看三级缓存无法解决的循环依赖</p>
+<h1 id="3-abstractadvisingbeanpostprocessor-引发的异常"><a href="#3-AbstractAdvisingBeanPostProcessor-引发的异常" class="headerlink" title="3. AbstractAdvisingBeanPostProcessor 引发的异常"></a>3. AbstractAdvisingBeanPostProcessor 引发的异常</h1><p>在Spring 启动过程中，能为bean 生成代理对象的不止<code>AbstractAutoProxyCreator</code> 一个， <code>AbstractAdvisingBeanPostProcessor</code>也可以为bean 生成一个代理对象<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/17.png" class></p>
+<p><code>AbstractAdvisingBeanPostProcessor</code> 也是一个<code>BeanPostProcessor</code> ， 因此也可以在<code>init</code> 阶段通过<code>postProcessAfterInitialization</code>方法介入bean 的生命周期。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAdvisingBeanPostProcessor</span> <span class="keyword">extends</span> <span class="title class_">ProxyProcessorSupport</span> <span class="keyword">implements</span> <span class="title class_">BeanPostProcessor</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">this</span>.advisor == <span class="literal">null</span> || bean <span class="keyword">instanceof</span> AopInfrastructureBean) &#123;</span><br><span class="line">			<span class="comment">// Ignore AOP infrastructure such as scoped proxies.</span></span><br><span class="line">			<span class="keyword">return</span> bean;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (bean <span class="keyword">instanceof</span> Advised) &#123;</span><br><span class="line">			<span class="type">Advised</span> <span class="variable">advised</span> <span class="operator">=</span> (Advised) bean;</span><br><span class="line">			<span class="keyword">if</span> (!advised.isFrozen() &amp;&amp; isEligible(AopUtils.getTargetClass(bean))) &#123;</span><br><span class="line">				<span class="comment">// Add our local Advisor to the existing proxy&#x27;s Advisor chain...</span></span><br><span class="line">				<span class="keyword">if</span> (<span class="built_in">this</span>.beforeExistingAdvisors) &#123;</span><br><span class="line">					advised.addAdvisor(<span class="number">0</span>, <span class="built_in">this</span>.advisor);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span> &#123;</span><br><span class="line">					advised.addAdvisor(<span class="built_in">this</span>.advisor);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> bean;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (isEligible(bean, beanName)) &#123;</span><br><span class="line">			<span class="type">ProxyFactory</span> <span class="variable">proxyFactory</span> <span class="operator">=</span> prepareProxyFactory(bean, beanName);</span><br><span class="line">			<span class="keyword">if</span> (!proxyFactory.isProxyTargetClass()) &#123;</span><br><span class="line">				evaluateProxyInterfaces(bean.getClass(), proxyFactory);</span><br><span class="line">			&#125;</span><br><span class="line">			proxyFactory.addAdvisor(<span class="built_in">this</span>.advisor);</span><br><span class="line">			customizeProxyFactory(proxyFactory);</span><br><span class="line">			<span class="keyword">return</span> proxyFactory.getProxy(getProxyClassLoader());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// No proxy needed.</span></span><br><span class="line">		<span class="keyword">return</span> bean;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查看<code>AbstractAdvisingBeanPostProcessor.postProcessAfterInitialization</code>代码，可以看到也是生成代理对象的diamanté，其逻辑进入getProxy就和之前 讲过<a href="obsidian://open?vault=Documents&amp;file=second-brain%2F1-tech%2FSpring%20%E5%AE%B6%E6%97%8F%2Fnew%2F7%20-%20Spring%20AOP%20%20%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3">代理创建流程</a> 完全一致，就不进入细节去分析了<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProxyFactory</span> <span class="keyword">extends</span> <span class="title class_">ProxyCreatorSupport</span> &#123; </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">getProxy</span><span class="params">(<span class="meta">@Nullable</span> ClassLoader classLoader)</span> &#123; </span><br><span class="line">		<span class="keyword">return</span> createAopProxy().getProxy(classLoader);  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>那实际生产开发中，有两个注解会用到<code>AbstractAdvisingBeanPostProcessor</code>  ， 如果使用不当，就会引发无法解决的循环依赖，从而导致Spring 容器启动失败</p>
+<h2 id="31-repository注解-persistenceexceptiontranslationpostprocessor"><a href="#3-1-Repository注解-PersistenceExceptionTranslationPostProcessor" class="headerlink" title="3.1 @Repository注解-PersistenceExceptionTranslationPostProcessor"></a>3.1 @Repository注解-PersistenceExceptionTranslationPostProcessor</h2><p>在Spring中，<code>@Repository</code> 注解主要用于标记数据访问层（DAO）。相比 <code>@Component</code>（通用Bean 注解）、<code>@Service</code>（用于对Service实现类进行标注） 和 <code>@Controller</code>（用于对Controller实现类进行标注），<code>@Repository</code> 注解的一个显著区别在于它的异常处理机制。</p>
+<p>Spring为<code>@Repository</code>  提供了一个特殊的处理机制，自动将数据访问异常转换为 Spring 的统一数据访问异常层次结构（如 <code>DataAccessException</code>）。<code>@Service</code> 和 <code>@Controller</code> 没有这种特定的异常处理机制。它们的异常处理通常依赖于全局异常处理器（如 <code>@ControllerAdvice</code>）或手动捕获和处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(&#123;ElementType.TYPE&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Repository &#123;</span><br><span class="line">    <span class="meta">@AliasFor(annotation = Component.class)</span></span><br><span class="line">    String <span class="title function_">value</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当使用 <code>@Repository</code> 注解时，Spring 会在后台自动注册一个 <code>PersistenceExceptionTranslationPostProcessor</code>。</p>
+<p><code>PersistenceExceptionTranslationPostProcessor</code> 继承了<code>AbstractAdvisingBeanPostProcessor</code> , 因此使用了<code>@Repository</code>注解的bean 在实例化完成后，最终生成的是其代理对象。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/18.png" class></p>
+<h3 id="311-有动态代理的循环引用示例代码"><a href="#3-1-1-有动态代理的循环引用示例代码" class="headerlink" title="3.1.1  有动态代理的循环引用示例代码"></a>3.1.1  有动态代理的循环引用示例代码</h3><p>改造下SpringTransactionService , 将@Service 替换成<code>@Repository</code>， 其他代码保持不变。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringTransactionService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">performTransaction</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 模拟业务逻辑</span></span><br><span class="line">        System.out.println(<span class="string">&quot;performTransaction&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>启动该SpringBoot 项目，将报如下错误<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.beans.factory.BeanCurrentlyInCreationException: Error creating bean with name <span class="string">&#x27;springTransactionService&#x27;</span>: Bean with name <span class="string">&#x27;springTransactionService&#x27;</span> has been injected into other beans [userService] in its raw version as part of a circular reference, but has eventually been wrapped. This means that said other beans <span class="keyword">do</span> not use the <span class="keyword">final</span> version of the bean. This is often the result of over-eager type matching - consider using <span class="string">&#x27;getBeanNamesForType&#x27;</span> with the <span class="string">&#x27;allowEagerInit&#x27;</span> flag turned off, <span class="keyword">for</span> example.</span><br></pre></td></tr></table></figure></p>
+<p>直接跟随debug 信息来到springTransactionService 实例化过程 阶段</p>
+<h4 id="getearlybeanreference"><a href="#getEarlyBeanReference" class="headerlink" title="getEarlyBeanReference"></a>getEarlyBeanReference</h4><p>在springTransactionService  -&gt;userService -&gt; springTransactionService  循环依赖获取springTransactionService 的早期引用时，</p>
+<p>在<code>getEarlyBeanReference</code>中，只有 <code>AbstractAutoProxyCreator</code> 这类<code>BeanPostProcessor</code> 才会执行。 <code>AbstractAdvisingBeanPostProcessor</code>不是 <code>AbstractAutoProxyCreator</code>  ，所示<code>PersistenceExceptionTranslationPostProcessor</code>在 <code>getEarlyBeanReference</code>阶段是不会发挥作用的</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/19.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/20.png" class>
+<h4 id="postprocessafterinitialization"><a href="#postProcessAfterInitialization" class="headerlink" title="postProcessAfterInitialization"></a>postProcessAfterInitialization</h4><p>在springTransactionService 的init 阶段， 不会过滤 只有<code>AbstractAutoProxyCreator</code> 的子类执行，而是对所有的<code>BeanPostProcessor</code> 都执行其<code>postProcessAfterInitialization</code> 方法。<br><code>AnnotationAwareAspectJAutoProxyCreator</code> 里根据<code>if (this.earlyProxyReferences.remove(cacheKey) != bean)</code>判断，不会重复执行<code>wrapIfNecessary</code>, 直接返回入参bean</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/25.png" class>
+<p>接着开始执行<code>PersistenceExceptionTranslationPostProcessor</code></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/21.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/22.png" class>
+<p>从图中可以看出，此时入参bean 依然是原始bean, 经过@Repository注解-PersistenceExceptionTranslationPostProcessor 处理后，原始入参bean又生成了一个的代理对象返回。<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/23.png" class></p>
+<h4 id="earlysingletonexposure"><a href="#earlySingletonExposure" class="headerlink" title="earlySingletonExposure"></a>earlySingletonExposure</h4><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/24.png" class>
+<p>从图中可以看出， 最终返回的exposedObject 和提前暴露的earlySingletonReference 已经不是同一个实例了，earlySingletonReference 是经过<code>AnnotationAwareAspectJAutoProxyCreator</code> 生成的代对象， exposedObject 是<code>PersistenceExceptionTranslationPostProcessor</code>生成的地理对象，提前暴露的引用和最终生成的引用不一致，且该bean的早期引用已经被userService 依赖了，最终会走到报错逻辑</p>
+<p>==所以在实际生产开发中，关于注解的最佳实践一定是按照层级划分使用对应的注解==</p>
+<h2 id="32-async-asyncannotationbeanpostprocessor"><a href="#3-2-Async-AsyncAnnotationBeanPostProcessor" class="headerlink" title="3.2 @Async-AsyncAnnotationBeanPostProcessor"></a>3.2 @Async-AsyncAnnotationBeanPostProcessor</h2><p>@Async 是用于标识异步执行的注解，使用不当的话，会由于同样的原因造成无法解决的循环依赖。<br>AsyncAnnotationBeanPostProcessor 同样继承了AbstractAdvisingBeanPostProcessor，因此会在init 阶段 为添加了@Async 注解的bean 生成代理对象<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/26.png" class></p>
+<h3 id="321-有动态代理的循环引用示例代码"><a href="#3-2-1-有动态代理的循环引用示例代码" class="headerlink" title="3.2.1 有动态代理的循环引用示例代码"></a>3.2.1 有动态代理的循环引用示例代码</h3><p>改造下SpringTransactionService , 将@Service 替换成<code>@Repository</code>， 其他代码保持不变。启动该SpringBoot 项目，会报同样的错误</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableAsync</span>  </span><br><span class="line"><span class="meta">@Service</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringTransactionService</span> &#123;  </span><br><span class="line">   </span><br><span class="line">	<span class="meta">@Autowired</span>  </span><br><span class="line">	UserService userService;  </span><br><span class="line">  </span><br><span class="line">	<span class="meta">@Async</span>  </span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">performTransaction</span><span class="params">()</span> &#123;  </span><br><span class="line">		<span class="comment">// 模拟业务逻辑  </span></span><br><span class="line">		System.out.println(<span class="string">&quot;performTransaction&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/27.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/28.png" class>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/bccbdfb8/29.png" class>
+<p>经过<code>AsyncAnnotationBeanPostProcessor.post</code>处理后，会为原始bean 生成一个代理对象，与暴露的早期引用不一致，最终会报错</p>
+<h2 id="33-beanpostprocessor的不同过滤条件"><a href="#3-3-BeanPostProcessor的不同过滤条件" class="headerlink" title="3.3 ## BeanPostProcessor的不同过滤条件"></a>3.3 ## BeanPostProcessor的不同过滤条件</h2><p>在AbstractAdvisingBeanPostProcessor 引发异常的这2个例子中，能够看出，有机会对bean 生成代理的2处逻辑，对要执行的BeanPostProcessor有不同的过滤条件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutowireCapableBeanFactory</span> <span class="keyword">extends</span> <span class="title class_">AbstractBeanFactory</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">AutowireCapableBeanFactory</span> &#123;	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">protected</span> Object <span class="title function_">getEarlyBeanReference</span><span class="params">(String beanName, RootBeanDefinition mbd, Object bean)</span> &#123;  </span><br><span class="line">		<span class="type">Object</span> <span class="variable">exposedObject</span> <span class="operator">=</span> bean;  </span><br><span class="line">		<span class="keyword">if</span> (!mbd.isSynthetic() &amp;&amp; hasInstantiationAwareBeanPostProcessors()) &#123;  </span><br><span class="line">			<span class="keyword">for</span> (BeanPostProcessor bp : getBeanPostProcessors()) &#123;  </span><br><span class="line">				<span class="keyword">if</span> (bp <span class="keyword">instanceof</span> SmartInstantiationAwareBeanPostProcessor) &#123;  </span><br><span class="line">					<span class="type">SmartInstantiationAwareBeanPostProcessor</span> <span class="variable">ibp</span> <span class="operator">=</span> (SmartInstantiationAwareBeanPostProcessor) bp;  </span><br><span class="line">					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);  </span><br><span class="line">				&#125;  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">		<span class="keyword">return</span> exposedObject;  </span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">applyBeanPostProcessorsAfterInitialization</span><span class="params">(Object existingBean, String beanName)</span></span><br><span class="line">			<span class="keyword">throws</span> BeansException &#123;</span><br><span class="line"></span><br><span class="line">		<span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> existingBean;</span><br><span class="line">		<span class="keyword">for</span> (BeanPostProcessor processor : getBeanPostProcessors()) &#123;</span><br><span class="line">			<span class="type">Object</span> <span class="variable">current</span> <span class="operator">=</span> processor.postProcessAfterInitialization(result, beanName);</span><br><span class="line">			<span class="keyword">if</span> (current == <span class="literal">null</span>) &#123;</span><br><span class="line">				<span class="keyword">return</span> result;</span><br><span class="line">			&#125;</span><br><span class="line">			result = current;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> result;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><code>getEarlyBeanReference</code> 中只执行 <code>AbstractAutoProxyCreator</code>的子类，在Springboot 启动的项目中，就是<code>AnnotationAwareAspectJAutoProxyCreator</code></li>
+<li>在init 阶段的<code>applyBeanPostProcessorsAfterInitialization</code> 中，会执行所有<code>BeanPostProcessor</code></li>
+</ol>
+<p>所以在有动态代理的循环依赖+暴露引用的时候，如果其中包含了除<code>AbstractAutoProxyCreator</code>子类外可生成代理的<code>BeanPostProcessor</code>， 就会产生一个类的2个实例，违反单例模式报错。</p>
+<p>分析到这，可以看出，一个bean 只要暴露了早期引用，那么在init 阶段就绝不能再执行任何生成代理的操作了，因为一旦有代理操作就会再生成一个新的引用，就会有问题。</p>
+<p>如果没有暴露早期引用，init 阶段随便几个代理操作都行。</p>
+<p>比如把SpringTransactionService 中的userService 去掉， 把前面提到的各种可以生成代理的操作全部叠加，启动都是没有问题的<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableAsync</span>  </span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringTransactionService</span> &#123;  </span><br><span class="line">	<span class="meta">@Async</span>  </span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">performTransaction</span><span class="params">()</span> &#123;  </span><br><span class="line">		<span class="comment">// 模拟业务逻辑  </span></span><br><span class="line">		System.out.println(<span class="string">&quot;performTransaction&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="4-存在多个-abstractautoproxycreator"><a href="#4-存在多个-AbstractAutoProxyCreator" class="headerlink" title="4. 存在多个 AbstractAutoProxyCreator"></a>4. 存在多个 <code>AbstractAutoProxyCreator</code></h1><p>再来分析另外一种 有多个<code>AbstractAutoProxyCreator</code></p>
+<p>spring默认保证一个容器中只能有一个AbstractAutoProxyCreator 子类存在 ，如过手动添加或者自定义会出现多个APC情况。</p>
+<p>这里直接分析源码，假设有2个AbstractAutoProxyCreator 子类存在。</p>
+<h2 id="41-getearlybeanreference"><a href="#4-1-getEarlyBeanReference" class="headerlink" title="4.1 getEarlyBeanReference"></a>4.1 getEarlyBeanReference</h2><p>来看下早期引用的获取逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutowireCapableBeanFactory</span> <span class="keyword">extends</span> <span class="title class_">AbstractBeanFactory</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">AutowireCapableBeanFactory</span> &#123;</span><br><span class="line">	<span class="keyword">protected</span> Object <span class="title function_">getEarlyBeanReference</span><span class="params">(String beanName, RootBeanDefinition mbd, Object bean)</span> &#123;</span><br><span class="line">		<span class="type">Object</span> <span class="variable">exposedObject</span> <span class="operator">=</span> bean;</span><br><span class="line">		<span class="keyword">if</span> (!mbd.isSynthetic() &amp;&amp; hasInstantiationAwareBeanPostProcessors()) &#123;</span><br><span class="line">			<span class="keyword">for</span> (SmartInstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().smartInstantiationAware) &#123;</span><br><span class="line">				exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> exposedObject;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutoProxyCreator</span> <span class="keyword">extends</span> <span class="title class_">ProxyProcessorSupport</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">SmartInstantiationAwareBeanPostProcessor</span>, BeanFactoryAware &#123;</span><br><span class="line">	<span class="meta">@Override</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> &#123;  </span><br><span class="line">		<span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);  </span><br><span class="line">		<span class="built_in">this</span>.earlyProxyReferences.put(cacheKey, bean);  </span><br><span class="line">		<span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>由于在调用<code>AbstractAutoProxyCreator.getEarlyBeanReference</code>时， 每次入参bean 其实都是上一个<code>AbstractAutoProxyCreator</code>处理结果。</p>
+<p>对于第一层代理来说<code>earlySingletonReferences</code>这个map 中的value 是原始bean<br>对于第二层代理来说<code>earlySingletonReferences</code>这个map 中的value 是第一层代理生成的代理对象。</p>
+<p>⚠️ 每个<code>AbstractAutoProxyCreator</code>实例都有自己的<code>earlySingletonReferences</code></p>
+<p>所以那么第2层代理实际是对第一层代理生成的代理对象又代理了一层，最终生成的早期引用，即放入第二级缓存的数据也是第二层代理对象</p>
+<h2 id="42-postprocessafterinitialization"><a href="#4-2-postProcessAfterInitialization" class="headerlink" title="4.2 postProcessAfterInitialization"></a>4.2 postProcessAfterInitialization</h2><p>那么当来到init阶段的bean后处理逻辑<br>当执行第一层代理的postProcessAfterInitialization时，入参bean 时原始bean, 第一层代理<code>earlySingletonReferences</code> 中能找到对应的值，不会重复执行<code>wrapIfNecessary</code>逻辑，直接返回入参原始bean。</p>
+<p>继续执行for循环，来到第二层代理，第二层代理earlySingletonReference 存储的是bean 第一层代理的引用， 这里入参bean 还是原始bean， <code>this.earlyProxyReferences.remove(cacheKey) != bean</code>条件成立，会执行<code>wrapIfNecessary</code>逻辑次 会创建一个新的代理对象，经过第二层代理处理后，init 阶段返回的exposedObject已经和提前暴露的早期引用不一致了，会报错。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutoProxyCreator</span> <span class="keyword">extends</span> <span class="title class_">ProxyProcessorSupport</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">SmartInstantiationAwareBeanPostProcessor</span>, BeanFactoryAware &#123;</span><br><span class="line">  <span class="comment">// 生成了早期引用的bean缓存，</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Object, Object&gt; earlyProxyReferences = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">	<span class="meta">@Override</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(<span class="meta">@Nullable</span> Object bean, String beanName)</span> &#123; </span><br><span class="line">		<span class="comment">// 如果 `bean` 为 `null`，则直接返回 `null`。</span></span><br><span class="line">		<span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;  </span><br><span class="line">			<span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);  </span><br><span class="line">			<span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean) &#123;  </span><br><span class="line">				<span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">		<span class="keyword">return</span> bean;  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">AbstractAutoProxyCreator</span> <span class="keyword">extends</span> <span class="title class_">ProxyProcessorSupport</span>  </span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">SmartInstantiationAwareBeanPostProcessor</span>, BeanFactoryAware &#123;</span><br><span class="line">	<span class="meta">@Override</span>  </span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(<span class="meta">@Nullable</span> Object bean, String beanName)</span> &#123;  </span><br><span class="line">		<span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;  </span><br><span class="line">			<span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);  </span><br><span class="line">			<span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean) &#123;  </span><br><span class="line">				<span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">		<span class="keyword">return</span> bean;  </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="5-解决方案"><a href="#5-解决方案" class="headerlink" title="5. 解决方案"></a>5. 解决方案</h1><ol>
+<li>使用合理的Bean注解</li>
+<li>使用@Lazy 注解</li>
+<li>重构你的代码</li>
+</ol>
+<h1 id="6参考文章"><a href="#6-参考文章" class="headerlink" title="6.参考文章"></a>6.参考文章</h1><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/cqkZEvmmh7jnNt2K5r_lXg">Spring循环依赖那些事儿（含Spring详细流程图）</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/DDgYHPChoo63-kL06PACog">一文详解 Spring Bean 循环依赖</a></p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/b4b9d0ea/">理解 Spring FacrotyBean</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%86%8D%E7%9C%8Bdocreatebean"><span class="toc-text">1. 再看doCreateBean</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-ifearlysingletonexposure"><span class="toc-text">1.1 if(earlySingletonExposure)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-bean-exposedobject-earlysingletonreference"><span class="toc-text">1.2 bean、exposedObject、earlySingletonReference</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%90%8C%E4%B8%80%E4%B8%AAbean%E5%AE%9E%E4%BE%8B-%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AAapc%E4%B8%8D%E4%BC%9A%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C"><span class="toc-text">1.3 同一个bean实例 的同一个APC不会重复执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#131-earlyproxyreferences"><span class="toc-text">1.3.1 earlyProxyReferences</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#132-earlyproxyreferencesremove"><span class="toc-text">1.3.2 earlyProxyReferences.remove</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%9C%89%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E7%9A%84%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="toc-text">2.  有动态代理的循环引用实例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E6%9C%89%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E7%9A%84%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">2.1 有动态代理的循环引用示例代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-springtransactionservice-%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-text">2.2 springTransactionService 实例化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#221-%E4%B8%89%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">2.2.1 三级缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#222-populate-with-userservice"><span class="toc-text">2.2.2 populate with  userService</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2221-getbeanuserservice"><span class="toc-text">2.2.2.1 getBean(userService)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2222-userservice-%E6%94%BE%E5%85%A5%E7%AC%AC%E4%B8%89%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">2.2.2.2 userService 放入第三级缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2223-userservice-populate-with-springtransactionservice"><span class="toc-text">2.2.2.3 userService populate with springTransactionService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2224-%E8%8E%B7%E5%8F%96springtransactionservice%E6%97%A9%E6%9C%9F%E5%BC%95%E7%94%A8"><span class="toc-text">2.2.2.4 获取springTransactionService早期引用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2225-userservice-init"><span class="toc-text">2.2.2.5 userService init</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2226-earlysingletonexposure"><span class="toc-text">2.2.2.6 earlySingletonExposure</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2227-%E4%B8%80%E7%BA%A7%E7%BC%93%E5%AD%98"><span class="toc-text">2.2.2.7 一级缓存</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#223-springtransactionservice-init"><span class="toc-text">2.2.3 springTransactionService  init</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#224-earlysingletonexposure"><span class="toc-text">2.2.4 earlySingletonExposure</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-abstractadvisingbeanpostprocessor-%E5%BC%95%E5%8F%91%E7%9A%84%E5%BC%82%E5%B8%B8"><span class="toc-text">3. AbstractAdvisingBeanPostProcessor 引发的异常</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-repository%E6%B3%A8%E8%A7%A3-persistenceexceptiontranslationpostprocessor"><span class="toc-text">3.1 @Repository注解-PersistenceExceptionTranslationPostProcessor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#311-%E6%9C%89%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E7%9A%84%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">3.1.1  有动态代理的循环引用示例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#getearlybeanreference"><span class="toc-text">getEarlyBeanReference</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#postprocessafterinitialization"><span class="toc-text">postProcessAfterInitialization</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#earlysingletonexposure"><span class="toc-text">earlySingletonExposure</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-async-asyncannotationbeanpostprocessor"><span class="toc-text">3.2 @Async-AsyncAnnotationBeanPostProcessor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#321-%E6%9C%89%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E7%9A%84%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="toc-text">3.2.1 有动态代理的循环引用示例代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#33-beanpostprocessor%E7%9A%84%E4%B8%8D%E5%90%8C%E8%BF%87%E6%BB%A4%E6%9D%A1%E4%BB%B6"><span class="toc-text">3.3 ## BeanPostProcessor的不同过滤条件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%AD%98%E5%9C%A8%E5%A4%9A%E4%B8%AA-abstractautoproxycreator"><span class="toc-text">4. 存在多个 AbstractAutoProxyCreator</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-getearlybeanreference"><span class="toc-text">4.1 getEarlyBeanReference</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-postprocessafterinitialization"><span class="toc-text">4.2 postProcessAfterInitialization</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">5. 解决方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">6.参考文章</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>
