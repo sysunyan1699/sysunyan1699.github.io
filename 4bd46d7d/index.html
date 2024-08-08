@@ -56,7 +56,7 @@
 <meta property="og:image" content="http://example.com/4bd46d7d/28.png">
 <meta property="og:image" content="http://example.com/4bd46d7d/29.png">
 <meta property="article:published_time" content="2024-08-01T11:14:25.000Z">
-<meta property="article:modified_time" content="2024-08-07T11:32:11.811Z">
+<meta property="article:modified_time" content="2024-08-08T01:59:45.223Z">
 <meta property="article:author" content="Sun Yan">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -108,7 +108,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-01T11:14:25.000Z">2024-08-01</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-07T11:32:11.811Z">2024-08-07</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-01T11:14:25.000Z">2024-08-01</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-08T01:59:45.223Z">2024-08-08</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -123,6 +123,7 @@
 <p>Spring Boot引入自动配置机制，只需要添加相关依赖，无需配置。这极大地简化了Spring应用的配置, 大幅减少了开发者的工作量,帮助开发者快速创建应用。</p>
 <p><code>SpringBoot</code>的自动配置是通过<code>@EnableAutoConfiguration</code>和<code>META-INF/spring.factories</code>文件实现的，而这些机制的底层依赖于<code>ConfigurationClassPostProcessor</code>来解析和注册自动配置类。</p>
 <p>本文会先介绍一些重要概念，然后进入<code>SpringApplication.run</code> 源码逐一串联起这些重要概念，以此来探讨<code>SpringBoot</code>自动配置机制 的实现原理。</p>
+<p>分析基于SpringBoot 2.3.4</p>
 <h1 id="1-enableautoconfiguration"><a href="#1-EnableAutoConfiguration" class="headerlink" title="1. @EnableAutoConfiguration"></a>1. @EnableAutoConfiguration</h1><p>是一个组合注解，<code>@EnableAutoConfiguration</code>是组合注解<code>@SpringBootApplication</code> 其中的一个注解， 其作用是启用自动配置机制</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.TYPE)</span>  </span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span>  </span><br><span class="line"><span class="meta">@Documented</span>  </span><br><span class="line"><span class="meta">@Inherited</span>  </span><br><span class="line"><span class="meta">@SpringBootConfiguration</span>  </span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span>  </span><br><span class="line"><span class="meta">@ComponentScan(excludeFilters = &#123; @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),  </span></span><br><span class="line"><span class="meta">@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) &#125;)</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootApplication &#123;&#125;</span><br></pre></td></tr></table></figure>
 <p>Spring框架提供的各种名字为@Enable开头的Annotat​ion，比如@EnableSchedul​ing、@EnableCaching、@EnableMBeanExport等，@EnableAutoConf​igurat​ion的理念和“做事方式”其实一脉相承，简单概括一下就是，它们的工作方式都是借助@Import的支持，收集和注册特定场景相关的bean定义：</p>
