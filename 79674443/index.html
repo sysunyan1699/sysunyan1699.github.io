@@ -1,0 +1,820 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>从HTTP到HTTPs, 如何实现加密传输 - Sun Yan</title>
+
+  
+    <meta name="description" content="本文参考《图解密码技术》， 从HTTPs 为什么比HTTP 安全的角度梳理多个和密码相关的知识点， 希望对你有帮助。 以下内容介绍，均基于Alice 向Bob 发送邮件为基础进行介绍 1. 前置知识1.1 计算机网络在了解密码具体知识前，需要先了解一下传输信息的计算机网络。主要有2点  计算机网络是分层的 网络传输依赖一系列中间设备 网络传输并不是简单的A点到B点的直接通信，而是依赖于一系列中间设">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从HTTP到HTTPs, 如何实现加密传输">
+<meta property="og:url" content="http://example.com/79674443/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="本文参考《图解密码技术》， 从HTTPs 为什么比HTTP 安全的角度梳理多个和密码相关的知识点， 希望对你有帮助。 以下内容介绍，均基于Alice 向Bob 发送邮件为基础进行介绍 1. 前置知识1.1 计算机网络在了解密码具体知识前，需要先了解一下传输信息的计算机网络。主要有2点  计算机网络是分层的 网络传输依赖一系列中间设备 网络传输并不是简单的A点到B点的直接通信，而是依赖于一系列中间设">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/79674443/1.png">
+<meta property="og:image" content="http://example.com/79674443/2.png">
+<meta property="og:image" content="http://example.com/79674443/3.png">
+<meta property="og:image" content="http://example.com/79674443/4.png">
+<meta property="og:image" content="http://example.com/79674443/5.png">
+<meta property="og:image" content="http://example.com/79674443/6.png">
+<meta property="og:image" content="http://example.com/79674443/7.png">
+<meta property="og:image" content="http://example.com/79674443/8.png">
+<meta property="article:published_time" content="2024-09-13T11:36:38.000Z">
+<meta property="article:modified_time" content="2024-09-22T11:51:12.024Z">
+<meta property="article:author" content="Sun Yan">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/79674443/1.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/79674443/"><span class="title">从HTTP到HTTPs, 如何实现加密传输</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/b4967540/"><span class="title">Spring 集成 Mybatis</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a><a class="item title" href="/114991e5/"><span class="title">Spring 启动过程 拓展点</span></a><a class="item title" href="/62d611ce/"><span class="title">不懂前端？用cursor 1小时也能写出一个可用的浏览器插件</span></a><a class="item title" href="/e15dc0/"><span class="title">饮料分级助手-糖脂ABCD分级计算器</span></a><a class="item title" href="/209fa7d3/"><span class="title">GPTs开发-Best English Name，帮你找到最合适、最满意的英文名</span></a><a class="item title" href="/99d433fa/"><span class="title">TrustMessage-基于2PC+MySQL+泛化调用实现的可靠消息中心</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-09-13T11:36:38.000Z">2024-09-13</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-09-22T11:51:12.024Z">2024-09-22</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>从HTTP到HTTPs, 如何实现加密传输</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p>本文参考《图解密码技术》， 从HTTPs 为什么比HTTP 安全的角度梳理多个和密码相关的知识点， 希望对你有帮助。</p>
+<p>以下内容介绍，均基于Alice 向Bob 发送邮件为基础进行介绍<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/1.png" class></p>
+<h1 id="1-前置知识"><a href="#1-前置知识" class="headerlink" title="1. 前置知识"></a>1. 前置知识</h1><h2 id="11-计算机网络"><a href="#1-1-计算机网络" class="headerlink" title="1.1 计算机网络"></a>1.1 计算机网络</h2><p>在了解密码具体知识前，需要先了解一下传输信息的计算机网络。<br>主要有2点</p>
+<ol>
+<li>计算机网络是分层的</li>
+<li>网络传输依赖一系列中间设备 网络传输并不是简单的A点到B点的直接通信，而是依赖于一系列中间设备。</li>
+<li>当我们在互联网上发送数据时（例如发送一封电子邮件），数据不会以单一的整体方式进行传输。相反，它会被拆分成许多小的“数据包”（packets），每个数据包包含发送方、接收方以及数据本身的一部分。这些数据包会经过复杂的路径传输，最终在目标设备处重新组合，恢复成完整的消息。</li>
+</ol>
+<h3 id="111-计算机网络是分层的"><a href="#1-1-1-计算机网络是分层的" class="headerlink" title="1.1.1 计算机网络是分层的"></a>1.1.1 计算机网络是分层的</h3><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/2.png" class>
+<h3 id="112-网络传输依赖于一系列中间设备"><a href="#1-1-2-网络传输依赖于一系列中间设备" class="headerlink" title="1.1.2 网络传输依赖于一系列中间设备"></a>1.1.2 网络传输依赖于一系列中间设备</h3><p>网络传输并不是简单的A点到B点的直接通信，而是依赖于一系列中间设备。这些中间设备包括路由器、交换机、服务器、网关等，它们共同协作以确保数据包能够从源点传输到目标点。</p>
+<p>在此过程中，每个中间设备都有可能成为窃听的切入点。为了理解这些中间设备如何导致窃听的可能性，我们先从网络的工作原理开始，然后逐步深入探讨中间设备如何影响数据的安全性。</p>
+<p>为了使数据从A点传输到B点，它必须经过多个中间设备，这些设备主要包括：</p>
+<ul>
+<li><strong>路由器（Router）</strong>：路由器在不同网络之间转发数据，它通过读取数据包中的目标地址来决定数据包应该被发送到哪个下一跳路由器。路由器实际上是决定数据传输路径的关键设备。</li>
+<li><strong>交换机（Switch）</strong>：交换机通常在局域网（LAN）中使用，它负责根据数据包中的MAC地址在局域网内部的设备之间转发数据。</li>
+<li><strong>防火墙（Firewall）</strong>：防火墙用于监控网络流量，阻止不安全或未经授权的通信。虽然防火墙并不负责路由，但它是数据包在传输时必须经过的设备之一，它在数据包进入或离开网络时检查流量。</li>
+<li><strong>网关（Gateway）</strong>：网关是网络中的特殊设备，它负责在不同网络协议或不同网络之间转换数据。它们通常位于不同类型网络的边界上。</li>
+<li><strong>服务器</strong>：在某些情况下，数据包可能会通过中间服务器进行处理。例如，当你发送电子邮件时，邮件首先被发送到邮件服务器，然后服务器根据接收者的地址将其传送到目标邮件服务器。</li>
+</ul>
+<p>数据包在互联网中传输时，必须经过这些中间设备，依靠它们来找到最终的目标地址。因此，网络传输并不是简单的两台设备直接通信，而是通过一系列中间设备和多次转发实现的。</p>
+<h2 id="12-加密安全特性"><a href="#1-2-加密安全特性" class="headerlink" title="1.2 加密安全特性"></a>1.2 加密安全特性</h2><p>现代加密系统关注的一些安全特性：</p>
+<ol>
+<li>消息的机密性（Confidentiality）：指确保消息在传输过程中不会被未授权的第三方窃取，即使被窃取，也无法解读消息的真正含义。</li>
+<li>消息的完整性/防篡改（Integrity）： 是指确保消息在传输过程中没有被修改。如果消息被篡改，接收方应该能够识别出这一点。</li>
+<li>消息的认证（Authentication）：认证是指确认消息的发送者是谁，确保接收方能够识别消息的合法发送者。这意味着接收方可以确信消息确实是来自声称的发送者，而不是来自其他未授权的第三方。</li>
+<li>消息发送者的认证与防止否认（Non-repudiation）：指一旦确定消息来自某个发送者，发送者就不能否认自己发送了这条消息。也就是说，发送方在发送消息后，无法声称自己没有发送过该消息。</li>
+</ol>
+<h2 id="13-密码学工具箱"><a href="#1-3-密码学工具箱" class="headerlink" title="1.3 密码学工具箱"></a>1.3 密码学工具箱</h2><ol>
+<li>对称加密</li>
+<li>非对称加密</li>
+<li>消息认证码</li>
+<li>数字签名</li>
+<li>单向散列函数</li>
+<li>伪随机数</li>
+</ol>
+<h2 id="14-加密算法-机密性"><a href="#1-4-加密算法-机密性" class="headerlink" title="1.4 加密算法-机密性"></a>1.4 加密算法-机密性</h2><p>加密与摘要的本质区别就在于，摘要是不可逆的，而加密是可逆的，逆过程就是解密。</p>
+<p>在经典密码学时代，加密的安全主要是依靠机密性来保证的，也就是依靠保护加密算法或算法的执行参数不被泄露，来保障信息的安全。而现代密码学并不依靠机密性，加解密算法都是完全公开的，信息的安全是建立在特定问题的计算复杂度之上。具体来说，就是算法根据输入端计算输出结果，这里耗费的算力资源很小；但根据输出端的结果反过来推算原本的输入，耗费的算力就极其庞大。</p>
+<h3 id="141-对称加密算法"><a href="#1-4-1-对称加密算法" class="headerlink" title="1.4.1 对称加密算法"></a>1.4.1 对称加密算法</h3><p>加密、解密使用同一个密钥 称之为对称加密。</p>
+<p>就像我们用保险箱存取贵重物品一样，存的时候用一把钥匙打开门把贵重物品放进去，取的时候 也是用同一把钥匙打开门把贵重物品取出来。</p>
+<h4 id="常见的对称加密算法"><a href="#常见的对称加密算法" class="headerlink" title="常见的对称加密算法"></a>常见的对称加密算法</h4><p><strong>DES</strong></p>
+<p>DES 是一种分组加密算法，采用64位的明文分组进行加密，并且使用56位的密钥进行加密操作（虽然密钥的实际长度是64位，但其中8位用于校验）。<br>现代计算能力可以在短时间内通过暴力破解尝试所有可能的密钥，从而解密DES加密的数据。因此，DES在现代已被视为不安全的加密算法。</p>
+<p><strong>三重DES</strong><br>3DES是为了增强DES的安全性而设计的。它通过重复DES加密过程三次来提高加密强度，从而克服了DES密钥过短的问题。<br>3DES使用三个不同的56位密钥，进行三轮DES加密解密操作：首先使用第一个密钥加密数据，然后用第二个密钥解密，最后再用第三个密钥加密。这个过程可以有效地增强DES的加密强度。</p>
+<p>虽然3DES比DES安全，但是计算速度也更慢，所以在现代应用中，除一些遗留系统外，它已经被更新的加密标准AES所取代</p>
+<p><strong>AES</strong><br>AES是目前最常用的对称加密算法，并被广泛用于政府、金融、军事和商业应用中。它已经取代了DES和3DES，成为主流的加密标准。</p>
+<p>AES是一种分组加密算法，支持128位、192位或256位的密钥长度，且使用128位的固定分组大小。</p>
+<h4 id="分组加密"><a href="#分组加密" class="headerlink" title="分组加密"></a>分组加密</h4><p>从前面的描述中可以看到，DES 和AES 都属于分组加密算法，他们只能加密固定长度的明文， 如果需要加密任意长度的明文，就需要将明文分组然后加密迭代。</p>
+<p>分组加密算法有多种工作模式，包括ECB、CBC、CFB、OFB、CTR</p>
+<h3 id="142-非对称加密算法"><a href="#1-4-2-非对称加密算法" class="headerlink" title="1.4.2 非对称加密算法"></a>1.4.2 非对称加密算法</h3><p>加密、解密使用不同的密钥 称之为非对称加密。<br>加密过程使用的密钥通常称之为私钥，解密过程使用的密钥通常称之为公钥</p>
+<p>公钥和私钥确实是通过特定的数学算法生成的密钥对，它们紧密相连</p>
+<ul>
+<li><strong>公钥加密、私钥解密</strong>：在典型的加密场景中（如RSA加密），公钥用于加密数据，私钥用于解密数据。这使得任何拥有公钥的人都可以加密数据，但只有拥有私钥的人可以解密。</li>
+<li><strong>私钥签名、公钥验证</strong>：在数字签名场景中，私钥用于对数据进行签名，公钥用于验证签名的真实性。也就是说，私钥生成的签名可以被公钥验证，而不泄露私钥。</li>
+<li><ol>
+<li><strong>公钥加密，私钥解密，这种就是加密</strong>，用于向私钥所有者发送信息，这个信息可能被他人篡改，但是无法被他人得知。举个例子，如果甲想给乙发一个安全保密的数据，那么应该甲乙各自有一个私钥，甲先用乙的公钥加密这段数据，再用自己的私钥加密这段加密后的数据，最后再发给乙。这样确保了内容既不会被读取，也不能被篡改。</li>
+</ol>
+</li>
+</ul>
+<ol>
+<li><strong>私钥加密，公钥解密，这种就是签名</strong>，用于让所有公钥所有者验证私钥所有者的身份，并能用来防止私钥所有者发布的内容被篡改。但是它不用来保证内容不被他人获得。</li>
+</ol>
+<p><strong>缺点</strong></p>
+<ol>
+<li>加密效率低且不能直接用于大量数据的加密。因此非对称加密算法，并不适合直接用户加密传输大量明文</li>
+<li>无法解决中间人攻击，具体内容放在下面说</li>
+</ol>
+<p><strong>密传输问题</strong><br>公钥的传输依然有可能被第三方获取， 从而导致中间人攻击，后面会具体介绍。</p>
+<h3 id="143-单向散列函数-识别篡改"><a href="#1-4-3-单向散列函数-识别篡改" class="headerlink" title="1.4.3 单向散列函数-识别篡改"></a>1.4.3 单向散列函数-识别篡改</h3><p>一般这个性质叫做防篡改， 我觉得叫做识别篡改更准确。</p>
+<p><strong>单向散列函数</strong>（也称为哈希函数）不能<strong>主动</strong>防止内容的篡改，但它可以通过生成固定长度的哈希值来<strong>检测</strong>内容是否被篡改。</p>
+<p>单向散列函数的主要特点：</p>
+<ol>
+<li><strong>固定长度输出</strong>：无论输入数据的长度如何，散列函数生成的哈希值长度总是固定的。比如SHA-256总是输出256位的哈希值。</li>
+<li><strong>单向性</strong>：散列函数是单向的，意味着很难从哈希值反推原始数据。</li>
+<li><strong>相同输入相同输出</strong>：如果两次输入的数据相同，那么散列函数的输出也一定相同。</li>
+<li><strong>微小的输入变化会导致完全不同的输出</strong>：称为“雪崩效应”，即使输入数据只有一个比特的变化，生成的哈希值也会完全不同。</li>
+</ol>
+<p><strong>单向散列函数</strong>是一种将任意长度的输入（如文件、消息）映射为固定长度输出（称为哈希值、消息摘要）的算法。常见的单向散列函数有：</p>
+<ul>
+<li><strong>MD5</strong>（虽然已经被认为不安全）</li>
+<li><strong>SHA-1</strong>（也已不推荐使用）</li>
+<li><strong>SHA-256</strong>、<strong>SHA-3</strong> 等较新的哈希算法</li>
+</ul>
+<h3 id="144-消息认证码-识别篡改-amp-认证"><a href="#1-4-4-消息认证码-识别篡改-amp-认证" class="headerlink" title="1.4.4 消息认证码-识别篡改 &amp; 认证"></a>1.4.4 消息认证码-识别篡改 &amp; 认证</h3><p><strong>消息认证码（MAC, Message Authentication Code）</strong> 是一种通过共享的对称密钥生成的固定长度的校验值，用于确保消息的<strong>完整性</strong>和<strong>认证性</strong>。MAC的主要功能是：</p>
+<ul>
+<li><strong>完整性</strong>：指的是数据在传输过程中是否被篡改。MAC通过计算消息的哈希值并结合共享密钥生成一个认证码（MAC值）。接收方使用同样的密钥计算MAC值并与接收到的MAC值进行对比，从而确认消息是否被篡改。</li>
+<li><strong>认证性</strong>：由于MAC是基于双方共享的对称密钥生成的，只有持有该密钥的合法发送者才能生成正确的MAC值，因此接收方可以通过验证MAC值来确认消息的发送者是持有密钥的合法参与者。</li>
+</ul>
+<p><strong>消息认证码（MAC）</strong> 的两个主要特性都是基于<strong>共享密钥的安全性</strong>来实现的。如果共享的密钥被第三方窃取，MAC的这两个特性就不复存在。</p>
+<p>尽管在密钥安全的前提下，MAC能够识别篡改和认证消息的发送者身份，但它存在一个明显的局限性：<strong>无法防止消息发送者的否认</strong>，这在密码学中称为<strong>不可否认性（Non-repudiation）</strong>。</p>
+<p>在使用MAC时，发送方和接收方都持有相同的对称密钥，这意味着：</p>
+<ul>
+<li>接收方和发送方都可以生成和验证相同的MAC值。由于双方共享相同的密钥，任何一方都可以计算出有效的MAC。</li>
+<li>如果发送方之后否认曾发送过某条消息，接收方没有办法证明发送方确实发送了这条消息，因为接收方自己也可以生成相同的MAC值。</li>
+</ul>
+<p>因此，消息认证码不能提供<strong>不可否认性</strong>。在法律或信任系统中，接收方无法向第三方（如法庭）证明某个特定消息是由发送方发出的，因为双方共享同一个密钥，任何一方都可以生成有效的MAC。这使得发送者有可能否认曾发送消息，或者接收方可能伪造消息并声称是发送方发送的。</p>
+<h3 id="145-数字签名-认证-amp-防止否认"><a href="#1-4-5-数字签名-认证-amp-防止否认" class="headerlink" title="1.4.5 数字签名-认证 &amp; 防止否认"></a>1.4.5 数字签名-认证 &amp; 防止否认</h3><p>数字签名依赖于非对称加密的核心机制，即使用<strong>私钥</strong>进行签名、使用<strong>公钥</strong>进行验证，从而能够完成认证不可否认两个特性。</p>
+<p>如果签名验证通过，接收方可以确认消息确实来自持有该私钥的发送者。这就是<strong>认证性</strong>，即确保消息的发送者身份是真实的。</p>
+<p>由于只有私钥持有者能够生成有效的签名，发送方无法否认自己曾经对消息进行过签名。这就是<strong>不可否认性</strong>。</p>
+<h3 id="146-消息认证码认证-vs-数字签名认证"><a href="#1-4-6-消息认证码认证-vs-数字签名认证" class="headerlink" title="1.4.6 消息认证码认证 vs 数字签名认证"></a>1.4.6 消息认证码认证 vs 数字签名认证</h3><p>MAC（消息认证码）通过共享的密钥，认证消息确实来自通信对方，但是它一个非常大的缺点就是没有强身份认证，即不认证具体身份</p>
+<ol>
+<li>由于双方共享同一个密钥，MAC 只能证明消息来自拥有该密钥的一方，但如果多个实体共享同一个密钥，无法确定到底是哪一个实体发送的消息。也就是说，MAC 没有强身份认证功能，无法防止发送者后来否认自己发出的消息（不可否认性问题）。</li>
+<li>同时由于没有身份认证，在密钥泄漏的情况下，也无法识别中间人攻击</li>
+</ol>
+<p>数字签名则提供了一种强身份认证的认证类型，确保消息来自某个具体的发送者， 同时可以防止否认</p>
+<h1 id="2-http-通信使用明文可能会被窃听"><a href="#2-HTTP-通信使用明文可能会被窃听" class="headerlink" title="2. HTTP -通信使用明文可能会被窃听"></a>2. HTTP -通信使用明文可能会被窃听</h1><p>Alice 发出的邮件通过计算机网络传输给Bob, 邮件传输的过程中需要经过一系列中间设备。这些设备或节点被恶意控制或监控，那么邮件就有可能被窃听。<br>黑客或其他有恶意意图的人，可以在这些节点上安装窃听软件，或者通过物理方式接入网络来截获数据, 进而做篡改或者中间人攻击等</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/3.png" class>
+<p>既然窃听是因为网络传输需要经过设备造成的，那么一种理想的解决办法就是，点对点通信。</p>
+<p>如果Alice和Bob的计算机之间有一个完全物理隔离的、私有的连接（比如一根专线或者光纤），且中间没有任何其他设备介入，那么窃听的风险将会大幅减少。</p>
+<p>这样的情况在一些高安全性、需要严格保密的环境中确实有可能实现，像是军事用途、金融系统内部的特殊通信等。但实现成本非常高。</p>
+<p>且即便完全避免中间设备的参与没有经过加密处理的数据在传输过程中被截获（例如通过物理入侵或电磁信号泄漏），信息同样可能被窃听。</p>
+<p>因此，关键的问题不仅在于是否经过中间设备，而是 <strong>通信的安全性依赖于数据加密技术的有效性</strong>。</p>
+<p>而现代密码学并不依靠机密性，加解密算法都是完全公开的，信息的安全是建立在特定问题的计算复杂度之上。具体来说，就是算法根据输入端计算输出结果，这里耗费的算力资源很小；但根据输出端的结果反过来推算原本的输入，耗费的算力就极其庞大。</p>
+<h2 id="21-对称加密-保证消息机密性"><a href="#2-1-对称加密-保证消息机密性" class="headerlink" title="2.1 对称加密-保证消息机密性"></a>2.1 对称加密-保证消息机密性</h2><p>由于在HTTP中一切信息都是明文传输，一旦发生窃听，第三个人立马就能读懂其中的含义。</p>
+<p>那如果信息发送者Alice 将内容加密，Bob 收到信息解密后再阅读内容， 则第三方即使窃听到传输内容，也读不懂，是不是就可以保证传输内容不泄漏了？</p>
+<p>是的，这是一个思路，这里可以使用高效的对称加密算法算法。</p>
+<h2 id="22-非对称加密算法-安全传输密钥"><a href="#2-2-非对称加密算法-安全传输密钥" class="headerlink" title="2.2 非对称加密算法-安全传输密钥"></a>2.2 非对称加密算法-安全传输密钥</h2><p>在使用对称加密算法高效加密明文时保证机密性的思路中，存在一个问题， 这个密钥如何被Alice 和Bob 双方安全共享。</p>
+<p>假设Alice 生成了密钥，Bob 也必须获取到才能进行解密，否则就和窃听者一样即使拿到邮件内容也无法得知其含义。</p>
+<p>Bob 如何获取到密钥，无非就2种方式</p>
+<ol>
+<li>俩人见面，线下给密钥</li>
+<li>网络传输密钥</li>
+</ol>
+<p>本文我们可以规定一切行为都发生在网络上， 那么通过网络传输密钥时依然是明文，也就是说窃听者可以通过和窃听邮件内容一样的方式获取到明文传递的密钥。</p>
+<p>关于密钥被窃听有2种应对方式</p>
+<ol>
+<li>钻牛角尖思考，到底有什么方法可以让密钥安全传输呢 - 基本无解，有解的话直接传输内容本身就可以了</li>
+<li>换个思路，即使密钥被窃听到也不影响内容加密传输是不是也可以 。 那这里就可以非对称加密算法</li>
+</ol>
+<p>非对称加密算法 有2种用法</p>
+<ol>
+<li>公钥加密，私钥解密 - 对应加密场景</li>
+<li>私钥加密，公钥解密 -  对应数字签名场景</li>
+</ol>
+<p>在本小节中，先关注<strong>公钥加密、私钥解密</strong>这种场景，</p>
+<p>如下图， 如果Alice 想给Bob 发送加密消息，需要Bob先将他的公钥通过网络明文传输给Alice,  这个过程公钥即使被窃听到也没关系</p>
+<p>因为窃听者没有解密私钥，后面即使窃听到Alice 发给Bob 的加密信息，也无法解密用公钥加密后的内容。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/4.png" class>
+<h2 id="23-混合加密系统-既安全又高效"><a href="#2-3-混合加密系统-既安全又高效" class="headerlink" title="2.3 混合加密系统-既安全又高效"></a>2.3 混合加密系统-既安全又高效</h2><p>根据前面的内容可以看出</p>
+<ol>
+<li>对称加密算法可以使用分组方式，对大量明文进行高效加密，但是其密钥本身的安全传输是一个问题</li>
+<li>非对称密钥 很好的解决了对称加密密钥被窃取的问题，但是它又不适合用户对大量明文进行加密</li>
+</ol>
+<p>可以考虑将二者的优点结合形成混合加密系统。</p>
+<p><strong>混合加密系统</strong>通过利用非对称加密的强大安全性和对称加密的高效性，能够实现既安全又高效的数据加密。</p>
+<p>其核心思想是分为2步</p>
+<ol>
+<li><strong>密钥交换</strong>：使用非对称加密（如RSA或ECC）来加密和交换对称加密密钥。由于非对称加密仅用于加密短小的对称密钥（如AES的256位密钥），计算开销较小，速度相对可接受。</li>
+<li><p><strong>数据加密</strong>：一旦通过非对称加密安全地交换了对称密钥，实际的数据传输就使用高效的对称加密算法（如AES）。对称加密的加密速度非常快，能够处理大量的数据，适用于文件加密、实时视频流加密等场景。</p>
+</li>
+<li><p><strong>安全性和性能的平衡</strong>：这种方法兼具了非对称加密的安全性（用于密钥交换）和对称加密的效率（用于大数据加密），是现代安全通信的基础。HTTPS、SSH、PGP等安全协议都采用了这种混合加密模型。</p>
+</li>
+</ol>
+<h2 id="24-消息认证码-既防篡改又能认证"><a href="#2-4-消息认证码-既防篡改又能认证" class="headerlink" title="2.4 消息认证码-既防篡改又能认证"></a>2.4 消息认证码-既防篡改又能认证</h2><p>防篡改和认证性质的实现见上文。</p>
+<h2 id="25-数字签名-无法否认且能认证"><a href="#2-5-数字签名-无法否认且能认证" class="headerlink" title="2.5 数字签名-无法否认且能认证"></a>2.5 数字签名-无法否认且能认证</h2><p>如果Alice使用Bob 的公钥加密消息发送给Bob, 如何能确定这条消息一定是Alice发出的，因为窃听者同样可以拿到Bob 的公钥，然后以Alice 的口吻向Bob 发送消息。Bob 如何确定一条消息一定是Alice 发出的， 而不是窃听者冒充Alice 发出的。</p>
+<p>这里可以使用非对称加密：私钥加密，公钥验证这个流程 ， 完成数字签名的功能，来保证消息一定是Alice 发出的， 且Alice 无法否认自己发出过这条消息。</p>
+<p>关于私钥加密，公钥验证为什么就能保证消息就一定是私钥持有者发出的</p>
+<p>当然，物理世界中私钥被窃取，在加密这样的网络世界是管不到的</p>
+<h2 id="26-中间人攻击下公钥的认证问题"><a href="#2-6-中间人攻击下，公钥的认证问题" class="headerlink" title="2.6 中间人攻击下，公钥的认证问题"></a>2.6 中间人攻击下，公钥的认证问题</h2><p>由于非对称加密中公钥需要通过网络明文传输给Alice， 那么就是可以被窃听获取到的。</p>
+<p>此时如果有一个主动攻击者Molly 自己也生成一个非对称加密密钥对， 他在窃取到Bob传递给Alice 后公钥后， 篡改成自己的公钥发送非Alice， 此时Alice  没有什么手段可以判断这个公钥到底是不是Bob, 他如果直接拿来加密内容，传输给Bob,  Molly 继续窃取这个内容，由于Alice实际用来加密的公钥匙Molly 的， 此时Molly 就可以用自己的私钥进行解密获取具体内容。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/5.png" class>
+<p><strong>中间人攻击的风险</strong>：</p>
+<ul>
+<li><strong>公钥篡改</strong>：如果 Alice 想与 Bob 通信，但攻击者（Mallory）冒充 Bob 拦截了 Alice 请求的公钥，并替换为自己的公钥。Alice 会误以为她在使用 Bob 的公钥加密信息，但实际上传输的对称密钥被 Mallory 用自己的私钥解密。</li>
+<li><strong>认证性问题</strong>：Alice 需要确认她收到的公钥<strong>确实是 Bob 的</strong>，而不是来自攻击者。因此，<strong>公钥的认证</strong>是一个关键问题。</li>
+</ul>
+<p>基于以上解释，你应该可以理解， 公钥的“安全配送”并不是像对称加密密钥的安全配送那样，不被人窃取， 而是在明文传输的前提下，即使被窃取，收到公钥的人也要能识别出来，也就是说Alice 在收到公钥后，要能100%确定 这个公钥一定是Bob 的， 如果被中间人窃听篡改了，Alice 需要识别出来，不用这个公钥。</p>
+<p>如果仍然考虑公钥的网络安全传输问题，将继续陷入“如果能安全传输密钥，那就肯定能安全传输明文”的死循环。</p>
+<p>为了打破这个循环，引入<strong>第三方可信机构</strong>成为了解决方案的关键。具体来说，这一机构就是<strong>证书颁发机构（CA, Certificate Authority）</strong>，它的作用是通过公钥基础设施（PKI, Public Key Infrastructure）来验证和管理公钥，确保公钥的传输是安全的。</p>
+<h3 id="261-ca-公钥的数字签名"><a href="#2-6-1-CA-公钥的数字签名" class="headerlink" title="2.6.1 CA-公钥的数字签名"></a>2.6.1 CA-公钥的数字签名</h3><p>数字证书认证机构(CA,Certificate Authority)。数字证书认证机构处于客户端与服务器双方都可信赖的第三方机构的立场上。</p>
+<ul>
+<li><strong>证书颁发机构（CA）如何工作</strong>：<ol>
+<li><strong>身份验证</strong>：Bob 向 CA 提交身份信息和公钥，申请一个<strong>数字证书</strong>。CA 验证 Bob 的身份，确认公钥确实属于 Bob。这个身份验证可以是电话、邮箱等方式</li>
+<li><strong>签发证书</strong>：CA使用自己的私钥 对 Bob 的身份和公钥进行数字签名，生成一个<strong>数字证书</strong>，并将该证书发给 Bob。证书中包含 Bob 的身份信息、他的公钥，以及 CA 的数字签名。</li>
+<li><strong>公钥验证</strong>：Alice 在与 Bob 通信时，收到 Bob 提供的数字证书。她可以使用 CA 的公钥验证证书的签名，确保她获得的公钥<strong>没有被篡改</strong>，从而防止中间人攻击。即使攻击者在传输过程中试图篡改公钥，Alice 也能通过验证 CA 的签名识别出这种篡改。</li>
+</ol>
+</li>
+</ul>
+<h3 id="262-ca公钥的获取-操作系统和浏览器预装的根证书"><a href="#2-6-2-CA公钥的获取-操作系统和浏览器预装的根证书" class="headerlink" title="2.6.2 CA公钥的获取-操作系统和浏览器预装的根证书"></a>2.6.2 CA公钥的获取-操作系统和浏览器预装的根证书</h3><p>在<strong>证书颁发机构（CA）</strong> 的工作流程中，Alice 需要使用 CA 的<strong>公钥</strong>来验证 Bob 的数字证书是否有效，从而确保 Bob 的公钥未被篡改。那么Alice 如何获取 CA 的公钥呢？<br>实际上，Alice 不需要主动从网络上获取 CA 的公钥，因为这样会产生安全隐患。相反，CA 的公钥通常通过<strong>操作系统和浏览器预装的根证书</strong></p>
+<p>现代操作系统和浏览器（如 Windows、macOS、Linux，Chrome、Firefox、Safari 等）通常都会预装一组<strong>可信任的根证书</strong>，这些根证书由全球广泛认可的证书颁发机构（CA）提供。每个根证书都包含 CA 的<strong>公钥</strong>，并被操作系统或浏览器标记为可信任的。</p>
+<p><strong>根证书的作用：</strong></p>
+<ul>
+<li><strong>CA 的身份认证</strong>：根证书是 CA 的<strong>自签名证书</strong>，它包含 CA 的身份信息和公钥，以及 CA 自己用其私钥对证书签名的数字签名。因为这些证书是由操作系统或浏览器厂商直接植入的，Alice 可以信任这些根证书中的公钥。</li>
+<li><strong>验证链证书的可信度</strong>：当 Alice 收到 Bob 的数字证书时，Bob 的证书通常是由中间 CA 签发的，而中间 CA 的证书会由上一级的 CA 签发，最终形成一个<strong>信任链</strong>。通过验证链中的证书，Alice 可以逐级追溯到操作系统或浏览器中内置的根证书，从而验证 Bob 的证书。</li>
+</ul>
+<p><strong>预装根证书的好处：</strong></p>
+<ul>
+<li><strong>安全性</strong>：根证书是直接通过操作系统和浏览器厂商提供的，因此这些公钥的获取过程是安全的，不需要通过网络传输，避免了中间人攻击的风险。</li>
+<li><strong>自动验证</strong>：当 Alice 在浏览器中访问一个网站（如 Bob 的网站）时，浏览器会自动使用系统或浏览器中的根证书来验证该网站证书的可信度，无需 Alice 手动获取或验证 CA 的公钥。</li>
+</ul>
+<h1 id="3-密钥交换方法"><a href="#3-密钥交换方法" class="headerlink" title="3. 密钥交换方法"></a>3. 密钥交换方法</h1><p>通过CA 解决了公钥的认证问题，下面来总结一下，对称加密算法中密钥的安全传输问题。<br>密钥交换一般有以下4种方式</p>
+<ol>
+<li>公钥密码交换算法</li>
+<li>Diffie-Hellman 密钥交换算法</li>
+<li>使用密钥分配中心</li>
+<li>事先共享密钥</li>
+</ol>
+<h2 id="31-公钥密码交换算法"><a href="#3-1-公钥密码交换算法" class="headerlink" title="3.1 公钥密码交换算法"></a>3.1 公钥密码交换算法</h2><p>即我们在前面介绍的混合加密系统中，在公钥认证问题解决的前提下， 通过非对称加密算法加密传输密钥</p>
+<h2 id="32-diffie-hellman-密钥交换"><a href="#3-2-Diffie-Hellman-密钥交换" class="headerlink" title="3.2 Diffie-Hellman 密钥交换"></a>3.2 Diffie-Hellman 密钥交换</h2><p>Diffie-Hellman（DH）密钥交换协议是一种<strong>安全密钥交换</strong>的方法，它允许两个不相互信任的实体在不预先共享密钥的情况下，通过一个不安全的信道生成共享的加密密钥。该方法依赖于特定的数学问题（如大整数的离散对数问题），这些问题在现有计算能力下很难快速破解，因此确保了密钥交换的安全性。</p>
+<ol>
+<li><strong>公用参数选择</strong>：首先，通信双方A和B选择一个公共的素数<code>p</code>和一个基数<code>g</code>，这些值可以在公共信道中传输，无需保密。</li>
+<li><strong>生成私钥</strong>：双方分别选择一个私有的随机数<code>a</code>（A的私钥）和<code>b</code>（B的私钥），这些值不会在通信中公开。</li>
+<li><strong>计算共享值</strong>：A计算<code>A_value = g^a mod p</code>，B计算<code>B_value = g^b mod p</code>。然后A和B将各自的计算结果通过公共信道交换</li>
+</ol>
+<h2 id="33-事先共享密钥pre-shared-key-psk"><a href="#3-3-事先共享密钥（Pre-shared-Key-PSK）" class="headerlink" title="3.3  事先共享密钥（Pre-shared Key, PSK）"></a>3.3  事先共享密钥（Pre-shared Key, PSK）</h2><p>事先共享密钥（PSK）是一种传统的加密方法。在这种方式中，通信双方需要<strong>预先通过某种安全途径</strong>共享一个密钥。这个密钥可以通过线下物理方式进行传输，例如通过安全的信道、面对面的会晤、信件或电话。这种方式通常用于小范围或高度安全的环境中，例如在公司内部网络、军事通信或物联网设备之间。</p>
+<ol>
+<li><strong>密钥生成</strong>：首先，通信的双方需要决定一个共享的加密密钥。这通常是在一个安全的环境中产生的。</li>
+<li><strong>线下共享</strong>：这个密钥不能通过不安全的渠道传输，因此通常通过物理方式或事先商定的安全信道传递。双方在建立通信前必须获取该密钥。</li>
+<li><strong>使用密钥加密通信</strong>：一旦双方获得密钥，通信过程便使用该密钥进行加密和解密。通常是使用对称加密算法（如AES或DES），因为这些算法对加密和解密使用的是同一个密钥。</li>
+<li><strong>更新或更换密钥</strong>：如果密钥有泄露的风险，双方需要通过安全的方式再次共享新的密钥。</li>
+</ol>
+<h2 id="34-使用密钥分配中心key-distribution-center-kdc"><a href="#3-4-使用密钥分配中心（Key-Distribution-Center-KDC）" class="headerlink" title="3.4  使用密钥分配中心（Key Distribution Center, KDC）"></a>3.4  使用密钥分配中心（Key Distribution Center, KDC）</h2><p>密钥分配中心（KDC）是一种集中化的密钥共享方式，适用于大规模网络环境，尤其是<strong>对称加密</strong>的环境中。KDC 是一个专用的服务器，负责管理和分发加密密钥。在这种架构中，参与通信的各方不需要直接相互共享密钥，而是通过一个可信的第三方KDC来管理密钥的分发和验证。这种方式可以有效减少直接共享密钥的复杂性和安全风险。</p>
+<ol>
+<li><strong>注册</strong>：首先，每个通信方需要在KDC注册，KDC为每个实体分配一个唯一的密钥（通常是与KDC共享的会话密钥）。</li>
+<li><strong>请求通信密钥</strong>：当两个实体（比如A和B）想要通信时，A会向KDC请求与B通信所需的会话密钥。</li>
+<li><strong>密钥分发</strong>：KDC生成一个新的会话密钥，并通过<strong>加密的方式分别传递给A和B</strong>。例如，KDC会用A的密钥加密会话密钥并发送给A，用B的密钥加密会话密钥并发送给B。</li>
+<li><strong>安全通信</strong>：在获得会话密钥后，A和B可以使用该密钥进行加密通信。</li>
+<li><strong>密钥刷新</strong>：KDC可以在需要时生成新的密钥，并通知通信双方。</li>
+</ol>
+<p>优点</p>
+<ul>
+<li><strong>安全集中管理</strong>：所有密钥的管理和分配由一个可信的中心控制，简化了密钥管理过程，减少了潜在的泄露风险。</li>
+<li><strong>扩展性好</strong>：在大规模网络中，无需每对通信方直接共享密钥，可以由KDC动态生成和分发密钥。</li>
+<li><strong>灵活性高</strong>：可以灵活地控制密钥的生效时间和使用权限，提高安全性。</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li><strong>单点故障问题</strong>：KDC 作为系统中的核心，如果KDC出现故障，整个系统将无法正常工作，甚至可能导致所有通信被中断。</li>
+<li><strong>需要高度信任的第三方</strong>：通信双方必须完全信任KDC，任何KDC的漏洞或恶意行为都会破坏系统的安全性。</li>
+<li><strong>性能瓶颈</strong>：KDC 需要处理大量的密钥分发请求，可能会成为系统的性能瓶颈。</li>
+</ul>
+<h1 id="4-网络传输安全层-ssltls"><a href="#4-网络传输安全层-SSL-TLS" class="headerlink" title="4. 网络传输安全层 -SSL/TLS"></a>4. 网络传输安全层 -SSL/TLS</h1><p>由以上分步骤一一解决HTTP  明文传输中存在的问题可以看出，解决过程是复杂且繁琐的， 但是沿用网络分层的概念，在传输层和应用层之间抽象出一个安全层，可以隐藏这个复杂且繁琐的过程， 这个安全层就是我们熟悉的SSL/TLS。</p>
+<p>SSL/TLS 是用于保护通信安全的协议，旨在提供<strong>机密性</strong>（通过加密）、<strong>完整性</strong>（防止数据篡改）、<strong>身份认证</strong>（确认通信双方的身份）和<strong>不可否认性</strong>（防止消息发送者否认发送过消息）。这些目标依赖于多种密码学工具的有机组合。</p>
+<p>加密传输的HTTPs =HTTP + SSL/TLS</p>
+<h2 id="41-ssltls-发展历史"><a href="#4-1-SSL-TLS-发展历史" class="headerlink" title="4.1 SSL/TLS 发展历史"></a>4.1 SSL/TLS 发展历史</h2><p>构建传输安全层这个想法，几乎可以说是和万维网的历史一样长，早在 1994 年，就已经有公司开始着手去实践了：</p>
+<ol>
+<li>1994 年，网景（Netscape）公司开发了 SSL 协议（Secure Sockets Layer）的 1.0 版，这是构建传输安全层的起源，但是 SSL 1.0 从未正式对外发布过。</li>
+<li>1995 年，Netscape 把 SSL 升级到 2.0 版，正式对外发布，但是刚刚发布不久，就被发现有严重漏洞，所以并未大规模使用。</li>
+<li>1996 年，修补好漏洞的 SSL 3.0 对外发布，这个版本得到了广泛的应用，很快成为 Web 网络安全层的事实标准。</li>
+<li>1999 年，互联网标准化组织接替网景公司，将 SSL 改名为 TLS（Transport Layer Security），随即就形成了传输安全层的国际标准。第一个正式的版本是RFC 2246定义的 TLS 1.0，该版 TLS 的生命周期极长，直到 2020 年 3 月，主流浏览器（Chrome、Firefox、IE、Safari）才刚刚宣布同时停止 TLS 1.0/1.1 的支持。而讽刺的是，由于停止后许多政府网站被无法被浏览，此时又正值新冠病毒的爆发期，Firefox 紧急发布公告宣布撤回该改动，因此目前 TLS 1.0 的生命还在顽强延续。</li>
+<li>2006 年，TLS 的第一个升级版 1.1 发布（RFC 4346），但它除了增加对 CBC 攻击的保护外，几乎没有任何改变，沦为了被遗忘的孩子，当时也很少有人会使用 TLS 1.1，甚至 TLS 1.1 根本都没有被提出过有啥已知的协议漏洞。</li>
+<li>2008 年，TLS 1.1 发布 2 年之后，TLS 1.2 标准发布（RFC 5246），迄今超过 90% 的互联网 HTTPS 流量都是由 TLS 1.2 所支持的，现在我们仍在使用的浏览器几乎都完美支持了该协议。</li>
+<li>2018 年，最新的 TLS 1.3（RFC 8446）发布，比起前面版本相对温和的升级，TLS 1.3 做出了一些激烈的改动，修改了从 1.0 起一直没有大变化的两轮四次（2-RTT）握手，首次连接仅需一轮（1-RTT）握手即可完成；在有连接复用支持的时候，甚至可以把 TLS 1.2 原本的 1-RTT 下降到 0-RTT，显著提升了访问速度。</li>
+</ol>
+<p>SL/TLS 工作在<strong>传输层</strong>和<strong>应用层</strong>之间的安全层。它能够为 HTTP（即 HTTPS）、SMTP、FTP 等应用层协议提供加密和身份验证功能。通过 SSL/TLS，应用层的通信变得安全透明，开发者无需在应用层实现复杂的安全机制，只需使用 SSL/TLS 来保护通信。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/6.png" class>
+<h2 id="42-ssltls-工作流程"><a href="#4-2-SSL-TLS-工作流程" class="headerlink" title="4.2 SSL/TLS 工作流程"></a>4.2 SSL/TLS 工作流程</h2><p><strong>SSL/TLS 协议</strong>通过将密码学工具箱中的六个关键工具（对称加密、非对称加密、消息认证码、数字签名、散列函数、密钥交换协议）有机结合，提供了高效的加密通信解决方案。这些工具的具体实现可以根据实际情况灵活替换，如选择不同的加密套件。SSL/TLS 保障了传输的机密性、完整性和身份认证，为上层应用层协议（如 HTTP、SMTP 等）提供了安全通信的基础。</p>
+<p>现在广泛使用的是TLS 1.2，下面将以其为基础介绍一些袭击嗯</p>
+<h2 id="43-tls协议分层结构"><a href="#4-3-TLS协议分层结构" class="headerlink" title="4.3 TLS协议分层结构"></a>4.3 TLS协议分层结构</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/7.png" class>
+<p>TLS 协议 由 TLS 记录协议和TLS 握手协议组成，可以将其理解为握手阶段和通信阶段。</p>
+<p>TLS 握手协议中的握手协议负责双方的身份认证（即基于公钥的CA）、协商通信双方间的密码算法、密钥。</p>
+<p>记录协议负责数据根据协商出密钥进行加密、数据认证</p>
+<h2 id="44-握手协议"><a href="#4-4-握手协议" class="headerlink" title="4.4 握手协议"></a>4.4 握手协议</h2><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/79674443/8.png" class>
+<p>根据《图解密码技术》一书提供的流程，将进行握手阶段的概括描述：</p>
+<ol>
+<li><strong>客户端问候（Client Hello）</strong>：<ul>
+<li>客户端发送支持的 SSL/TLS 版本、加密套件列表（包括对称加密算法、散列算法、密钥交换方法等）和随机数 <code>ClientRandom</code>。</li>
+</ul>
+</li>
+<li><strong>服务器问候（Server Hello）</strong>：<ul>
+<li>服务器选择一个客户端支持的加密套件，并生成自己的随机数 <code>ServerRandom</code>，然后将这些信息返回客户端。</li>
+<li>服务器发送数字证书（包含服务器的公钥），用于证明其身份。</li>
+</ul>
+</li>
+<li><p><strong>客户端密钥交换</strong>：</p>
+<ul>
+<li>客户端生成一个<strong>预主密钥（Pre-Master Secret）</strong>，然后根据使用的密钥交换算法， 使用 <strong>RSA</strong> 时：客户端会用服务器的公钥加密预主密钥，并发送给服务器。</li>
+</ul>
+</li>
+<li><p><strong>生成主密钥</strong>：</p>
+<ul>
+<li>客户端和服务器使用预主密钥，以及之前生成的 <code>ClientRandom</code> 和 <code>ServerRandom</code>，通过伪随机函数（PRF）生成<strong>主密钥（Master Secret）</strong>。</li>
+</ul>
+</li>
+<li><strong>握手完成</strong>：<ul>
+<li>客户端和服务器确认握手成功，握手阶段结束。此时，双方已经协商出了用于后续加密通信的对称密钥。</li>
+</ul>
+</li>
+</ol>
+<p><strong>握手阶段的作用</strong>：</p>
+<ul>
+<li><strong>身份认证</strong>：通过服务器的数字证书，客户端确认服务器的身份。如果需要双向认证，客户端也可能提供自己的证书。</li>
+<li><strong>密钥协商</strong>：根据主密钥可以生成对称加密需要的密钥、消息认证码需要的密钥。</li>
+</ul>
+<h2 id="45-记录协议-通信阶段"><a href="#4-5-记录协议-通信阶段" class="headerlink" title="4.5 记录协议-通信阶段"></a>4.5 记录协议-通信阶段</h2><p>握手阶段完成后，SSL/TLS 进入<strong>通信阶段</strong>，双方开始通过协商好的对称密钥进行安全通信。此时，所有的消息都会使用对称密钥加密，并通过消息认证码（MAC）来保证数据的完整性和防篡改。</p>
+<ol>
+<li><strong>加密数据传输</strong>：<ul>
+<li>客户端和服务器使用协商生成的<strong>对称密钥</strong>（例如 AES、ChaCha20）对传输的数据进行加密，确保通信内容的<strong>机密性</strong>。</li>
+</ul>
+</li>
+<li><strong>消息完整性验证</strong>：<ul>
+<li>每条加密的数据都会附带一个 <strong>MAC（消息认证码）</strong>，接收方使用相同的对称密钥计算 MAC 来验证数据的完整性，确保数据未被篡改。</li>
+</ul>
+</li>
+<li><strong>数据传输和解密</strong>：<ul>
+<li>双方在通信过程中反复使用对称加密进行数据的加密和解密操作。加密的数据经过传输后，接收方使用对称密钥解密消息并验证其完整性。</li>
+</ul>
+</li>
+</ol>
+<p><strong>SSL/TLS 并不会对每条发送的消息进行数字签名</strong>。数字签名仅在 <strong>握手阶段</strong> 用于身份认证和密钥协商，而 <strong>数据传输阶段</strong> 主要依赖 <strong>对称加密和 MAC</strong> 来确保数据的机密性和完整性。这样设计是为了在保证安全性的前提下，最大程度提升传输效率。</p>
+<h2 id="46-tls-中的密钥交换"><a href="#4-6-TLS-中的密钥交换" class="headerlink" title="4.6 TLS 中的密钥交换"></a>4.6 TLS 中的密钥交换</h2><p>在HTTP 明文传输的问题 一节中，我的表达是使用非对称加密算法直接加密传输共享密钥，但其实在TLS的实际工作中并不直接传输密钥， 从对握手协议的描述中可以看出，</p>
+<ol>
+<li>在TLS1.2 中， 使用RSA加密传输的是预主密码。然后客户端和服务器基于这个共享的预主密钥，再结合双方各自生成的随机数，使用规定的算法生成主密码，最后基于主密码生成对称加密需要的密钥、消息认证码需要的密钥。</li>
+<li>如果使用<strong>Diffie-Hellman 密钥交换算法</strong>, 则不需要使用非对称密钥加密传递信息，双方通过数学公式和公开值计算出相同的共享密钥，从而避免直接传输密钥相关信息并提供更强的安全性。</li>
+<li>在TLS1.3中，相比 TLS 1.2，TLS 1.3 默认采用 <strong>ECDHE（椭圆曲线 Diffie-Hellman 临时密钥交换）</strong>，这一算法相比传统的 RSA 密钥交换或静态的 Diffie-Hellman 提供了更高的安全性和效率。ECDHE 通过使用临时密钥对，确保即使未来服务器的私钥被泄露，过去的通信内容仍然是安全的。前向安全性通过每次通信协商临时的 Diffie-Hellman 公私钥对来实现，即使私钥泄露，之前的通信记录也无法被解密。（这是前向安全性）</li>
+</ol>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/62d611ce/">不懂前端？用cursor 1小时也能写出一个可用的浏览器插件</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text">1. 前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C"><span class="toc-text">1.1 计算机网络</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#111-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E6%98%AF%E5%88%86%E5%B1%82%E7%9A%84"><span class="toc-text">1.1.1 计算机网络是分层的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#112-%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%E4%BE%9D%E8%B5%96%E4%BA%8E%E4%B8%80%E7%B3%BB%E5%88%97%E4%B8%AD%E9%97%B4%E8%AE%BE%E5%A4%87"><span class="toc-text">1.1.2 网络传输依赖于一系列中间设备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%8A%A0%E5%AF%86%E5%AE%89%E5%85%A8%E7%89%B9%E6%80%A7"><span class="toc-text">1.2 加密安全特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E5%AF%86%E7%A0%81%E5%AD%A6%E5%B7%A5%E5%85%B7%E7%AE%B1"><span class="toc-text">1.3 密码学工具箱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95-%E6%9C%BA%E5%AF%86%E6%80%A7"><span class="toc-text">1.4 加密算法-机密性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#141-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95"><span class="toc-text">1.4.1 对称加密算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95"><span class="toc-text">常见的对称加密算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E7%BB%84%E5%8A%A0%E5%AF%86"><span class="toc-text">分组加密</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#142-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95"><span class="toc-text">1.4.2 非对称加密算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#143-%E5%8D%95%E5%90%91%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0-%E8%AF%86%E5%88%AB%E7%AF%A1%E6%94%B9"><span class="toc-text">1.4.3 单向散列函数-识别篡改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#144-%E6%B6%88%E6%81%AF%E8%AE%A4%E8%AF%81%E7%A0%81-%E8%AF%86%E5%88%AB%E7%AF%A1%E6%94%B9-amp-%E8%AE%A4%E8%AF%81"><span class="toc-text">1.4.4 消息认证码-识别篡改 &amp; 认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#145-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-%E8%AE%A4%E8%AF%81-amp-%E9%98%B2%E6%AD%A2%E5%90%A6%E8%AE%A4"><span class="toc-text">1.4.5 数字签名-认证 &amp; 防止否认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#146-%E6%B6%88%E6%81%AF%E8%AE%A4%E8%AF%81%E7%A0%81%E8%AE%A4%E8%AF%81-vs-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E8%AE%A4%E8%AF%81"><span class="toc-text">1.4.6 消息认证码认证 vs 数字签名认证</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-http-%E9%80%9A%E4%BF%A1%E4%BD%BF%E7%94%A8%E6%98%8E%E6%96%87%E5%8F%AF%E8%83%BD%E4%BC%9A%E8%A2%AB%E7%AA%83%E5%90%AC"><span class="toc-text">2. HTTP -通信使用明文可能会被窃听</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86-%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E6%9C%BA%E5%AF%86%E6%80%A7"><span class="toc-text">2.1 对称加密-保证消息机密性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95-%E5%AE%89%E5%85%A8%E4%BC%A0%E8%BE%93%E5%AF%86%E9%92%A5"><span class="toc-text">2.2 非对称加密算法-安全传输密钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E6%B7%B7%E5%90%88%E5%8A%A0%E5%AF%86%E7%B3%BB%E7%BB%9F-%E6%97%A2%E5%AE%89%E5%85%A8%E5%8F%88%E9%AB%98%E6%95%88"><span class="toc-text">2.3 混合加密系统-既安全又高效</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#24-%E6%B6%88%E6%81%AF%E8%AE%A4%E8%AF%81%E7%A0%81-%E6%97%A2%E9%98%B2%E7%AF%A1%E6%94%B9%E5%8F%88%E8%83%BD%E8%AE%A4%E8%AF%81"><span class="toc-text">2.4 消息认证码-既防篡改又能认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#25-%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D-%E6%97%A0%E6%B3%95%E5%90%A6%E8%AE%A4%E4%B8%94%E8%83%BD%E8%AE%A4%E8%AF%81"><span class="toc-text">2.5 数字签名-无法否认且能认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#26-%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB%E4%B8%8B%E5%85%AC%E9%92%A5%E7%9A%84%E8%AE%A4%E8%AF%81%E9%97%AE%E9%A2%98"><span class="toc-text">2.6 中间人攻击下，公钥的认证问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#261-ca-%E5%85%AC%E9%92%A5%E7%9A%84%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D"><span class="toc-text">2.6.1 CA-公钥的数字签名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#262-ca%E5%85%AC%E9%92%A5%E7%9A%84%E8%8E%B7%E5%8F%96-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%92%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E9%A2%84%E8%A3%85%E7%9A%84%E6%A0%B9%E8%AF%81%E4%B9%A6"><span class="toc-text">2.6.2 CA公钥的获取-操作系统和浏览器预装的根证书</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%AF%86%E9%92%A5%E4%BA%A4%E6%8D%A2%E6%96%B9%E6%B3%95"><span class="toc-text">3. 密钥交换方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-%E5%85%AC%E9%92%A5%E5%AF%86%E7%A0%81%E4%BA%A4%E6%8D%A2%E7%AE%97%E6%B3%95"><span class="toc-text">3.1 公钥密码交换算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-diffie-hellman-%E5%AF%86%E9%92%A5%E4%BA%A4%E6%8D%A2"><span class="toc-text">3.2 Diffie-Hellman 密钥交换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#33-%E4%BA%8B%E5%85%88%E5%85%B1%E4%BA%AB%E5%AF%86%E9%92%A5pre-shared-key-psk"><span class="toc-text">3.3  事先共享密钥（Pre-shared Key, PSK）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#34-%E4%BD%BF%E7%94%A8%E5%AF%86%E9%92%A5%E5%88%86%E9%85%8D%E4%B8%AD%E5%BF%83key-distribution-center-kdc"><span class="toc-text">3.4  使用密钥分配中心（Key Distribution Center, KDC）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8%E5%B1%82-ssltls"><span class="toc-text">4. 网络传输安全层 -SSL&#x2F;TLS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-ssltls-%E5%8F%91%E5%B1%95%E5%8E%86%E5%8F%B2"><span class="toc-text">4.1 SSL&#x2F;TLS 发展历史</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-ssltls-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">4.2 SSL&#x2F;TLS 工作流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-tls%E5%8D%8F%E8%AE%AE%E5%88%86%E5%B1%82%E7%BB%93%E6%9E%84"><span class="toc-text">4.3 TLS协议分层结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#44-%E6%8F%A1%E6%89%8B%E5%8D%8F%E8%AE%AE"><span class="toc-text">4.4 握手协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#45-%E8%AE%B0%E5%BD%95%E5%8D%8F%E8%AE%AE-%E9%80%9A%E4%BF%A1%E9%98%B6%E6%AE%B5"><span class="toc-text">4.5 记录协议-通信阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#46-tls-%E4%B8%AD%E7%9A%84%E5%AF%86%E9%92%A5%E4%BA%A4%E6%8D%A2"><span class="toc-text">4.6 TLS 中的密钥交换</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>
