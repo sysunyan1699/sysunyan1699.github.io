@@ -1,0 +1,733 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>如何处理重复请求保证幂等 - Sun Yan</title>
+
+  
+    <meta name="description" content="1. 什么是幂等在系统设计中，“幂等”是一种非常重要的概念。 幂等性（Idempotency）指的是一个操作无论执行多少次，其结果都应保持一致，和只执行一次的结果相同。 这在分布式系统、网络请求和服务接口中尤为重要，因为它可以确保系统的数据一致性。 2. 为什么会出现重复请求重复请求在系统设计中是一个常见的问题，尤其是在高并发和分布式环境中。 出现重复请求的原因有多种，包括用户操作、业务逻辑重试、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何处理重复请求保证幂等">
+<meta property="og:url" content="http://example.com/c3915fbe/index.html">
+<meta property="og:site_name" content="Sun Yan">
+<meta property="og:description" content="1. 什么是幂等在系统设计中，“幂等”是一种非常重要的概念。 幂等性（Idempotency）指的是一个操作无论执行多少次，其结果都应保持一致，和只执行一次的结果相同。 这在分布式系统、网络请求和服务接口中尤为重要，因为它可以确保系统的数据一致性。 2. 为什么会出现重复请求重复请求在系统设计中是一个常见的问题，尤其是在高并发和分布式环境中。 出现重复请求的原因有多种，包括用户操作、业务逻辑重试、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/c3915fbe/1.png">
+<meta property="og:image" content="http://example.com/c3915fbe/2.png">
+<meta property="og:image" content="http://example.com/c3915fbe/3.png">
+<meta property="article:published_time" content="2024-10-15T13:33:55.000Z">
+<meta property="article:modified_time" content="2024-10-15T13:37:12.678Z">
+<meta property="article:author" content="Sun Yan">
+<meta property="article:tag" content="事务">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/c3915fbe/1.png">
+  
+  
+  
+  <meta name="keywords" content="事务,系统设计">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="Sun Yan" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/c3915fbe/"><span class="title">如何处理重复请求保证幂等</span></a><a class="item title" href="/79674443/"><span class="title">从HTTP到HTTPs, 如何实现加密传输</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/b4967540/"><span class="title">Spring 集成 Mybatis</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a><a class="item title" href="/114991e5/"><span class="title">Spring 启动过程 拓展点</span></a><a class="item title" href="/62d611ce/"><span class="title">不懂前端？用cursor 1小时也能写出一个可用的浏览器插件</span></a><a class="item title" href="/e15dc0/"><span class="title">饮料分级助手-糖脂ABCD分级计算器</span></a><a class="item title" href="/209fa7d3/"><span class="title">GPTs开发-Best English Name，帮你找到最合适、最满意的英文名</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-10-15T13:33:55.000Z">2024-10-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-10-15T13:37:12.678Z">2024-10-15</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>如何处理重复请求保证幂等</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><h1 id="1-什么是幂等"><a href="#1-什么是幂等" class="headerlink" title="1. 什么是幂等"></a>1. 什么是幂等</h1><p>在系统设计中，“幂等”是一种非常重要的概念。</p>
+<p>幂等性（Idempotency）指的是一个操作无论执行多少次，其结果都应保持一致，和只执行一次的结果相同。</p>
+<p>这在分布式系统、网络请求和服务接口中尤为重要，因为它可以确保系统的数据一致性。</p>
+<h1 id="2-为什么会出现重复请求"><a href="#2-为什么会出现重复请求" class="headerlink" title="2. 为什么会出现重复请求"></a>2. 为什么会出现重复请求</h1><p>重复请求在系统设计中是一个常见的问题，尤其是在高并发和分布式环境中。</p>
+<p>出现重复请求的原因有多种，包括用户操作、业务逻辑重试、以及消息队列的特性。下面从这几个角度来详细解释重复请求的原因及其对系统的影响。</p>
+<h2 id="21-用户重复点击"><a href="#2-1-用户重复点击" class="headerlink" title="2.1 用户重复点击"></a>2.1 用户重复点击</h2><p>用户点击按钮后，页面或系统可能响应缓慢。用户可能因为没有立即收到反馈，认为操作未成功，从而重复点击。每次点击都会触发一个新的请求，导致服务器收到多次请求。</p>
+<h2 id="22-业务逻辑重试"><a href="#2-2-业务逻辑重试" class="headerlink" title="2.2  业务逻辑重试"></a>2.2  业务逻辑重试</h2><p>在分布式系统和网络请求中，为了保证请求成功执行，通常会有业务逻辑上的重试机制。</p>
+<ul>
+<li><p><strong>网络故障</strong>：在请求过程中，如果发生了网络超时、连接丢失或服务器未响应等问题，客户端可能会自动重试以确保请求最终成功。每次重试都将生成新的请求，导致服务器可能收到多个相同的请求。</p>
+</li>
+<li><p><strong>服务容错</strong>：有时服务器端在处理请求时，内部某个组件可能失败。为了提高可靠性，系统设计可能会重新触发该操作，使请求最终完成。这种设计用于容错，但也可能导致请求被多次重复。</p>
+<h2 id="23-消息队列消息重复"><a href="#2-3-消息队列消息重复" class="headerlink" title="2.3 消息队列消息重复"></a>2.3 消息队列消息重复</h2><p>在分布式系统中，消息队列用于异步处理任务并解耦服务。由于消息队列的工作机制，可能会引发重复消息：</p>
+</li>
+<li><p><strong>消息确认机制</strong>：在一些消息队列系统（如 RabbitMQ 或 Kafka）中，消费者需要对消息进行确认。如果消费者处理完消息，但未能正确地向队列发送确认信息，队列会认为消息未被消费，因而重新发送。这种机制用于确保消息不会丢失，但可能会导致重复消费。</p>
+</li>
+<li><p><strong>消息回溯</strong> ：可能是服务出现了问题，需要手动回溯一段时间内的消息修复数据</p>
+</li>
+<li><p><strong>消息重新丢回消息队列</strong>： 消息消费时，业务逻辑处理失败，重新丢回队列等待下次处理，起到一个重试的作用</p>
+</li>
+</ul>
+<h1 id="3-如何判断请求是重复的-唯一标识"><a href="#3-如何判断请求是重复的-唯一标识" class="headerlink" title="3. 如何判断请求是重复的-唯一标识"></a>3. 如何判断请求是重复的-唯一标识</h1><h2 id="31-请求要有唯一标识"><a href="#3-1-请求要有唯一标识" class="headerlink" title="3.1 请求要有唯一标识"></a>3.1 请求要有唯一标识</h2><p>在处理上游请求时， 需带有唯一标识， 比如营销系统在用券过程中处理订单系统的请求中，订单号就是唯一标识</p>
+<h2 id="32-服务要记录唯一标识"><a href="#3-2-服务要记录唯一标识" class="headerlink" title="3.2 服务要记录唯一标识"></a>3.2 服务要记录唯一标识</h2><p>只要记录才能判断。</p>
+<h1 id="4-处理重复请求保证幂等的通用流程"><a href="#4-处理重复请求保证幂等的通用流程" class="headerlink" title="4. 处理重复请求保证幂等的通用流程"></a>4. 处理重复请求保证幂等的通用流程</h1><p>幂等处理重复请求的逻辑基本如下</p>
+<ol>
+<li><p><strong>判断请求是否处理过</strong>：通过检查请求的唯一标识在系统中是否已存在。如果已存在，说明该请求是重复请求。</p>
+</li>
+<li><p><strong>执行处理逻辑并记录结果</strong>：如果请求未处理过，系统会执行请求的处理逻辑（例如写入数据库、扣款等），然后将处理结果记录下来，同时保存该请求的唯一标识符，以便后续识别重复请求。</p>
+</li>
+<li><p><strong>返回之前的处理结果</strong>：如果请求已经处理过，直接返回之前保存的处理结果，不再重复执行业务逻辑。这样可以防止由于重复请求导致的副作用，比如多次扣款或重复创建资源。</p>
+<h2 id="41-判断请求是否处理过"><a href="#4-1-判断请求是否处理过" class="headerlink" title="4.1 判断请求是否处理过"></a>4.1 判断请求是否处理过</h2><p>通过检查请求的唯一标识在系统中是否已存在。</p>
+</li>
+</ol>
+<p>注意这里的检查不一定非得是select,  毕竟在并发的情况下， 你直接用快照读select 大概率时无法保证幂等的。</p>
+<p>所以其实在判断重复时最常见解决方式其实是用数据库唯一索引， 通过数据是否插入的结果来做“检查”工作。</p>
+<p>选择唯一索引，是借助其唯一性约束的特性。在MySQL 中， 具有唯一性约束的索引有2个</p>
+<ol>
+<li>主键索引</li>
+<li>唯一索引</li>
+</ol>
+<p>但是一般在处理重复请求保证幂等时，都是选择唯一索引</p>
+<p>除唯一索引外，本文还将讨论Redis 分布式锁 + 快照读select 的方式如何保证幂等</p>
+<h2 id="42-如果请求未处理过"><a href="#4-2-如果请求未处理过" class="headerlink" title="4.2 如果请求未处理过"></a>4.2 如果请求未处理过</h2><p>如果请求未处理过，系统会执行请求的处理逻辑，并记录下该请求供之后的重复请求判断</p>
+<h2 id="43-如果请求已经处理过"><a href="#4-3-如果请求已经处理过" class="headerlink" title="4.3 如果请求已经处理过"></a>4.3 如果请求已经处理过</h2><p>如果请求已经处理过， 则不再重复处理， 直接返回请求结果。</p>
+<p>在这个步骤中需要探讨的是返回什么结果， 是直接返回失败，还是返回重复请求提示， 还是查询处理后的结果根据处理结果返回。</p>
+<p>下面详细说明在不同业务场景下，可能的返回方式</p>
+<h3 id="431-直接返回失败"><a href="#4-3-1-直接返回失败" class="headerlink" title="4.3.1 直接返回失败"></a>4.3.1 直接返回失败</h3><ul>
+<li><strong>适用场景</strong>：在某些需要严格保证每次请求都是独立处理的场景，比如数据库操作严格要求一次性完成。</li>
+<li><strong>优点</strong>：这种方式简单直接，适合不需要告知重复请求或不关心前次请求结果的场景。</li>
+<li><strong>缺点</strong>：这种处理方式可能在一些场景下引起用户疑惑，特别是用户不清楚请求已被处理时。</li>
+</ul>
+<h3 id="432-返回重复请求提示"><a href="#4-3-2-返回重复请求提示" class="headerlink" title="4.3.2 返回重复请求提示"></a>4.3.2 返回重复请求提示</h3><ul>
+<li><strong>适用场景</strong>：适用于需要告诉用户请求已被处理，且不需要返回具体结果的场景，比如某些通知、确认请求。</li>
+<li><strong>优点</strong>：这种方式能简洁地提示用户请求状态，避免重复处理。</li>
+<li><strong>缺点</strong>：如果用户需要获取具体的处理结果（例如订单详情），则这种提示可能不够充分，影响体验。</li>
+</ul>
+<h3 id="433-查询并返回处理后的结果"><a href="#4-3-3-查询并返回处理后的结果" class="headerlink" title="4.3.3 查询并返回处理后的结果"></a>4.3.3 查询并返回处理后的结果</h3><ul>
+<li><strong>适用场景</strong>：最常用的方式，适用于用户需要知道请求具体处理结果的场景，比如支付、订单、操作确认等需要精确返回的业务。</li>
+<li><strong>优点</strong>：这种方式可以有效避免重复请求给用户带来的疑惑，同时返回详细结果，让用户更清楚操作状态。</li>
+<li><strong>缺点</strong>：若数据库读取操作频繁且请求量大，可能对数据库性能造成一定压力。</li>
+</ul>
+<p>我觉得最好的方案应该是根据实际业务场景 确定返回值，而不是一概而论。</p>
+<ul>
+<li>对于关键业务场景（如支付、订单）推荐返回已处理的结果，以确保用户获得准确的反馈。</li>
+<li>对于简单的幂等操作（如确认请求），可以返回重复请求提示，快速回应用户。</li>
+<li>而对于更严格的操作需求，可以选择直接返回失败，提示用户请求冲突或错误。</li>
+</ul>
+<p>下面将介绍具体的技术方案</p>
+<h1 id="5-基于唯一索引-本地事务如何保证幂等"><a href="#5-基于唯一索引-本地事务如何保证幂等" class="headerlink" title="5. 基于唯一索引-本地事务如何保证幂等"></a>5. 基于唯一索引-本地事务如何保证幂等</h1><p>使用唯一索引的前提下， 以上处理重复请求的通用流程可以具体描述为，</p>
+<ol>
+<li>将带有唯一标识的请求插入数据库</li>
+<li>如果插入成功， 则代表数据未处理过， 可以继续执行处理业务逻辑</li>
+<li>如果数据插入失败， 代表数据已经处理过， 直接返回结果即可</li>
+</ol>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/c3915fbe/1.png" class>
+<p>在很多情况下，<strong>唯一标识符</strong>的插入操作往往是业务操作的一部分，这使得唯一索引方案更加直接和高效。</p>
+<p>但是，如果唯一标识符本身不是业务数据的一部分，而只是用于控制重复请求，则确实需要单独建立一张表来记录请求 ID 及其处理状态。</p>
+<p>要注意一点的是， 以上看起来完美简洁的处理过程，其实需要建立在一个非常重要的前提下。</p>
+<p>==那就是数据插入和业务逻辑需要用本地事务保证原子性。</p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/c3915fbe/2.png" class>
+<p>如果数据插入和业务执行不用本地事务保证原子性的话，就有可能出现部分失败的情况， 即业务执行失败，但是唯一索引插入成功了， 这会引发数据不一致的问题。</p>
+<p>如果业务选择重复请求直接返回error 或者重复请求提示， 那这个实际业务逻辑并未执行的请求将永远无法得到处理，则数据不一致问题一直存在。当然如果你有合理的对账机制还是可以发现问题的。</p>
+<p>如果重复请求返回之前的处理结果， 那还是可以发现问题的， 可以重新处理，但是这无疑违背了数据存在则代表已经处理过的逻辑，  也增加了代码复杂度。</p>
+<p>所以，在能够使用本地事务保证数据插入和业务逻辑 原子性的时候， 要注意务必使用。</p>
+<p>不能使用本地事务保证原子性的时候， 看下面这种方案</p>
+<h1 id="6-基于唯一索引-分布式事务下如何保证幂等"><a href="#6-基于唯一索引-分布式事务下如何保证幂等" class="headerlink" title="6. 基于唯一索引-分布式事务下如何保证幂等"></a>6. 基于唯一索引-分布式事务下如何保证幂等</h1><p>其实在分布式系统下，很容易出现唯一标识数据插入和 业务逻辑 无法用本地事务保证原子性的情况</p>
+<p>比如， 业务操作的数据有分库分表的情况<br>再比如，业务逻辑有调用第三方服务的情况。</p>
+<p>面对这种分布式事务， 可以使用2PC + 异步检查的方案</p>
+<p>所谓2PC ,具体来讲就是 唯一标识数据表要增加一个状态字段（如 <code>PENDING</code>、<code>PROCESSING</code>、<code>FAILED</code>、<code>COMPLETED</code> 等）。<br>初次请求插入时，标记为 <code>PROCESSING</code>。 插入时默认是初始态，然后执行业务逻辑， 根据业务逻辑执行结果，更改状态。</p>
+<p>异步检查则用来处理部分失败的情况来保证数据的最终一致性</p>
+<p>分布式事务下，数据插入和业务逻辑要分成 3 步处理，</p>
+<ol>
+<li>把数据插入到唯一索引，但是这个时候状态被标记为初始状态。注意这一步一定要先执行，这是避免重复处理的关键。</li>
+<li>执行业务操作。</li>
+<li>将唯一索引对应的数据标记为完成状态。</li>
+</ol>
+<p>出问题的地方就是第二步成功了，但是第三步失败了，即分布式事务部分失败的情况。这时候就需要使用一个异步检测逻辑，定时扫描唯一索引的表，然后再去扫描业务表， 判断对应的业务处理结果来更新唯一索引的状态。这个时候会有两种情况。</p>
+<ol>
+<li>根据业务表数据判断对应请求已经处理完成， 可以将对应唯一索引更新为成功状态。</li>
+<li>根据业务表数据判断对应请求处理失败，可以直接发起重试或者等待重复请求</li>
+</ol>
+<h2 id="61-如果请求已经处理过-返回什么数据"><a href="#6-1-如果请求已经处理过，-返回什么数据" class="headerlink" title="6.1 如果请求已经处理过， 返回什么数据"></a>6.1 如果请求已经处理过， 返回什么数据</h2><p>在可以用本地事务保证数据插入和业务操作的原子性时， 查询到数据就默认业务逻辑已经执行成功了， 但是在分布式事务中， 数据插入增加了状态字段， 这时候该如何处理重复请求呢，一般有以下做法</p>
+<h3 id="1-只要数据存在就按照业务场景返回值不关心状态"><a href="#1-只要数据存在就按照业务场景返回值，不关心状态" class="headerlink" title="1. 只要数据存在就按照业务场景返回值，不关心状态"></a>1. <strong>只要数据存在就按照业务场景返回值，不关心状态</strong></h3><ul>
+<li><strong>适用场景</strong>：对于非关键性业务，重复请求只需要返回之前处理的结果，而不关心操作是否真正成功。这种方式适合场景是：即使业务逻辑未完全执行完毕或存在部分失败，对用户体验的影响不大。</li>
+<li><strong>实现逻辑</strong>：重复请求到来时，只要数据库中存在该请求的唯一标识记录，系统就返回之前的结果或默认提示（例如“请求处理中”）。</li>
+<li><strong>优点</strong>：这种方式能快速响应重复请求，不必等到业务逻辑完全完成，适合对状态不敏感的操作，减少请求处理延迟。</li>
+<li><strong>缺点</strong>：如果业务逻辑执行失败或未完成，可能会误导用户，以为请求已完全处理成功。</li>
+</ul>
+<h3 id="2-只有标记为业务执行成功的数据返回结果其他状态继续执行"><a href="#2-只有标记为“业务执行成功”的数据返回结果，其他状态继续执行" class="headerlink" title="2. 只有标记为“业务执行成功”的数据返回结果，其他状态继续执行"></a>2. <strong>只有标记为“业务执行成功”的数据返回结果，其他状态继续执行</strong></h3><ul>
+<li><strong>适用场景</strong>：适用于对请求结果准确性要求较高的场景，如支付、订单处理等。重复请求时，需要确保业务操作真正完成，才能返回相应的处理结果。</li>
+<li><strong>实现逻辑</strong>：<ul>
+<li>请求初次到达时，将数据状态设置为“处理中”或“待完成”，并执行相应业务逻辑。</li>
+<li>若逻辑成功，更新状态为“成功”并返回结果。</li>
+<li>若重复请求到来，系统检查状态字段。若状态为“成功”，直接返回结果；若状态为“处理中”或“失败”，则继续尝试完成未执行的操作。</li>
+</ul>
+</li>
+<li><strong>优点</strong>：确保请求的业务逻辑完整执行，能准确返回最终处理结果，避免部分成功或未完成的情况影响用户体验。</li>
+<li><strong>缺点</strong>：系统会对未完成的请求重复尝试，可能会导致重复执行，尤其是“处理中”的状态容易增加数据库负担。</li>
+</ul>
+<h3 id="3-判断状态并执行相应操作"><a href="#3-判断状态并执行相应操作" class="headerlink" title="3. 判断状态并执行相应操作"></a>3. <strong>判断状态并执行相应操作</strong></h3><ul>
+<li>在这种模式下，根据数据状态做不同的处理，实现更精确的控制逻辑：<ul>
+<li><strong>状态为“成功”</strong>：直接返回处理结果，避免重复执行。</li>
+<li><strong>状态为“处理中”</strong>：根据业务场景，选择返回“正在处理中”的信息，或检查是否超过超时时间，决定是否重试。</li>
+<li><strong>状态为“失败”或其他中间状态</strong>：可以自动重试，或者根据业务逻辑决定是否返回错误信息，让用户选择重试。</li>
+</ul>
+</li>
+<li><strong>适用场景</strong>：复杂业务场景，特别是有多种中间状态的操作（如支付、物流等），需要确保业务逻辑完成。</li>
+<li><strong>优点</strong>：灵活性强，根据状态精准控制逻辑，提高处理的准确性。</li>
+<li><strong>缺点</strong>：代码复杂度增加，并且可能需要额外的状态管理和清理逻辑。</li>
+</ul>
+<p>最佳方案一般是 <strong>根据状态来判断如何处理</strong>，特别是在关键业务场景中（如支付、订单）。使用状态字段来明确请求的处理进度和结果状态，可以确保系统准确返回处理结果，同时避免因部分操作失败或未完成而影响业务一致性和用户体验。具体实现方案：</p>
+<ol>
+<li><strong>状态管理表设计</strong>：<ul>
+<li>为请求表增加状态字段（如 <code>PENDING</code>、<code>PROCESSING</code>、<code>FAILED</code>、<code>COMPLETED</code> 等），记录每次请求的状态。</li>
+<li>初次请求插入时，标记为 <code>PROCESSING</code>。</li>
+</ul>
+</li>
+<li><strong>重复请求的状态判断</strong>：<ul>
+<li><strong>成功状态（<code>COMPLETED</code>）</strong>：直接返回最终处理结果，避免重复执行。</li>
+<li><strong>处理中状态（<code>PROCESSING</code>）</strong>：根据业务场景，选择返回“正在处理中”的信息，或检查是否超过超时时间，决定是否重试。</li>
+<li><strong>失败状态（<code>FAILED</code>）</strong>：可以尝试重试业务逻辑，也可以根据业务需求返回错误提示，避免用户等待。</li>
+</ul>
+</li>
+</ol>
+<p><strong>适用场景</strong>：复杂业务场景，特别是有多种中间状态的操作（如支付、物流等），需要确保业务逻辑完成。</p>
+<p><strong>优点</strong>：灵活性强，根据状态精准控制逻辑，提高处理的准确性。</p>
+<p><strong>缺点</strong>：代码复杂度增加，并且可能需要额外的状态管理和清理逻辑。</p>
+<h2 id="62-异步补偿任务的重试策略"><a href="#6-2-异步补偿任务的重试策略" class="headerlink" title="6.2 异步补偿任务的重试策略"></a>6.2 异步补偿任务的重试策略</h2><p>补偿任务的重试策略若未控制好，可能会导致大量重复操作，比如不断对同一条记录尝试补偿操作，从而对数据库造成不必要的压力。</p>
+<p>补偿任务设定合理的<strong>重试次数和时间间隔</strong>，并在一定次数的重试后，应该告警通知人工处理，避免无限重试的情况。</p>
+<h2 id="63-重试下的并发"><a href="#6-3-重试下的并发" class="headerlink" title="6.3 重试下的并发"></a>6.3 重试下的并发</h2><p>从前面的描述中可以看出， 在异步补偿机制中可能执行一个请求的业务逻辑，上游重复请求如果状态不是成功也可能触发业务逻辑执行，导致同一数据被并发处理，从而造成数据不一致或重复操作。 可以考虑以下方案</p>
+<p><strong>分布式锁</strong>：确保针对某条请求或记录的操作只会被单一实例处理。这样，即使前端请求和异步补偿同时触发操作，也能确保只有一个线程/实例在执行，避免重复处理问题。</p>
+<p><strong>乐观锁或版本号控制</strong>：在数据库记录中加入版本号或时间戳，通过比较版本号来确保只有最新的更新才会被接受。如果某个操作发现记录版本号已变更，则跳过操作或重新加载最新数据。</p>
+<h1 id="7-使用-redis-分布式锁控制重复请求-不用唯一索引"><a href="#7-使用-Redis-分布式锁控制重复请求-不用唯一索引" class="headerlink" title="7. 使用 Redis 分布式锁控制重复请求-不用唯一索引"></a>7. 使用 Redis 分布式锁控制重复请求-不用唯一索引</h1><p>可以将唯一请求标识作为key ,使用setnx 来控制重复请求，只有获取到锁的请求，才能到数据库中判断请求是否处理过具体处理流程如下</p>
+<ul>
+<li><strong>获取 Redis 锁</strong>：每次请求到达时，首先尝试获取 Redis 分布式锁（例如基于请求 ID 或业务 ID）。</li>
+<li><strong>成功获取到锁</strong>：成功获取锁后，系统可以使用select快照读查询数据库，判断业务数据是否已存在。<ul>
+<li>如果数据存在，说明请求已处理过，可以直接返回结果。</li>
+<li>如果数据不存在，执行数据插入和后续业务逻辑， 具体就是上文中本地事务和分布式事务的方案。</li>
+</ul>
+</li>
+<li><strong>未获取到锁</strong>：如果在尝试获取 Redis 锁时发现锁已被持有，可以直接根据场景返回合适的信息（例如“请求处理中”或上一次请求的结果），避免重复处理。</li>
+</ul>
+<h2 id="71-优点"><a href="#7-1-优点" class="headerlink" title="7.1 优点"></a>7.1 优点</h2><ul>
+<li><strong>无需使用唯一索引</strong>：使用分布式锁可以有效防止并发重复请求，而不依赖数据库唯一索引来判断请求的唯一性。</li>
+<li><strong>减少数据库压力</strong>：这种方式减少了对数据库唯一索引的依赖，不需要额外的索引检查，有助于在高并发场景下降低数据库的索引负载。</li>
+</ul>
+<h2 id="72-潜在问题和解决方法"><a href="#7-2-潜在问题和解决方法" class="headerlink" title="7.2 潜在问题和解决方法"></a>7.2 潜在问题和解决方法</h2><ol>
+<li><strong>锁的过期时间与任务执行时间的同步问题</strong>：<ul>
+<li><strong>问题描述</strong>：如果业务逻辑执行时间较长，而 Redis 锁的过期时间较短，锁可能在业务逻辑执行完之前被释放。其他请求可能会在锁过期后重新获取锁，从而导致重复处理。</li>
+<li><strong>解决方法</strong>：可以动态设置锁的过期时间，或者在长时间任务中定期刷新锁，确保锁在业务逻辑执行完毕前不会过期。</li>
+</ul>
+</li>
+<li><strong>锁竞争导致延迟</strong>：<ul>
+<li><strong>问题描述</strong>：在高并发场景中，多个请求可能会同时尝试获取锁，未能获取锁的请求会直接被返回处理结果或默认值。这可能导致某些请求延迟或未能成功触发业务逻辑。</li>
+<li><strong>解决方法</strong>：可以在获取锁失败时增加简单的重试机制（例如短暂等待后再尝试获取锁），提高锁的获取成功率。不过，这会带来少量额外的延迟，需要根据业务场景衡量利弊。</li>
+</ul>
+</li>
+<li><strong>锁的可靠性问题</strong>：<ul>
+<li><strong>问题描述</strong>：在 Redis 实例重启或网络故障的情况下，锁有可能被意外释放或丢失，导致多个请求进入业务逻辑，从而导致重复处理。</li>
+<li><strong>解决方法</strong>：为提升锁的可靠性，可以将锁的管理迁移到 Redis 集群中，使用多节点的 Redis 实例，增强锁的持久性。此外，可以在业务逻辑中实现<strong>幂等性</strong>，即使在锁失效的情况下，重复执行也不会影响最终结果。</li>
+</ul>
+</li>
+<li><strong>锁释放与数据一致性</strong>：<ul>
+<li><strong>问题描述</strong>：在极端情况下，业务逻辑执行成功但未能释放锁（例如服务器崩溃或进程被强制中断），可能导致锁保持被持有的状态，阻止后续请求正常执行。</li>
+<li><strong>解决方法</strong>：可以设置锁的过期时间，并在锁释放之前检查操作是否已经完成，以确保状态一致。此外，可以通过 Redis 事务或 Lua 脚本确保锁的获取和释放都在 Redis 内部完成，避免锁释放的潜在不一致问题。</li>
+</ul>
+</li>
+</ol>
+<h1 id="8-唯一索引-vs-redis"><a href="#8-唯一索引-vs-Redis" class="headerlink" title="8. 唯一索引 vs Redis"></a>8. 唯一索引 vs Redis</h1><h2 id="81-原子性和一致性"><a href="#8-1-原子性和一致性" class="headerlink" title="8.1 原子性和一致性"></a>8.1 原子性和一致性</h2><ul>
+<li><strong>数据库唯一索引</strong>提供了天然的幂等性保障：对于同一个请求 ID，数据库在插入时会自动校验唯一性，这意味着一旦插入成功，后续重复插入将自动被拒绝。</li>
+<li><p>因此，<strong>原子性</strong>操作由数据库控制，避免了额外的状态检查和分布式锁逻辑，且不依赖于外部系统（如 Redis），从而保证操作在并发下的一致性。</p>
+<h2 id="82-可靠性"><a href="#8-2-可靠性" class="headerlink" title="8.2 可靠性"></a>8.2 可靠性</h2></li>
+<li><p>数据库的唯一约束是持久性的，避免了 Redis 分布式锁在极端情况下失效的问题。Redis 分布式锁的可靠性依赖于 Redis 的稳定性，而数据库的唯一约束则不受外部条件的影响。</p>
+</li>
+<li>唯一索引依赖于数据库，且数据库天然具备持久性，适合需要保证操作绝对正确的关键业务（如订单生成、支付扣款等）。</li>
+</ul>
+<h2 id="83-简化的代码和逻辑"><a href="#8-3-简化的代码和逻辑" class="headerlink" title="8.3 简化的代码和逻辑"></a>8.3 简化的代码和逻辑</h2><ul>
+<li>使用数据库唯一索引方案能够减少代码复杂度，因为请求的判断和插入是一个原子性操作，不需要额外控制并发或同步机制。</li>
+<li>而在 Redis 分布式锁方案中，需要额外处理锁的获取、释放、超时和潜在的异常情况，增加了业务逻辑的复杂性和管理成本。</li>
+</ul>
+<p>对于多数业务场景，<strong>数据库唯一索引</strong>是最佳选择，它更可靠、简洁、适合大多数数据库能够支撑的高并发操作。<br>在极端高并发场景或复杂业务场景下，可以考虑<strong>Redis 分布式锁</strong>方案，尤其是当业务需要灵活性时。</p>
+<p>另外，如果希望充分利用二者的优点，可以结合<strong>数据库唯一索引和 Redis 锁</strong>：使用唯一索引作为主幂等保障，Redis 锁作为并发控制辅助，以提升系统的扩展性和稳健性。</p>
+<h1 id="9-高并发高重复下-如何提升唯一索引的性能-redis-唯一索引"><a href="#9-高并发高重复下-，-如何提升唯一索引的性能：-Redis-唯一索引" class="headerlink" title="9. 高并发高重复下 ， 如何提升唯一索引的性能： Redis + 唯一索引"></a>9. 高并发高重复下 ， 如何提升唯一索引的性能： Redis + 唯一索引</h1><p>使用唯一索引时，性能瓶颈完全取决于数据库。</p>
+<p>如果短时间重复请求非常多，可以使用 Redis 存储已处理过的请求来拦截短时间内的重复请求，以有效减少数据库层面的重复请求判断，避免数据库频繁执行唯一索引检查，从而提升系统性能。</p>
+<p>Redis 的value  类型是 set，用户存储处理过的请求</p>
+<p>注意：这里的redis 不再是第7小节中的分布式锁功能</p>
+<p>注意：如果不是高并发或者重复率很高的情况下， 这种方案和直接使用唯一索引相比，并不会提高性能，甚至更慢， 因为多了一层判断。</p>
+<p>处理流程如下<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/c3915fbe/3.png" class></p>
+<p>该方案需要考虑以下问题</p>
+<h2 id="91-redis-更新逻辑-辅助性组件"><a href="#9-1-Redis-更新逻辑-辅助性组件" class="headerlink" title="9.1 Redis 更新逻辑 -辅助性组件"></a>9.1 Redis 更新逻辑 -辅助性组件</h2><p>使用唯一索引的具体方案，依然是前面介绍过的分为本地事务、分布式事务2种情况。<br>Redis 在这个方案中确实作为一个辅助性工具，用于快速判断短时间内的重复请求，以减轻数据库负载并加快响应速度，而不是作为请求处理过程中的核心事务性组件。即Redis 操作均不在其事务范围内， 即使redis操作失败也不影响业务结果。</p>
+<p>将 Redis 作为重复请求的辅助性判断工具，而不是事务的一部分，这种设计思路非常合理且符合分布式系统的最佳实践。具体表现为：</p>
+<ul>
+<li><strong>提高了系统性能</strong>：通过 Redis 辅助缓存，减少了频繁的数据库访问量。</li>
+<li><strong>保障了业务核心的一致性</strong>：核心事务逻辑依然依赖数据库，而不是 Redis，从而避免了因 Redis 操作失败导致请求失败的风险。</li>
+<li><strong>增强了系统的容错性</strong>：Redis 操作失败时系统依然可以正常处理请求，确保了系统的高可用性。</li>
+</ul>
+<h3 id="本地事务后更新redis"><a href="#本地事务后更新Redis" class="headerlink" title="本地事务后更新Redis"></a>本地事务后更新Redis</h3><p>比较简单，成功后就就把对应唯一标识加入到Redis 中即可</p>
+<h3 id="分布式事务后更新redis"><a href="#分布式事务后更新Redis" class="headerlink" title="分布式事务后更新Redis"></a>分布式事务后更新Redis</h3><p>分布式事务环境下的唯一索引存在多种状态和部分失败的情况，因此确实需要根据具体的业务场景来决定哪些状态下的唯一标识可以放入 Redis，并且在异步补偿逻辑中合理处理 Redis 相关逻辑。</p>
+<p>在分布式事务下，业务操作的执行可能会导致请求的状态多样化，例如PENDING<code>、</code>PROCESSING、COMPLETED 等状态。将所有状态都放入 Redis 并不一定合适，需要基于业务场景做出选择。</p>
+<p>可以考虑选择将“成功”或“最终完成”状态的请求放入 Redis，这样能够过滤掉短时间内的重复请求，而不影响系统的幂等性。如果请求仍在“处理中”或“部分成功”，则避免直接加入 Redis，以免误导其他请求判断。</p>
+<h2 id="92-redis-的过期时间"><a href="#9-2-Redis-的过期时间" class="headerlink" title="9.2 Redis 的过期时间"></a>9.2 Redis 的过期时间</h2><p>可以根据业务需要设置 Redis 中记录的过期时间。例如，如果系统常见的重复请求会在几分钟内重新到达，则可以在 Redis 中为每个处理记录设置一个合理的过期时间（如 5 分钟）。这样，过期的请求自动失效，不会长期占用缓存空间。<br>注意过期时间应该做成可配置的， 方便根据业务的实际重复请求频率动态调整过期时间，以找到适合的平衡点，减少缓存失效对数据库的冲击。</p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/79674443/">从HTTP到HTTPs, 如何实现加密传输</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Sun Yan</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%B9%82%E7%AD%89"><span class="toc-text">1. 什么是幂等</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%87%BA%E7%8E%B0%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82"><span class="toc-text">2. 为什么会出现重复请求</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E7%94%A8%E6%88%B7%E9%87%8D%E5%A4%8D%E7%82%B9%E5%87%BB"><span class="toc-text">2.1 用户重复点击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E9%87%8D%E8%AF%95"><span class="toc-text">2.2  业务逻辑重试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#23-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D"><span class="toc-text">2.3 消息队列消息重复</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E8%AF%B7%E6%B1%82%E6%98%AF%E9%87%8D%E5%A4%8D%E7%9A%84-%E5%94%AF%E4%B8%80%E6%A0%87%E8%AF%86"><span class="toc-text">3. 如何判断请求是重复的-唯一标识</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-%E8%AF%B7%E6%B1%82%E8%A6%81%E6%9C%89%E5%94%AF%E4%B8%80%E6%A0%87%E8%AF%86"><span class="toc-text">3.1 请求要有唯一标识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-%E6%9C%8D%E5%8A%A1%E8%A6%81%E8%AE%B0%E5%BD%95%E5%94%AF%E4%B8%80%E6%A0%87%E8%AF%86"><span class="toc-text">3.2 服务要记录唯一标识</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%A4%84%E7%90%86%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82%E4%BF%9D%E8%AF%81%E5%B9%82%E7%AD%89%E7%9A%84%E9%80%9A%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="toc-text">4. 处理重复请求保证幂等的通用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-%E5%88%A4%E6%96%AD%E8%AF%B7%E6%B1%82%E6%98%AF%E5%90%A6%E5%A4%84%E7%90%86%E8%BF%87"><span class="toc-text">4.1 判断请求是否处理过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-%E5%A6%82%E6%9E%9C%E8%AF%B7%E6%B1%82%E6%9C%AA%E5%A4%84%E7%90%86%E8%BF%87"><span class="toc-text">4.2 如果请求未处理过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-%E5%A6%82%E6%9E%9C%E8%AF%B7%E6%B1%82%E5%B7%B2%E7%BB%8F%E5%A4%84%E7%90%86%E8%BF%87"><span class="toc-text">4.3 如果请求已经处理过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#431-%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9E%E5%A4%B1%E8%B4%A5"><span class="toc-text">4.3.1 直接返回失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#432-%E8%BF%94%E5%9B%9E%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82%E6%8F%90%E7%A4%BA"><span class="toc-text">4.3.2 返回重复请求提示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#433-%E6%9F%A5%E8%AF%A2%E5%B9%B6%E8%BF%94%E5%9B%9E%E5%A4%84%E7%90%86%E5%90%8E%E7%9A%84%E7%BB%93%E6%9E%9C"><span class="toc-text">4.3.3 查询并返回处理后的结果</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%9F%BA%E4%BA%8E%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95-%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%B9%82%E7%AD%89"><span class="toc-text">5. 基于唯一索引-本地事务如何保证幂等</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%9F%BA%E4%BA%8E%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B8%8B%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%B9%82%E7%AD%89"><span class="toc-text">6. 基于唯一索引-分布式事务下如何保证幂等</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#61-%E5%A6%82%E6%9E%9C%E8%AF%B7%E6%B1%82%E5%B7%B2%E7%BB%8F%E5%A4%84%E7%90%86%E8%BF%87-%E8%BF%94%E5%9B%9E%E4%BB%80%E4%B9%88%E6%95%B0%E6%8D%AE"><span class="toc-text">6.1 如果请求已经处理过， 返回什么数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8F%AA%E8%A6%81%E6%95%B0%E6%8D%AE%E5%AD%98%E5%9C%A8%E5%B0%B1%E6%8C%89%E7%85%A7%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E8%BF%94%E5%9B%9E%E5%80%BC%E4%B8%8D%E5%85%B3%E5%BF%83%E7%8A%B6%E6%80%81"><span class="toc-text">1. 只要数据存在就按照业务场景返回值，不关心状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8F%AA%E6%9C%89%E6%A0%87%E8%AE%B0%E4%B8%BA%E4%B8%9A%E5%8A%A1%E6%89%A7%E8%A1%8C%E6%88%90%E5%8A%9F%E7%9A%84%E6%95%B0%E6%8D%AE%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%9C%E5%85%B6%E4%BB%96%E7%8A%B6%E6%80%81%E7%BB%A7%E7%BB%AD%E6%89%A7%E8%A1%8C"><span class="toc-text">2. 只有标记为“业务执行成功”的数据返回结果，其他状态继续执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%A4%E6%96%AD%E7%8A%B6%E6%80%81%E5%B9%B6%E6%89%A7%E8%A1%8C%E7%9B%B8%E5%BA%94%E6%93%8D%E4%BD%9C"><span class="toc-text">3. 判断状态并执行相应操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#62-%E5%BC%82%E6%AD%A5%E8%A1%A5%E5%81%BF%E4%BB%BB%E5%8A%A1%E7%9A%84%E9%87%8D%E8%AF%95%E7%AD%96%E7%95%A5"><span class="toc-text">6.2 异步补偿任务的重试策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#63-%E9%87%8D%E8%AF%95%E4%B8%8B%E7%9A%84%E5%B9%B6%E5%8F%91"><span class="toc-text">6.3 重试下的并发</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E4%BD%BF%E7%94%A8-redis-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%8E%A7%E5%88%B6%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82-%E4%B8%8D%E7%94%A8%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95"><span class="toc-text">7. 使用 Redis 分布式锁控制重复请求-不用唯一索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#71-%E4%BC%98%E7%82%B9"><span class="toc-text">7.1 优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#72-%E6%BD%9C%E5%9C%A8%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-text">7.2 潜在问题和解决方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95-vs-redis"><span class="toc-text">8. 唯一索引 vs Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#81-%E5%8E%9F%E5%AD%90%E6%80%A7%E5%92%8C%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">8.1 原子性和一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#82-%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="toc-text">8.2 可靠性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#83-%E7%AE%80%E5%8C%96%E7%9A%84%E4%BB%A3%E7%A0%81%E5%92%8C%E9%80%BB%E8%BE%91"><span class="toc-text">8.3 简化的代码和逻辑</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E9%AB%98%E5%B9%B6%E5%8F%91%E9%AB%98%E9%87%8D%E5%A4%8D%E4%B8%8B-%E5%A6%82%E4%BD%95%E6%8F%90%E5%8D%87%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%9A%84%E6%80%A7%E8%83%BD-redis-%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95"><span class="toc-text">9. 高并发高重复下 ， 如何提升唯一索引的性能： Redis + 唯一索引</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#91-redis-%E6%9B%B4%E6%96%B0%E9%80%BB%E8%BE%91-%E8%BE%85%E5%8A%A9%E6%80%A7%E7%BB%84%E4%BB%B6"><span class="toc-text">9.1 Redis 更新逻辑 -辅助性组件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1%E5%90%8E%E6%9B%B4%E6%96%B0redis"><span class="toc-text">本地事务后更新Redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E5%90%8E%E6%9B%B4%E6%96%B0redis"><span class="toc-text">分布式事务后更新Redis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#92-redis-%E7%9A%84%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4"><span class="toc-text">9.2 Redis 的过期时间</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\(","\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body></html>
