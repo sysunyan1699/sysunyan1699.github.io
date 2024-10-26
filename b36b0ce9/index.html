@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/b36b0ce9/7.png">
 <meta property="og:image" content="http://example.com/b36b0ce9/8.png">
 <meta property="article:published_time" content="2024-05-02T14:22:30.000Z">
-<meta property="article:modified_time" content="2024-05-10T15:24:50.194Z">
+<meta property="article:modified_time" content="2024-10-26T02:01:11.777Z">
 <meta property="article:author" content="Sun Yan">
 <meta property="article:tag" content="MySQL">
 <meta property="article:tag" content="事务">
@@ -76,7 +76,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/a5120d74/"><span class="title">SafeInventory-分布式事务下，如何安全操作库存</span></a><a class="item title" href="/2a483461/"><span class="title">在Spring事务管理下，使用Synchronized   为什么会出现并发问题</span></a><a class="item title" href="/ca1e509/"><span class="title">SafeInventory-本地事务下，如何安全操作库存</span></a><a class="item title" href="/c3915fbe/"><span class="title">如何处理重复请求保证幂等</span></a><a class="item title" href="/79674443/"><span class="title">从HTTP到HTTPs, 如何实现加密传输</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/b4967540/"><span class="title">Spring 集成 Mybatis</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a><a class="item title" href="/114991e5/"><span class="title">Spring 启动过程 拓展点</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/a5120d74/"><span class="title">SafeInventory-分布式事务下，如何安全操作库存</span></a><a class="item title" href="/ca1e509/"><span class="title">SafeInventory-本地事务下，如何安全操作库存</span></a><a class="item title" href="/c3915fbe/"><span class="title">如何处理重复请求保证幂等</span></a><a class="item title" href="/2a483461/"><span class="title">在Spring事务管理下，使用Synchronized   为什么会出现并发问题</span></a><a class="item title" href="/79674443/"><span class="title">从HTTP到HTTPs, 如何实现加密传输</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/b4967540/"><span class="title">Spring 集成 Mybatis</span></a><a class="item title" href="/b4b9d0ea/"><span class="title">理解 Spring FacrotyBean</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -89,7 +89,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-02T14:22:30.000Z">2024-05-02</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-10T15:24:50.194Z">2024-05-10</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-02T14:22:30.000Z">2024-05-02</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-10-26T02:01:11.777Z">2024-10-26</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -272,9 +272,9 @@
 <ol>
 <li>可能会由用户主动触发Rollback；</li>
 <li>也可能因为遇到死锁异常Rollback；</li>
-<li>或者发生Crash，重启后对未提交的事务回滚。<h2 id="61-用户应用程序主动回滚"><a href="#6-1-用户-应用程序主动回滚" class="headerlink" title="6.1. 用户/应用程序主动回滚"></a>6.1. 用户/应用程序主动回滚</h2></li>
+<li>或者发生Crash，重启后对未提交的事务回滚。</li>
 </ol>
-<ul>
+<h2 id="61-用户应用程序主动回滚"><a href="#6-1-用户-应用程序主动回滚" class="headerlink" title="6.1. 用户/应用程序主动回滚"></a>6.1. 用户/应用程序主动回滚</h2><ul>
 <li>反向遍历（start of record）当前事务的undo日志链表，按逆序恢复每个更改。</li>
 <li><strong>插入操作：</strong> 在数据页中删除已插入的记录。</li>
 <li><strong>删除操作：</strong> 恢复已删除的记录。</li>
