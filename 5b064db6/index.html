@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/5b064db6/1.png">
 <meta property="og:image" content="http://example.com/5b064db6/2.png">
 <meta property="article:published_time" content="2024-05-01T13:57:16.000Z">
-<meta property="article:modified_time" content="2024-05-08T14:05:03.875Z">
+<meta property="article:modified_time" content="2024-11-25T15:32:28.767Z">
 <meta property="article:author" content="Sun Yan">
 <meta property="article:tag" content="事务">
 <meta name="twitter:card" content="summary">
@@ -69,7 +69,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/d8e12886/"><span class="title">SafeInventory- 如何高效扣减库存</span></a><a class="item title" href="/ca1e509/"><span class="title">SafeInventory-本地事务下，如何安全操作库存</span></a><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/a5120d74/"><span class="title">SafeInventory-分布式事务下，如何安全操作库存</span></a><a class="item title" href="/c3915fbe/"><span class="title">如何处理重复请求保证幂等</span></a><a class="item title" href="/2a483461/"><span class="title">在Spring事务管理下，使用Synchronized   为什么会出现并发问题</span></a><a class="item title" href="/79674443/"><span class="title">从HTTP到HTTPs, 如何实现加密传输</span></a><a class="item title" href="/4579c6a3/"><span class="title">Understanding LSTM Networks</span></a><a class="item title" href="/b4967540/"><span class="title">Spring 集成 Mybatis</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/d9903cb/"><span class="title">分摊算法</span></a><a class="item title" href="/6cb5dc64/"><span class="title">InnoDB事务-持久性的实现,binglog & redo log</span></a><a class="item title" href="/5b064db6/"><span class="title">Intro to 事务</span></a><a class="item title" href="/d8e12886/"><span class="title">SafeInventory- 如何高效扣减库存</span></a><a class="item title" href="/ca1e509/"><span class="title">SafeInventory-本地事务下，如何安全操作库存</span></a><a class="item title" href="/b36b0ce9/"><span class="title">InnoDB事务-原子性的实现,undo log</span></a><a class="item title" href="/4bd46d7d/"><span class="title">SpringBoot 自动配置实现原理</span></a><a class="item title" href="/a5120d74/"><span class="title">SafeInventory-分布式事务下，如何安全操作库存</span></a><a class="item title" href="/c3915fbe/"><span class="title">如何处理重复请求保证幂等</span></a><a class="item title" href="/2a483461/"><span class="title">在Spring事务管理下，使用Synchronized   为什么会出现并发问题</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/sysunyan1699" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/github.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="https://www.linkedin.com/in/yansun1699/" target="_blank" rel="external nofollow noopener noreferrer"><img no-lazy src="/images/LinkedIn.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="social" href="/sysunyan1699@gmail.com" rel="noopener noreferrer"><img no-lazy src="/images/gmail.png" / onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -82,7 +82,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-01T13:57:16.000Z">2024-05-01</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-08T14:05:03.875Z">2024-05-08</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-01T13:57:16.000Z">2024-05-01</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-11-25T15:32:28.767Z">2024-11-25</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -146,9 +146,9 @@
 <p><strong>缺点：</strong></p>
 <ul>
 <li>可能严重影响系统的可用性和性能，尤其在网络延迟较高的情况下。</li>
-<li>在 CAP 定理中，通常需要在遇到网络分区时牺牲可用性。<h3 id="412-线性一致性linearizability"><a href="#4-1-2-线性一致性（Linearizability）" class="headerlink" title="4.1.2 线性一致性（Linearizability）"></a>4.1.2 线性一致性（Linearizability）</h3></li>
+<li>在 CAP 定理中，通常需要在遇到网络分区时牺牲可用性。</li>
 </ul>
-<p>线性一致性是强一致性的一个特例，它不仅保证所有节点看到相同的数据，还要求系统表现得就像所有操作都是顺序发生的。这意味着如果操作A在操作B之前完成，那么系统中的所有节点都应该首先看到A的结果，然后是B的结果。<br><strong>优点</strong>：</p>
+<h3 id="412-线性一致性linearizability"><a href="#4-1-2-线性一致性（Linearizability）" class="headerlink" title="4.1.2 线性一致性（Linearizability）"></a>4.1.2 线性一致性（Linearizability）</h3><p>线性一致性是强一致性的一个特例，它不仅保证所有节点看到相同的数据，还要求系统表现得就像所有操作都是顺序发生的。这意味着如果操作A在操作B之前完成，那么系统中的所有节点都应该首先看到A的结果，然后是B的结果。<br><strong>优点</strong>：</p>
 <ul>
 <li>提供了强一致性的最高标准，适用于需要严格数据顺序的应用。</li>
 <li>简化了系统的编程模型。<br><strong>缺点</strong>：</li>
@@ -159,16 +159,16 @@
 <li>提高了系统的可用性和性能。</li>
 <li>在处理高并发操作时更加有效。<br><strong>缺点</strong>：</li>
 <li>用户可能会读到旧数据。</li>
-<li>应用逻辑可能需要处理数据不一致的问题。<h3 id="414-最终一致性eventual-consistency"><a href="#4-1-4-最终一致性（Eventual-Consistency）" class="headerlink" title="4.1.4  最终一致性（Eventual Consistency）"></a>4.1.4  最终一致性（Eventual Consistency）</h3></li>
+<li>应用逻辑可能需要处理数据不一致的问题。</li>
 </ul>
-<p>最终一致性保证，在没有新的更新的情况下，所有的数据副本最终将会是一致的。系统不保证达到一致状态的具体时间。<br><strong>优点</strong>：</p>
+<h3 id="414-最终一致性eventual-consistency"><a href="#4-1-4-最终一致性（Eventual-Consistency）" class="headerlink" title="4.1.4  最终一致性（Eventual Consistency）"></a>4.1.4  最终一致性（Eventual Consistency）</h3><p>最终一致性保证，在没有新的更新的情况下，所有的数据副本最终将会是一致的。系统不保证达到一致状态的具体时间。<br><strong>优点</strong>：</p>
 <ul>
 <li>高度可用和可扩展。</li>
 <li>适用于分布广泛的系统，可以容忍数据在短时间内的不一致。<br><strong>缺点</strong>：</li>
 <li>应用需要能够处理数据一段时间内的不一致。</li>
-<li>开发者需要设计有效的数据同步和冲突解决策略。<h2 id="42-cap-与-acid的微妙平衡-分布式系统只能追求最终一致性"><a href="#4-2-CAP-与-ACID的微妙平衡-分布式系统只能追求最终一致性" class="headerlink" title="4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性"></a>4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性</h2></li>
+<li>开发者需要设计有效的数据同步和冲突解决策略。</li>
 </ul>
-<p>根据 CAP 定理，一个分布式系统不可能同时满足一致性（Consistency）、可用性（Availability）和分区容忍性（Partition Tolerance）三个属性，最多只能满足其中两个，必须牺牲一个。</p>
+<h2 id="42-cap-与-acid的微妙平衡-分布式系统只能追求最终一致性"><a href="#4-2-CAP-与-ACID的微妙平衡-分布式系统只能追求最终一致性" class="headerlink" title="4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性"></a>4.2  CAP 与 ACID的微妙平衡-分布式系统只能追求最终一致性</h2><p>根据 CAP 定理，一个分布式系统不可能同时满足一致性（Consistency）、可用性（Availability）和分区容忍性（Partition Tolerance）三个属性，最多只能满足其中两个，必须牺牲一个。</p>
 <ul>
 <li><strong>一致性（Consistency）</strong>：在任何时刻，任何分布式节点中看到的数据都保持一致。</li>
 <li><strong>可用性（Availability）</strong>：系统能够不间断地提供服务的能力。</li>
@@ -258,11 +258,11 @@
 </ul>
 </li>
 <li>Java EE环境：<ul>
-<li>在Java EE应用程序中，<code>javax.transaction.UserTransaction</code>和<code>javax.transaction.TransactionManager</code>接口提供了对XA事务的支持。<h2 id="52-两阶段提交2pc"><a href="#5-2-两阶段提交（2PC）" class="headerlink" title="5.2 两阶段提交（2PC）"></a>5.2 两阶段提交（2PC）</h2></li>
+<li>在Java EE应用程序中，<code>javax.transaction.UserTransaction</code>和<code>javax.transaction.TransactionManager</code>接口提供了对XA事务的支持。</li>
 </ul>
 </li>
 </ol>
-<p>两阶段提交是一种具体的事务协议，用于在分布式系统中协调多个事务参与者的行为，以确保事务的原子性。它包含以下两个阶段：</p>
+<h2 id="52-两阶段提交2pc"><a href="#5-2-两阶段提交（2PC）" class="headerlink" title="5.2 两阶段提交（2PC）"></a>5.2 两阶段提交（2PC）</h2><p>两阶段提交是一种具体的事务协议，用于在分布式系统中协调多个事务参与者的行为，以确保事务的原子性。它包含以下两个阶段：</p>
 <ul>
 <li><strong>准备阶段</strong>：协调者询问所有参与者，是否准备好提交事务。</li>
 <li><strong>提交/回滚阶段</strong>：基于各参与者的答复和超时情况，协调者决定是否全局提交或回滚，<ul>
