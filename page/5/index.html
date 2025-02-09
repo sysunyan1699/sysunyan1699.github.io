@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
-  <meta name="robots" content="noindex,follow">
+  
   <meta name="generator" content="Hexo 7.2.0">
   <meta http-equiv='x-dns-prefetch-control' content='on' />
   
@@ -17,12 +17,12 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   
-  <title>标签：事务 - Sun Yan</title>
+  <title>Sun Yan</title>
 
   
     <meta property="og:type" content="website">
 <meta property="og:title" content="Sun Yan">
-<meta property="og:url" content="http://example.com/tags/%E4%BA%8B%E5%8A%A1/index.html">
+<meta property="og:url" content="http://example.com/page/5/index.html">
 <meta property="og:site_name" content="Sun Yan">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="Sun Yan">
@@ -66,77 +66,27 @@
 
 <header class="header mobile-only"><div class="logo-wrap"><a class="avatar" href="/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Sun Yan</div><div class="sub cap">Backend Developer</div></a></div></header>
 
- 
 
 
 
+<div class="navbar top"><nav class="post"><a class="active" href="/">近期发布</a><a href="/tags">标签</a><a href="/archives">归档</a></nav></div>
+<div class="post-list post"><a class="post-card post" href="/b381342a/">
+<article class="md-text"><h2 class="post-title">Java反射实践与原理</h2><div class="excerpt"><p>反射作为一种高级技术，虽然在业务开发中很少直接编写相关代码，但实际存在于 Java 开发中的方方面面。
 
-<div class="navbar top"><nav class="post"><a href="/">近期发布</a><a class="active" href="/tags">标签：事务</a><a href="/archives">归档</a></nav></div>
-<div class="post-list post"><a class="post-card post" href="/d8e12886/">
-<article class="md-text"><h2 class="post-title">SafeInventory- 如何高效扣减库存</h2><div class="excerpt"><p>SafeInventory-本地事务下，如何安全操作库存
-SafeInventory-分布式事务下，如何安全操作库存
-在以上2篇文章中，已经详细说明了
+Spring Framework：
+依赖注入：使用反射实例化对象、设置属性和调用方法，实现IoC。
+AOP：通过反射在方法调用前后动态添加逻辑，如日志记录和事务管理。
 
-本地事务下通过数据库乐观锁、数据库悲观锁、分布式锁 实现安全扣减库存
-分布式事务下，通过预扣库存方案 实现安全扣减库存以上所有方案，其处理逻辑均依赖于数据库， 在高并发场景下会遇到 DB 层面带来的性能瓶颈。
 
-面对数据库带来的性能瓶颈问题...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-11-23T13:25:55.000Z">2024-11-23</time></span></div></article>
-</a><a class="post-card post" href="/a5120d74/">
-<article class="md-text"><h2 class="post-title">SafeInventory-分布式事务下，如何安全操作库存</h2><div class="excerpt"><p>在SafeInventory-分布式事务下，如何安全操作库存，一文中已经详细说明在本地事务下如何安全操作库存。
-本文将继续讨论在分布式事务下， 如何安全操作库存。
-在购物场景下，库存扣减是一个典型的分布式事务，通常涉及三个系统：订单系统、库存系统和支付系统。其交互流程如下：
+Hibernate：
+对象关系映射（ORM）：利用反射读取和写入实体类属性，实现Java对象与数据库表的映射。
 
-订单系统请求扣减库存：在用户下单时，订单系统首先向库存系统请求扣减库存，只有在确认有足够库存的情况下，订单才会创建成...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-10-23T15:20:34.000Z">2024-10-23</time></span></div></article>
-</a><a class="post-card post" href="/ca1e509/">
-<article class="md-text"><h2 class="post-title">SafeInventory-本地事务下，如何安全操作库存</h2><div class="excerpt"><p>库存是许多业务场景中都会涉及的概念，比如购物场景中的商品库存，以及营销场景中的优惠券库存。不同的业务场景有各自的交互流程，后端设计也会随之不同。
 
-购物场景：用户必须完成支付才能真正拥有商品。因此，库存的扣减需要与支付流程紧密结合，并与其他系统交互协调，确保在支付成功后才正式扣减库存。
-
-营销场景：用户通常只需点击领取按钮即可获得优惠券，而不需要支付。这种情况下，库存的扣减操作可以通过一个简...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-10-16T13:26:30.000Z">2024-10-16</time></span></div></article>
-</a><a class="post-card post" href="/c3915fbe/">
-<article class="md-text"><h2 class="post-title">如何处理重复请求保证幂等</h2><div class="excerpt"><p>1. 什么是幂等在系统设计中，“幂等”是一种非常重要的概念。
-幂等性（Idempotency）指的是一个操作无论执行多少次，其结果都应保持一致，和只执行一次的结果相同。
-这在分布式系统、网络请求和服务接口中尤为重要，因为它可以确保系统的数据一致性。
-2. 为什么会出现重复请求重复请求在系统设计中是一个常见的问题，尤其是在高并发和分布式环境中。
-出现重复请求的原因有多种，包括用户操作、业务逻辑...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-10-15T13:33:55.000Z">2024-10-15</time></span></div></article>
-</a><a class="post-card post" href="/2a483461/">
-<article class="md-text"><h2 class="post-title">在Spring事务管理下，使用Synchronized   为什么会出现并发问题</h2><div class="excerpt"><p>理解了Spring事务实现原理， 现在来解决一个实际问题。
-在实际业务开发中，我们经常会遇到在一个事务内执行多个业务操作保证原子性， 同时希望这段逻辑是并发安全的。
-比如在商品售卖场景中，非常重要的一件事就是防止超卖，且要保证多个业务操作之间的原子性。以下示例代码，明显会出现超卖问题（查询是否有库存时有库存并不代码真正扣减库存时还有库存，假设扣减库存时SQL 中没有乐观锁） 12345678...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-07-23T09:58:56.000Z">2024-07-23</time></span></div></article>
-</a><a class="post-card post" href="/1a0f7094/">
-<article class="md-text"><h2 class="post-title">Spring事务实现原理</h2><div class="excerpt"><p>1.  数据库事务1.1  数据库事务实现原理Spring提供了灵活方便的事务管理功能，但这些功能都是基于底层数据库本身的事务处理机制工作的。要想深入了解Spring的事务管理和配置，有必要先学习数据库事务的基础知识。有需要可以阅读以下文章Intro to 事务Intro to InnoDB事务InnoDB事务-原子性的实现， undo logInnoDB事务-隔离性的实现, MVCC &a...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-07-23T07:55:30.000Z">2024-07-23</time></span></div></article>
-</a><a class="post-card post" href="/6cb5dc64/">
-<article class="md-text"><h2 class="post-title">InnoDB事务-持久性的实现,binglog & redo log</h2><div class="excerpt"><p>在MySQL InnoDB 这个语境下， crash safe、数据不丢失 都指的是事务的持久性特性，即事务一旦提交，应当保证所有被成功提交的数据修改都能够正确地被持久化，不丢失数据, 即使宕机也能够恢复数据
-在InnoDB 中，持久性 基于binlog 和redo log 实现， 且binlog 与redo log 的写入通过2PC 协调.
-0 XA 事务：binlog 和redo log...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:47:18.000Z">2024-05-02</time></span></div></article>
-</a><a class="post-card post" href="/9faedfe0/">
-<article class="md-text"><h2 class="post-title">InnoDB事务-隔离性的实现, MVCC & 锁</h2><div class="excerpt"><p>隔离性，还有一个说法就是 数据可见性。
-隔离性、数据可见性是一个在并发事务下才需要考虑的问题，并发事务可以分3种情况考虑
-
-读-读， 读操作不会对数据产生影响，所以不需要关注
-读-写 or 写-读， 可能会出现脏读、不可重复读、幻读
-写-写，可能会脏写的情况
-
-并发事务下的数据的一致性写问题
-
-脏写：一个事务修改了另一个未提交事务修改过的数据。
-
-并发事务下的数据的一致性读问题
-
-脏读：事务...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:42:57.000Z">2024-05-02</time></span></div></article>
-</a><a class="post-card post" href="/b36b0ce9/">
-<article class="md-text"><h2 class="post-title">InnoDB事务-原子性的实现,undo log</h2><div class="excerpt"><p>原子性指的是事务要么完全成功执行，要么完全失败回滚，不允许部分执行。
-这本质上是在要求具有rollback 回滚能力。
-InnoDB中的事务可能会由用户主动触发Rollback；也可能因为遇到死锁异常Rollback；或者发生Crash，重启后对未提交的事务回滚。
-InnoDB 的 rollback回滚能力 是基于 undo log 实现的。undo log 记录了修改操作前的旧版本数据，以...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:22:30.000Z">2024-05-02</time></span></div></article>
-</a><a class="post-card post" href="/9cd551f5/">
-<article class="md-text"><h2 class="post-title">Intro to InnoDB事务</h2><div class="excerpt"><p>在Intro to 事务中介绍过， 一致性是事务的核心特征，或者说最终目的，原子性、隔离性和持久性都是实现一致性的手段。
-所以在介绍InnoDB 事务时，主要介绍AID 特性的实现InnoDB事务-原子性的实现， undo logInnoDB事务-隔离性的实现, MVCC &amp; 锁InnoDB事务-持久性的实现， binglog &amp; redo log&amp;undo log
-...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2024-05-02T14:15:42.000Z">2024-05-02</time></span></div></article>
+...</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2020-05-15T06:25:11.000Z">2020-05-15</time></span></div></article>
 </a></div>
 
   <div class='paginator-wrap dis-select'>
-  <span class="extend prev" rel="prev"></span><span class="page-number current">1</span><a class="page-number" href="/tags/%E4%BA%8B%E5%8A%A1/page/2/">2</a><a class="extend next" rel="next" href="/tags/%E4%BA%8B%E5%8A%A1/page/2/"></a>
+  <a class="extend prev" rel="prev" href="/page/4/"></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><span class="extend next" rel="next"></span>
   </div>
 
 

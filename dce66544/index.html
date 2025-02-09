@@ -17,28 +17,25 @@
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   
-  <title>InnoDB事务-隔离性的实现, MVCC & 锁 - Sun Yan</title>
+  <title>what is Base64 - Sun Yan</title>
 
   
-    <meta name="description" content="隔离性，还有一个说法就是 数据可见性。 隔离性、数据可见性是一个在并发事务下才需要考虑的问题，并发事务可以分3种情况考虑  读-读， 读操作不会对数据产生影响，所以不需要关注 读-写 or 写-读， 可能会出现脏读、不可重复读、幻读 写-写，可能会脏写的情况  并发事务下的数据的一致性写问题  脏写：一个事务修改了另一个未提交事务修改过的数据。  并发事务下的数据的一致性读问题  脏读：事务读取了">
+    <meta name="description" content="I don’t think everyone clearly understands what Base64 is,  such as  I didn’t fully understand it before.First of all, you should know that Base64 is a type of encoding, not a type of encryption.Many">
 <meta property="og:type" content="article">
-<meta property="og:title" content="InnoDB事务-隔离性的实现, MVCC &amp; 锁">
-<meta property="og:url" content="http://example.com/9faedfe0/index.html">
+<meta property="og:title" content="what is Base64">
+<meta property="og:url" content="http://example.com/dce66544/index.html">
 <meta property="og:site_name" content="Sun Yan">
-<meta property="og:description" content="隔离性，还有一个说法就是 数据可见性。 隔离性、数据可见性是一个在并发事务下才需要考虑的问题，并发事务可以分3种情况考虑  读-读， 读操作不会对数据产生影响，所以不需要关注 读-写 or 写-读， 可能会出现脏读、不可重复读、幻读 写-写，可能会脏写的情况  并发事务下的数据的一致性写问题  脏写：一个事务修改了另一个未提交事务修改过的数据。  并发事务下的数据的一致性读问题  脏读：事务读取了">
+<meta property="og:description" content="I don’t think everyone clearly understands what Base64 is,  such as  I didn’t fully understand it before.First of all, you should know that Base64 is a type of encoding, not a type of encryption.Many">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/9faedfe0/1.png">
-<meta property="article:published_time" content="2024-05-02T14:42:57.000Z">
-<meta property="article:modified_time" content="2024-05-10T15:24:50.199Z">
+<meta property="article:published_time" content="2025-01-30T14:19:25.000Z">
+<meta property="article:modified_time" content="2025-02-09T14:26:58.678Z">
 <meta property="article:author" content="Sun Yan">
-<meta property="article:tag" content="MySQL">
-<meta property="article:tag" content="事务">
+<meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/9faedfe0/1.png">
   
   
   
-  <meta name="keywords" content="MySQL,事务">
+  <meta name="keywords" content="java">
 
   <!-- feed -->
   
@@ -82,161 +79,187 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-05-02T14:42:57.000Z">2024-05-02</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-05-10T15:24:50.199Z">2024-05-10</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-01-30T14:19:25.000Z">2025-01-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-02-09T14:26:58.678Z">2025-02-09</time></span></div></div></div>
     
     <div class="bottom only-title">
       
       <div class="text-area">
-        <h1 class="text title"><span>InnoDB事务-隔离性的实现, MVCC & 锁</span></h1>
+        <h1 class="text title"><span>what is Base64</span></h1>
         
       </div>
     </div>
     
   </div>
-  </div><article class="md-text content"><p>隔离性，还有一个说法就是 数据可见性。</p>
-<p>隔离性、数据可见性是一个在并发事务下才需要考虑的问题，并发事务可以分3种情况考虑</p>
+  </div><article class="md-text content"><p>I don’t think everyone clearly understands what Base64 is,  such as  I didn’t fully understand it before.<br>First of all, you should know that Base64 is a type of encoding, not a type of encryption.<br>Many people think  Base64 is a type of encryption, but that’s incorrect.</p>
+<h1 id="1encoding-vs-encryption"><a href="#1-encoding-vs-encryption" class="headerlink" title="1.encoding vs encryption"></a>1.encoding vs encryption</h1><h2 id="11-encoding"><a href="#1-1-encoding" class="headerlink" title="1.1 encoding"></a>1.1 encoding</h2><p>编码的主要目的是为了<strong>转换数据</strong>以便于存储或传输，确保数据能够适应某种特定的格式，而不是为了保护数据的安全性。编码不会增加数据的安全性，只是使数据适合在特定环境下被正确处理。</p>
+<p><strong>特征</strong>：</p>
 <ol>
-<li>读-读， 读操作不会对数据产生影响，所以不需要关注</li>
-<li>读-写 or 写-读， 可能会出现脏读、不可重复读、幻读</li>
-<li>写-写，可能会脏写的情况</li>
+<li><strong>可逆性</strong>：编码是可逆的，意味着编码后的数据可以通过解码过程还原成原始数据。</li>
+<li><strong>公开性</strong>：编码后的数据是公开的，任何知道编码规则的人都可以将编码数据还原回原始数据。</li>
+<li><strong>目的</strong>：用于确保数据在特定的传输或存储过程中不会因为格式不符而损坏，或者是为了处理一些不能直接显示或传输的字符。</li>
 </ol>
-<p>并发事务下的数据的一致性写问题</p>
+<p><strong>常见例子</strong>：</p>
 <ul>
-<li>脏写：一个事务修改了另一个未提交事务修改过的数据。</li>
+<li><strong>Base64</strong>：通常用于在电子邮件或URL中传输二进制数据。由于邮件系统和URL对某些字符（比如空格和特殊符号）可能不兼容，所以将数据进行Base64编码。</li>
+<li><strong>URL编码</strong>：将一些特殊字符（比如空格、&amp;符号）转换成百分号编码，以便在URL中传输。</li>
 </ul>
-<p>并发事务下的数据的一致性读问题</p>
+<p><strong>例子</strong>：</p>
 <ul>
-<li><strong>脏读</strong>：事务读取了未提交的数据，可能造成数据不一致。</li>
-<li><strong>不可重复读</strong>：事务在内部的多次读取中看到了同一数据的不同版本，主要由于其他事务的更新操作。</li>
-<li><strong>幻读</strong>：事务在两次查询同一个范围时看到了不一样的行，通常是因为其他事务添加或删除了行。</li>
+<li>将文本 “hello” 编码为Base64时，得到的是 “aGVsbG8=”，这个过程是可逆的，可以解码回原始文本。</li>
 </ul>
-<p>MySQL  的 4种 事务隔离级别</p>
+<h2 id="12-encryption"><a href="#1-2-encryption" class="headerlink" title="1.2 encryption"></a>1.2 encryption</h2><p>加密的主要目的是<strong>保护数据的隐私性和机密性</strong>。通过加密，数据会变得无法被未授权的人理解，即使他们可以访问加密后的数据，也无法恢复出原始数据，除非他们拥有正确的解密密钥。</p>
+<p><strong>特征</strong>：</p>
+<ol>
+<li><strong>不可逆性</strong>：加密通常是不可逆的，意味着没有正确的密钥或解密方法，数据无法恢复。</li>
+<li><strong>私密性</strong>：加密的目的是保护数据的安全性，只有授权的接收者能够解密并访问原始数据。</li>
+<li><strong>保护数据</strong>：加密主要是为了确保数据在传输或存储过程中不被未经授权的人查看或篡改。</li>
+</ol>
+<p><strong>常见例子</strong>：</p>
+<ul>
+<li><strong>AES（高级加密标准）</strong>：一种常见的对称加密算法，用于加密文件、通信数据等。</li>
+<li><strong>RSA</strong>：一种非对称加密算法，用于在不安全的网络环境中安全地传输数据，尤其常用于HTTPS协议中。</li>
+</ul>
+<p><strong>例子</strong>：</p>
+<ul>
+<li>将文本 “hello” 使用加密算法进行加密时，得到的是一串乱码（比如 “U2FsdGVkX19eZq8jBZtmzCg==”)。这串加密后的数据没有密钥无法恢复成原始文本。</li>
+</ul>
 <div class="table-container">
 <table>
 <thead>
 <tr>
-<th>隔离级别</th>
-<th>解决的问题</th>
-<th>未解决的问题</th>
-<th>原理描述</th>
+<th>特点</th>
+<th>编码 (Encoding)</th>
+<th>加密 (Encryption)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>读未提交</strong></td>
-<td>无</td>
-<td>脏读、不可重复读、幻读</td>
-<td>允许事务读取其他事务未提交的修改，可能导致脏读。</td>
+<td><strong>目的</strong></td>
+<td>转换数据以便存储或传输，不考虑安全性</td>
+<td>保护数据的机密性，防止未经授权的访问</td>
 </tr>
 <tr>
-<td><strong>读已提交</strong></td>
-<td>脏读</td>
-<td>不可重复读、幻读</td>
-<td>只能看到已经被其他事务提交的数据，避免了脏读，但不能防止在同一事务中看到不一致的数据。</td>
+<td><strong>可逆性</strong></td>
+<td>可逆，编码可以被解码</td>
+<td>通常不可逆，只有正确的密钥才能解密</td>
 </tr>
 <tr>
-<td><strong>可重复读</strong></td>
-<td>脏读、不可重复读</td>
-<td>MySQL 在该隔离级别下加上gap 锁可部分解决幻读问题</td>
-<td>在事务开始后所有SELECT操作都看到一致的快照，避免了不可重复读，但无法防止其他事务插入新行（幻读）。</td>
+<td><strong>透明性</strong></td>
+<td>编码后的数据是公开的，可以轻易还原</td>
+<td>加密后的数据是隐藏的，未经授权者无法理解</td>
 </tr>
 <tr>
-<td><strong>串行化</strong></td>
-<td>脏读、不可重复读、幻读</td>
-<td>无</td>
-<td>“写”会加“写锁”，“读”会加“读锁”。当出现读写锁冲突的时候，后访问的事务必须等前一个事务执行完成，才能继续执行。通过强制事务串行执行，防止了脏读、不可重复读和幻读，提供了最高级别的隔离。</td>
+<td><strong>常见算法</strong></td>
+<td>Base64, URL编码</td>
+<td>AES, RSA, DES</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>由于脏写导致的数据一致性问题非常严重，任何一种隔离级别下都不允许发生，对数据的修改操作必须通过锁串行执行</p>
-<p>InnoDB 在解决 并发事务时，分成两种情况对应不同的解决方案</p>
-<ol>
-<li>快照读-MVCC</li>
-<li>当前读- 锁</li>
-</ol>
-<h1 id="1-快照读的隔离性-mvcc"><a href="#1-快照读的隔离性-MVCC" class="headerlink" title="1 快照读的隔离性-MVCC"></a>1 快照读的隔离性-MVCC</h1><ul>
-<li><strong>一致性视图</strong>：在快照读中，事务会创建一个一致性视图（Consistent Read View），确保当前事务读取到的都是事务开始时的数据状态。它依赖于MVCC的实现。</li>
-<li><strong>无需锁定</strong>：快照读是一种无锁的读取，即读取数据时不需要对行记录进行锁定，因此它不会阻塞事务的读写，同时也不会被其他事务的读写操作阻塞。</li>
-<li><strong>隔离级别影响</strong>：快照读的行为受事务隔离级别的影响，不同的隔离级别会影响读取到的版本。<ul>
-<li>在读未提交隔离级别下，所有事务都读取最新事务；</li>
-<li>在串行化隔离级别下，使用锁控制数据的访问。</li>
-<li>在读已提交和可重复读隔离级别下，使用MVCC 来控制数据的可见性。</li>
-</ul>
-</li>
-</ul>
-<p>InnoDB存储引擎的MVCC（多版本并发控制）机制是基于ReadView和Undo Log共同实现的，关键是通过<code>TRX_ID</code>和<code>ROLL_PTR</code>两个行记录隐藏列来跟踪和管理每一行的修改版本。</p>
-<h2 id="11-版本链-undo-log"><a href="#1-1-版本链-undo-log" class="headerlink" title="1.1 版本链 -undo log"></a>1.1 版本链 -undo log</h2><p>在基于undo log 实现原子性 一文中，可以看到</p>
-<ol>
-<li>行记录中有roll_pointer,</li>
-<li>update 操作中TRX_UNDO_UPD_EXIST_REC 和 TRX_UNDO_DEL_MARK_REC 类型的undo log 中，也有roll_pointer,<br>通过这些roll_pointer, 可以形成一条行记录的版本链。</li>
-</ol>
-<p>insert 操作中，对应的undo log没有roll_pointer 属性，因为insert 操作就是一个行记录的初始版本，没有比它更早的操作了。</p>
-<p>以下是一个通过roll_pointer 组成的版本链，每个undo log 进行了内容省略以展示链接的重点内容</p>
-<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/9faedfe0/1.png" class>
-<h2 id="12-readview"><a href="#1-2-readview" class="headerlink" title="1.2 readview"></a>1.2 readview</h2><p>有了版本链，那么该如何判断哪个版本的数据对当前事务可见呢，这里需要引入readview 概念。</p>
-<p>Read View 主要包含以下几个关键的部分：</p>
-<ol>
-<li><strong>m_ids</strong>：当前系统中活跃的事务ID列表。这些事务在生成 Read View 时已经开始但尚未提交。</li>
-<li><strong>min_trx_id</strong>：生成 Read View 时，活跃事务ID中的最小值。这是因为任何 ID 小于此值的事务在 Read View 生成前已经提交。</li>
-<li><strong>max_trx_id</strong>：生成 Read View 时，已知的下一个事务ID。任何大于或等于此 ID 的事务在生成 Read View 后开始的。</li>
-<li><strong>creator_trx_id</strong>：生成这个 Read View 的事务的事务ID。 一个事务只有进行修改操作时，才会被分配trx_id, 否则一个事务的trx_id 默认都是0， 所以 creator_trx_id 也有可能时0</li>
-</ol>
-<p><strong>运作方式</strong>：</p>
+<h1 id="2what-is-base64-encoding"><a href="#2-what-is-Base64-encoding" class="headerlink" title="2.what is Base64 encoding"></a>2.what is Base64 encoding</h1><p><strong>Base64 的作用就是将任意形式的原始输入（无论是文本、文件还是其他类型的数据）转化为二进制数据后，再进行编码</strong>，最终输出的是一个由 Base64 字符集（64 个字符）组成的纯文本字符串。</p>
+<h2 id="21-the-principle-of-base64-encoding"><a href="#2-1-The-Principle-of-Base64-encoding" class="headerlink" title="2.1 The Principle of Base64 encoding"></a>2.1 The Principle of Base64 encoding</h2><p>Base64编码的基本思想是通过将每3个字节的二进制数据（24位）分为四个6位，每次处理3个字节（24位），即24位的数据会被分成4个6位的数据单元。 再将每个6位的数据单元  映射为一个Base64字符，从而得到一个可打印的文本。</p>
+<p>简单一点儿就是 Base64将每3个字节的二进制数据（24位）编码为4个Base64字符（每个字符6位）。</p>
 <ul>
-<li>当事务执行查询操作时，它会根据自己的 Read View 来判断数据行的可见性。具体来说，每行数据都有自己的系统版本号（trx_id，即事务ID）。Read View 通过以下逻辑来确定行的可见性：<ol>
-<li>如果行及记录的trx_id  和creator_trx_id 相等，说明当前事务在访问自己修改的数据，数据可见。</li>
-<li>如果行的版本号小于 min_trx_id，说明行是在 Read View 生成之前被创建或最后修改的，因此对当前事务可见。</li>
-<li>如果行的版本号大于或等于 max_trx_id，说明行是在 Read View 生成之后被创建或修改的，因此对当前事务不可见。</li>
-<li>如果行的版本号在 min_trx_id 和 max_trx_id 之间，还需要检查这个版本号是否属于 m_ids 列表中的某个事务：<ul>
-<li>如果属于，说明该行可能由尚未提交的事务修改，对当前事务不可见。</li>
-<li>如果不属于，说明该行由已提交的事务修改，对当前事务可见。</li>
+<li><strong>输出数据的字符集</strong>：Base64编码使用64个可打印字符来表示数据,包含64个字符（A-Z, a-z, 0-9, +, /）<ul>
+<li><strong>A-Z</strong>: 对应0到25</li>
+<li><strong>a-z</strong>: 对应26到51</li>
+<li><strong>0-9</strong>: 对应52到61</li>
+<li><strong>+</strong>: 对应62</li>
+<li><strong>/</strong>: 对应63</li>
 </ul>
 </li>
-</ol>
-</li>
+<li><strong>输出数据的长度</strong> ：编码后的结果可以理解成是一个字符串，这个字符串的长度必须是4的倍数， 不足则要通过填充字符“=”来补足</li>
+<li><strong>填充字符</strong>：填充字符“=”并不参与实际的数据编码，它们只是占位符，用于满足Base64编码的输出格式要求。 如果原始数据的字节数不是3的倍数，则编码结果的长度将不是4的倍数，Base64可以通过添加填充字符“=”来补足编码结果，使得编码后的字符串长度始终是4的倍数。解码时，填充字符会被忽略，只有实际编码的数据会被还原。</li>
+<li><strong>数据增长</strong>：Base64编码将每3个字节（24位）转换为4个字符，而每个Base64字符是一个字节（8位），所以编码后的数据量会比原始数据大约增加33%</li>
+<li><strong>不安全</strong>：Base64只是编码，<strong>不是加密</strong>。它不会提供数据的安全性保护，任何知道Base64编码规则的人都可以解码回原始数据。</li>
 </ul>
-<p>如果某个版本的数据对当前事务不可见，那就顺着版本链找洗一个版本的数据，并按照上面的步骤进行判断。如果一个数据直到最后一个版本都不可见，那就说明该条数据对当前事务完全不可见</p>
-<h3 id="121-readview-和-读已提交read-committed"><a href="#1-2-1-readview-和-读已提交（Read-Committed）" class="headerlink" title="1.2.1  readview 和 读已提交（Read Committed）"></a>1.2.1  readview 和 读已提交（Read Committed）</h3><ul>
-<li><strong>生成时机</strong>：在 RC 隔离级别下，Read View 不是在事务开始时生成，而是在一个事务内每次执行 SQL 查询时都会生成新的readview, 所以该事务内是可以看到其他事务已提交的对数据的修改，这在数据一致性上就表现为<code>不可重复读</code></li>
-<li><strong>行为</strong>：每次查询都创建一个新的 Read View，包含当前时刻所有未完成的事务ID。这确保了查询只能看到那些在执行查询前已经提交的事务所做的更改。</li>
+<h2 id="22-why-base64-encoding-is-needed"><a href="#2-2-why-Base64-encoding-is-needed" class="headerlink" title="2.2 why Base64 encoding is needed"></a>2.2 why Base64 encoding is needed</h2><p>某些传输协议或应用（如电子邮件、URL、HTTP请求等）可能不支持或不允许直接传输二进制数据。比如，电子邮件系统中的内容有时只支持文本格式，而二进制数据（如图片、音频、视频等）则无法直接嵌入。这时候，Base64编码就显得非常有用，它能够将二进制数据转换成可打印的文本形式，确保数据能够顺利传输。</p>
+<h1 id="3three-types-of-base64"><a href="#3-Three-types-of-Base64" class="headerlink" title="3.Three types of Base64"></a>3.Three types of Base64</h1><p><code>getDecoder()</code>, <code>getUrlDecoder()</code>, 和 <code>getMimeDecoder()</code> 是 <strong>Java 8</strong> 中引入的 <strong>Base64</strong> 类的一部分，它们分别用于解码不同格式的 Base64 编码数据。这些方法都是静态的，位于 <code>java.util.Base64</code> 类中。</p>
+<h2 id="31-标准-base64-编码解码getencoder-和-getdecoder"><a href="#3-1-标准-Base64-编码-解码：getEncoder-和-getDecoder" class="headerlink" title="3.1 标准 Base64 编码/解码：getEncoder() 和 getDecoder()"></a>3.1 标准 Base64 编码/解码：<code>getEncoder()</code> 和 <code>getDecoder()</code></h2><ul>
+<li>编码器：<code>Base64.getEncoder()</code></li>
+<li>解码器：<code>Base64.getDecoder()</code></li>
 </ul>
-<h3 id="122-readview-和-可重复读repeatable-read"><a href="#1-2-2-readview-和-可重复读（Repeatable-Read）" class="headerlink" title="1.2.2 readview 和 可重复读（Repeatable Read）"></a>1.2.2 readview 和 可重复读（Repeatable Read）</h3><p>InnoDB 的 默认隔离级别。</p>
+<p><strong>特点</strong>：</p>
 <ul>
-<li><strong>生成时机</strong>：在 RR 隔离级别下，Read View 是在事务的第一次查询操作开始时创建的，且在整个事务期间保持不变。这意味着整个事务中所有的查询都将看到相同的数据快照。</li>
-<li><strong>行为</strong>：一旦生成，这个 Read View 将包含事务开始时刻的所有活跃事务ID。无论这些事务后来如何提交或回滚，当前事务的后续查询都不会感知到这些变化。</li>
+<li><p>使用标准 Base64 字符集：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">A</span>-Z, <span class="selector-tag">a</span>-z, <span class="number">0</span>-<span class="number">9</span>, +, /</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>标准 Base64 编码结果的填充字符是 =,确保编码结果的长度是 4 的倍数</p>
+</li>
+<li>编码结果是连续字符串，无换行符。</li>
+<li>解码时只能处理标准 Base64 格式，任何不兼容符号（如 <code>-</code> 或 <code>_</code>）都会导致解码失败。</li>
 </ul>
-<h3 id="123-两者的对比"><a href="#1-2-3-两者的对比" class="headerlink" title="1.2.3 两者的对比"></a>1.2.3 两者的对比</h3><ul>
-<li><strong>数据可见性</strong>：在读已提交中，事务可能看到其他事务提交的更新（即事务中的查询可能返回不同的结果），而在可重复读中，事务保证了始终对数据的一致视图。</li>
-<li><strong>Read View 的生成频率</strong>：读已提交每次查询都重新生成 Read View，而可重复读只在事务开始时生成一次。</li>
-<li><strong>系统开销</strong>：由于读已提交每次查询都需要生成 Read View，可能会有更高的系统开销，尤其是在查询频繁的场景中。相比之下，可重复读的开销主要集中在事务开始阶段。</li>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>适合用于常规的编码需求，例如文件内容、API 传输中的数据编码。</li>
+<li>如果需要严格遵守标准 Base64 协议，这是首选组合。</li>
 </ul>
-<h1 id="2-当前读的隔离型-锁"><a href="#2-当前读的隔离型-锁" class="headerlink" title="2 当前读的隔离型-锁"></a>2 当前读的隔离型-锁</h1><p>当前读指的是读取数据时总是获取数据的最新版本，并通过加锁（行级别的排他锁，S锁或X锁）以确保一致性，防止其他事务修改或删除这些数据。</p>
-<p>当前读通常用于需要修改数据的查询，如</p>
-<ol>
-<li>select…lock in share mode (共享读锁)</li>
-<li>select…for update</li>
-<li>UPDATE</li>
-<li>DELETE</li>
-</ol>
-<p>关于行锁和间隙锁的具体加锁规则，和隔离级别和索引有关，大家可以参考何登成的加锁分析文章<br><a target="_blank" rel="noopener" href="https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL%20%E5%8A%A0%E9%94%81%E5%A4%84%E7%90%86%E5%88%86%E6%9E%90.pdf">MySQL 加锁分析</a></p>
-<h1 id="3-幻读bad-case"><a href="#3-幻读bad-case" class="headerlink" title="3. 幻读bad case"></a>3. 幻读bad case</h1><p>在前面介绍隔离级别时，提到 在可重复读隔离级别下 加上 间隙锁， 可以一定程度上解决幻觉。<br>但是如果一个事务中 快照读和当前读混用，就会出现幻读bad case.</p>
-<p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/mysql/transaction/phantom.html#%E5%B9%BB%E8%AF%BB%E8%A2%AB%E5%AE%8C%E5%85%A8%E8%A7%A3%E5%86%B3%E4%BA%86%E5%90%97">幻读被完全解决了吗？</a> 这篇文章中例举两个幻读 bad case,讲的比较清晰，可以参考</p>
-<h1 id="4-当前读vs快照读"><a href="#4-当前读vs快照读" class="headerlink" title="4. 当前读vs快照读"></a>4. 当前读vs快照读</h1><ul>
-<li><strong>快照读（Snapshot Read）</strong>：<ul>
-<li>读取数据时使用的是某一时间点的快照，不会加锁。</li>
-<li>使用MVCC机制，根据事务的隔离级别和版本号返回合适的行版本。</li>
-<li>通常用于<code>SELECT</code>查询。</li>
+<h2 id="32-url-安全-base64-编码解码geturlencoder-和-geturldecoder"><a href="#3-2-URL-安全-Base64-编码-解码：getUrlEncoder-和-getUrlDecoder" class="headerlink" title="3.2 URL 安全 Base64 编码/解码：getUrlEncoder() 和 getUrlDecoder()"></a>3.2 URL 安全 Base64 编码/解码：<code>getUrlEncoder()</code> 和 <code>getUrlDecoder()</code></h2><ul>
+<li>编码器：<code>Base64.getUrlEncoder()</code></li>
+<li>解码器：<code>Base64.getUrlDecoder()</code></li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li><p>URL 安全的 Base64 编码符号表：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">A</span>-Z, <span class="selector-tag">a</span>-z, <span class="number">0</span>-<span class="number">9</span>, -, _</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将 <code>+</code> 替换为 <code>-</code>，将 <code>/</code> 替换为 <code>_</code>，从而避免特殊字符在 URL 或文件名中被错误解析。</p>
+</li>
+<li>默认情况下，编码结果不包含填充字符 =（但解码器能够识别并处理填充字符）。</li>
+</ul>
+<p>这些特殊字符在某些场景下会造成问题：</p>
+<ul>
+<li><ul>
+<li>在 URL 中表示空格</li>
 </ul>
 </li>
-<li><strong>当前读（Current Read）</strong>：<ul>
-<li>始终读取最新版本的行。</li>
-<li>可能会加锁，防止其他事务修改或删除读取的数据。</li>
-<li>通常用于修改数据的查询操作，如<code>SELECT ... FOR UPDATE</code>、<code>SELECT ... LOCK IN SHARE MODE</code>、<code>UPDATE</code>和<code>DELETE</code>。</li>
+<li>/ 在 URL 和文件路径中是分隔符</li>
+<li>= 在 URL 中用于参数赋值</li>
 </ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>当需要将 Base64 数据嵌入到 URL 或文件名中时，避免使用 <code>+</code> 和 <code>/</code>  和 =这种可能被误解的字符。</li>
+<li>适用于 Web 应用、API 参数和文件名编码。</li>
+</ul>
+<h2 id="33-mime-base64-编码解码getmimeencoder-和-getmimedecoder"><a href="#3-3-MIME-Base64-编码-解码：getMimeEncoder-和-getMimeDecoder" class="headerlink" title="3.3 MIME Base64 编码/解码：getMimeEncoder() 和 `getMimeDecoder()"></a>3.3 MIME Base64 编码/解码：<code>getMimeEncoder()</code> 和 `getMimeDecoder()</h2><ul>
+<li>编码器：<code>Base64.getMimeEncoder()</code></li>
+<li>解码器：<code>Base64.getMimeDecoder()</code></li>
+</ul>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>MIME Base64 符号表与标准 Base64 相同</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">A</span>-Z, <span class="selector-tag">a</span>-z, <span class="number">0</span>-<span class="number">9</span>, +, /</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编码结果包含换行符，每行最多 76 个字符。</li>
+<li>解码器会忽略换行符和空白字符，因此可以处理分段的 Base64 数据。<br><strong>适用场景</strong>：</li>
+<li>MIME 格式数据的编码和解码，例如电子邮件附件、多媒体数据的嵌入（符合 MIME 协议）。</li>
+<li>适用于需要处理大数据量（如文件）并且需要分行显示的场景。</li>
+</ul>
+<h1 id="4base64-in-jwt"><a href="#4-Base64-in-JWT" class="headerlink" title="4.Base64 in JWT"></a>4.Base64 in JWT</h1><p>JWT 使用URL 安全 Base64 编码/解码</p>
+<p><strong>JWT（JSON Web Token）</strong> 是一种用于在应用程序和用户之间安全传输信息的开放标准（RFC 7519）。它通常用于认证和信息交换，并且被广泛应用于单点登录（SSO）和API授权等场景。</p>
+<p>JWT的结构由三部分组成，<code>Header.Payload.Signature</code>，每一部分都是通过Base64Url编码的字符串。</p>
+<h2 id="41-header"><a href="#4-1-Header" class="headerlink" title="4.1 Header"></a>4.1 <strong>Header</strong></h2><ul>
+<li>将Header JSON对象通过Base64Url编码，生成JWT的第一部分。<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;alg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;HS256&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;typ&quot;</span><span class="punctuation">:</span> <span class="string">&quot;JWT&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h1 id="相关文章"><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1><p><a target="_blank" rel="noopener" href="https://sunyan.xyz/5b064db6/">Intro to 事务</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/9cd551f5/">Intro to InnoDB 事务</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/b36b0ce9/">InnoDB事务-原子性的实现,undo log</a><br><a target="_blank" rel="noopener" href="https://sunyan.xyz/6cb5dc64/">InnoDB事务-持久性的实现, binglog &amp; redo log&amp;undo log</a></p>
+<h2 id="42-payload"><a href="#4-2-Payload" class="headerlink" title="4.2 Payload"></a>4.2 <strong>Payload</strong></h2><ul>
+<li>包含实际的数据（称为“声明”），例如用户ID、角色、过期时间等。</li>
+<li>将Payload JSON对象通过Base64Url编码，生成JWT的第二部分。<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1234567890&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;John Doe&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;iat&quot;</span><span class="punctuation">:</span> <span class="number">1516239022</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="43-signature"><a href="#4-3-Signature" class="headerlink" title="4.3 Signature"></a>4.3 <strong>Signature</strong></h2><ul>
+<li>用于验证JWT的完整性，防止数据被篡改。</li>
+<li>签名是通过对Header和Payload的Base64Url编码结果进行哈希计算生成的。</li>
+<li>签名结果也会通过Base64Url编码，生成JWT的第三部分。<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + <span class="string">&quot;.&quot;</span> + base64UrlEncode(payload)<span class="punctuation">,</span></span><br><span class="line">  secret</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="5base64-in-http-authorization"><a href="#5-Base64-in-HTTP-Authorization" class="headerlink" title="5.Base64 in HTTP Authorization"></a>5.Base64 in HTTP Authorization</h1><p>Base64也在<strong>HTTP权限校验</strong>中有着重要应用，最典型的是<strong>HTTP Basic Authentication</strong>和<strong>Bearer Token认证</strong>。</p>
+<h2 id="51-basic-authentication"><a href="#5-1-Basic-Authentication" class="headerlink" title="5.1 Basic Authentication"></a>5.1 <strong>Basic Authentication</strong></h2><p>Basic Authentication 是HTTP协议中一种常见的认证方法，它通过在HTTP请求头中传递Base64编码的用户名和密码来实现身份验证。</p>
+<p>基本的认证方式是将用户名和密码以<code>username:password</code>的格式拼接在一起，然后对其进行Base64编码，最后将编码后的结果放在HTTP请求的Authorization头部。<br>服务器接收到请求后，会将该Base64编码解码回<code>username:password</code>，并进行验证。<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Authorization</span>: Basic <span class="operator">&lt;</span>Base64编码的&quot;username:password&quot;<span class="operator">&gt;</span></span><br><span class="line"><span class="keyword">Authorization</span>: Basic YWRtaW46cGFzc3dvcmQxMjM<span class="operator">=</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="52-bearer-token-authentication"><a href="#5-2-Bearer-Token-Authentication" class="headerlink" title="5.2 Bearer Token Authentication"></a>5.2 Bearer Token Authentication</h2><p><strong>Bearer Token</strong>认证是一种常见的方式，特别是OAuth2协议中。这个过程涉及到使用一个令牌（Token）来验证请求，而这个令牌通常是一个JWT或其他类型的Token。所以Base64常用于传递JWT或其他类型的Token。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Authorization</span>: Bearer <span class="operator">&lt;</span>Token<span class="operator">&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中<code>&lt;Token&gt;</code>可能是一个Base64编码的JWT。比如：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Authorization</span>: Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiMTIzNDU2Nzg5MCIsICJuYW1lIjogIkpvaG4gRG9lIiwgImlhdCI6IDE1MTYyMzkwMjJ9.s9tSt0jp_J3HjlU6baVuWbBb9zY_xFv7do1_a4e<span class="operator">-</span>j24</span><br></pre></td></tr></table></figure></p>
 
 <div class="article-footer fs14">
     <section id="license">
@@ -246,7 +269,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/6cb5dc64/">InnoDB事务-持久性的实现,binglog & redo log</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/b36b0ce9/">InnoDB事务-原子性的实现,undo log</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/d9903cb/">分摊算法</a></div></section></div>
 
 
 
@@ -260,7 +283,7 @@
 
 
 
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%BF%AB%E7%85%A7%E8%AF%BB%E7%9A%84%E9%9A%94%E7%A6%BB%E6%80%A7-mvcc"><span class="toc-text">1 快照读的隔离性-MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E7%89%88%E6%9C%AC%E9%93%BE-undo-log"><span class="toc-text">1.1 版本链 -undo log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-readview"><span class="toc-text">1.2 readview</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#121-readview-%E5%92%8C-%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4read-committed"><span class="toc-text">1.2.1  readview 和 读已提交（Read Committed）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#122-readview-%E5%92%8C-%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BBrepeatable-read"><span class="toc-text">1.2.2 readview 和 可重复读（Repeatable Read）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#123-%E4%B8%A4%E8%80%85%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-text">1.2.3 两者的对比</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%BD%93%E5%89%8D%E8%AF%BB%E7%9A%84%E9%9A%94%E7%A6%BB%E5%9E%8B-%E9%94%81"><span class="toc-text">2 当前读的隔离型-锁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%B9%BB%E8%AF%BBbad-case"><span class="toc-text">3. 幻读bad case</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%BD%93%E5%89%8D%E8%AF%BBvs%E5%BF%AB%E7%85%A7%E8%AF%BB"><span class="toc-text">4. 当前读vs快照读</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%96%87%E7%AB%A0"><span class="toc-text">相关文章</span></a></li></ol></div><div class="widget-footer">
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1encoding-vs-encryption"><span class="toc-text">1.encoding vs encryption</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#11-encoding"><span class="toc-text">1.1 encoding</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-encryption"><span class="toc-text">1.2 encryption</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2what-is-base64-encoding"><span class="toc-text">2.what is Base64 encoding</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#21-the-principle-of-base64-encoding"><span class="toc-text">2.1 The Principle of Base64 encoding</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-why-base64-encoding-is-needed"><span class="toc-text">2.2 why Base64 encoding is needed</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3three-types-of-base64"><span class="toc-text">3.Three types of Base64</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-%E6%A0%87%E5%87%86-base64-%E7%BC%96%E7%A0%81%E8%A7%A3%E7%A0%81getencoder-%E5%92%8C-getdecoder"><span class="toc-text">3.1 标准 Base64 编码&#x2F;解码：getEncoder() 和 getDecoder()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-url-%E5%AE%89%E5%85%A8-base64-%E7%BC%96%E7%A0%81%E8%A7%A3%E7%A0%81geturlencoder-%E5%92%8C-geturldecoder"><span class="toc-text">3.2 URL 安全 Base64 编码&#x2F;解码：getUrlEncoder() 和 getUrlDecoder()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#33-mime-base64-%E7%BC%96%E7%A0%81%E8%A7%A3%E7%A0%81getmimeencoder-%E5%92%8C-getmimedecoder"><span class="toc-text">3.3 MIME Base64 编码&#x2F;解码：getMimeEncoder() 和 &#96;getMimeDecoder()</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4base64-in-jwt"><span class="toc-text">4.Base64 in JWT</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-header"><span class="toc-text">4.1 Header</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-payload"><span class="toc-text">4.2 Payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-signature"><span class="toc-text">4.3 Signature</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5base64-in-http-authorization"><span class="toc-text">5.Base64 in HTTP Authorization</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#51-basic-authentication"><span class="toc-text">5.1 Basic Authentication</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#52-bearer-token-authentication"><span class="toc-text">5.2 Bearer Token Authentication</span></a></li></ol></li></ol></div><div class="widget-footer">
 
 <a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
 </div></aside><div class='float-panel blur'>
